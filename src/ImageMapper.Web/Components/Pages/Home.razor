@@ -1,0 +1,29 @@
+@page "/"
+@rendermode InteractiveServer
+@inject ImageItemFetcher imageFetcher
+@inject IJSRuntime JS
+
+<PageTitle>Image Map</PageTitle>
+
+<div id="map" style="height:700px;"></div>
+
+<script>
+    window.initClusterMap = function(points) {
+        var map = L.map('map').setView([0,0],2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom:19
+        }).addTo(map);
+        var markers = L.markerClusterGroup();
+        var bounds = [];
+        points.forEach(p => {
+            if (!p.Latitude || !p.Longitude) return;
+            var marker = L.marker([p.Latitude, p.Longitude]);
+            var html = '<div><strong>' + p.FileName + '</strong><br/><img class="popup-thumb" src="' + p.Url + '"/></div>';
+            marker.bindPopup(html);
+            markers.addLayer(marker);
+            bounds.push([p.Latitude, p.Longitude]);
+        });
+        map.addLayer(markers);
+        if (bounds.length) map.fitBounds(bounds, { padding: [50,50] });
+    }
+</script>

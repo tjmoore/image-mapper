@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\ImageMapper.Models\ImageMapper.Models.csproj" />
+    <ProjectReference Include="..\ImageMapper.ServiceDefaults\ImageMapper.ServiceDefaults.csproj" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.3.1" />
+    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+  </ItemGroup>
+    
+</Project>
