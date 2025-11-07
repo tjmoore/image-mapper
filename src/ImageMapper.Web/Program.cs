@@ -23,13 +23,14 @@ builder.Services.AddRazorComponents()
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
-    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
-    {
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+    [
         "application/octet-stream",
         "image/jpeg",
+        "image/tiff",
         "image/png",
         "image/webp"
-    });
+    ]);
     options.Providers.Add<BrotliCompressionProvider>();
     options.Providers.Add<GzipCompressionProvider>();
 });

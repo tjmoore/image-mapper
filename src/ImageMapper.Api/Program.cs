@@ -25,6 +25,7 @@ builder.Services.AddResponseCompression(options =>
     [
         "application/octet-stream",
         "image/jpeg",
+        "image/tiff",
         "image/png",
         "image/webp"
     ]);
