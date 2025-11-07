@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject ImageItemFetcher imageFetcher
 @inject IJSRuntime JS
+@implements IDisposable
 
 <PageTitle>Image Map</PageTitle>
 
@@ -10,20 +11,31 @@
 <script>
     window.initClusterMap = function(points) {
         var map = L.map('map').setView([0,0],2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom:19
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom:19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+
         var markers = L.markerClusterGroup();
         var bounds = [];
         points.forEach(p => {
-            if (!p.Latitude || !p.Longitude) return;
-            var marker = L.marker([p.Latitude, p.Longitude]);
-            var html = '<div><strong>' + p.FileName + '</strong><br/><img class="popup-thumb" src="' + p.Url + '"/></div>';
+            if (!p.latitude || !p.longitude) return;
+
+            var marker = L.marker([p.latitude, p.longitude]);
+            var html = '<div><strong>' + p.fileName +
+                '</strong><br/><img class="popup-thumb" src="' + p.url + '" style="max-width:100%; height: auto;" /></div>';
+
             marker.bindPopup(html);
             markers.addLayer(marker);
-            bounds.push([p.Latitude, p.Longitude]);
+            bounds.push([p.latitude, p.longitude]);
+
+            console.log(`window.initClusterMap: Added marker for ${p.fileName} at ${p.latitude}, ${p.longitude}`);
         });
         map.addLayer(markers);
-        if (bounds.length) map.fitBounds(bounds, { padding: [50,50] });
+        
+        if (bounds.length) {
+            map.fitBounds(bounds, { padding: [50,50] });
+        }
     }
 </script>
