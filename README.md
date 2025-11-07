@@ -1,5 +1,7 @@
 # ImageMapper
 
+[![Build](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml/badge.svg)](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml)
+
 ImageMapper is a server hosted application that processes images from a configured server folder,
 extracts GPS metadata, and generates an interactive map displaying the locations of these images
 
