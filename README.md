@@ -42,7 +42,7 @@ Launch the front end application from imagemapper-web link
 The folder for images can be configured via `appsettings.json` file in ImageMapper.Api project
 ```json
 {
-  "ImageFolderPath": "C:\\Path\\To\\Your\\Images"
+  "ImageFolder": "C:\\Path\\To\\Your\\Images"
 }
 ```
 
