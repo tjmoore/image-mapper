@@ -19,3 +19,37 @@ This application is built using .NET and leverages the Leaflet.js library for ma
 - ImageMapper.Models - .NET class library of shared models
 - ImageMapper.AppHost - .NET Aspire orchestrator to run and debug in a development environment
 - ImageMapper.ServiceDefaults - Extensions for .NET Aspire support including service discovery, health checks and telemetry
+
+## Running development environment
+
+#### Visual Studio
+Set `ImageMapper.AppHost` as start up project and run (F5)
+
+#### Visual Studio Code
+From Solution Explorer, right click `ImageMapper.AppHost` and select Debug -> Start New Instance
+
+#### Command Line
+Run `dotnet run --project ImageMapper.AppHost`
+
+This will run the .NET Aspire host, launching the components and dashboard in the browser showing the service status.
+
+Launch the front end application from imagemapper-web link
+
+## Configuration
+
+The folder for images can be configured via `appsettings.json` file in ImageMapper.Api project
+```json
+{
+  "ImageFolderPath": "C:\\Path\\To\\Your\\Images"
+}
+```
+
+
+## TODO
+
+- Optimise image processing for large number of images and folders
+- Caching (minimally in-memory, redis etc, possibly database caching. Include detection of changed images)
+- Configure map tile provider options
+- Unit tests
+- Error handling and logging improvements
+- Docker support
