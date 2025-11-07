@@ -46,12 +46,14 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 }
 ```
 
-
 ## TODO
 
-- Optimise image processing for large number of images and folders
-- Caching (minimally in-memory, redis etc, possibly database caching. Include detection of changed images)
-- Configure map tile provider options
 - Unit tests
+- Optimise image processing for large number of images and folders
+- Caching (minimally in-memory/redis etc, future database caching of metadata. With detection of image file changes)
+- Configure map tile provider options
+- UI improvements, filtering etc
+- Optimise image loading via JS interop instead of API call
+- or Blazor component library for map display? - BlazorLeaflet or similar wrapper package
 - Error handling and logging improvements
-- Docker support
+- Container support
