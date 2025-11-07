@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/ImageMapper.Api/ImageMapper.Api.csproj" />
+  <Project Path="src/ImageMapper.AppHost/ImageMapper.AppHost.csproj" />
+  <Project Path="src/ImageMapper.Models/ImageMapper.Models.csproj" />
+  <Project Path="src/ImageMapper.ServiceDefaults/ImageMapper.ServiceDefaults.csproj" />
+  <Project Path="src/ImageMapper.Web/ImageMapper.Web.csproj" />
+</Solution>
