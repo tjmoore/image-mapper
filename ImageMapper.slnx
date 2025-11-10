@@ -8,5 +8,6 @@
   <Project Path="src/ImageMapper.AppHost/ImageMapper.AppHost.csproj" />
   <Project Path="src/ImageMapper.Models/ImageMapper.Models.csproj" />
   <Project Path="src/ImageMapper.ServiceDefaults/ImageMapper.ServiceDefaults.csproj" />
+  <Project Path="src/ImageMapper.Tests/ImageMapper.Tests.csproj" Id="002fb29d-a214-4a60-b9f8-4de3aa9b8f44" />
   <Project Path="src/ImageMapper.Web/ImageMapper.Web.csproj" />
 </Solution>
