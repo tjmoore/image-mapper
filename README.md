@@ -37,6 +37,10 @@ This will run the .NET Aspire host, launching the components and dashboard in th
 
 Launch the front end application from imagemapper-web link
 
+Alternatively using Aspire CLI:
+
+`aspire run`
+
 ## Configuration
 
 The folder for images can be configured via `appsettings.json` file in ImageMapper.Api project
