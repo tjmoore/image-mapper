@@ -3,7 +3,7 @@
 [![Build](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml/badge.svg)](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml)
 
 ImageMapper is a server hosted application that processes images from a configured server folder,
-extracts GPS metadata, and generates an interactive map displaying the locations of these images
+extracts GPS metadata, and in a web application generates an interactive map displaying the locations of these images
 
 This application is built using .NET and leverages the Leaflet.js library for map rendering
 
@@ -28,25 +28,33 @@ This application is built using .NET and leverages the Leaflet.js library for ma
 Set `ImageMapper.AppHost` as start up project and run (F5)
 
 #### Visual Studio Code
-From Solution Explorer, right click `ImageMapper.AppHost` and select Debug -> Start New Instance
+
+Install Aspire CLI - https://learn.microsoft.com/en-us/dotnet/aspire/cli/install
+
+Install Aspire Extension - https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-vscode-extension
+
+Run with F5 or Run -> Start Debugging
+
+Alternatively without the Aspire CLI / Extension, from Solution Explorer right click `ImageMapper.AppHost` and select Debug -> Start New Instance
 
 #### Command Line
-Run `dotnet run --project ImageMapper.AppHost`
+Install Aspire CLI - https://learn.microsoft.com/en-us/dotnet/aspire/cli/install
+
+Run `aspire run`
+
+Alternatively without Aspire CLI, run `dotnet run --project ImageMapper.AppHost`
 
 This will run the .NET Aspire host, launching the components and dashboard in the browser showing the service status.
 
 Launch the front end application from imagemapper-web link
 
-Alternatively using Aspire CLI:
-
-`aspire run`
 
 ## Configuration
 
 The folder for images can be configured via `appsettings.json` file in ImageMapper.Api project
 ```json
 {
-  "ImageFolder": "C:\\Path\\To\\Your\\Images"
+  "ImageFolder": "/path/to/your/images"
 }
 ```
 
@@ -54,6 +62,7 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 
 - Further unit tests
 - Optimise image processing for large number of images and folders
+- Abstract file enumeration and loading to allow varied sources not just a file folder
 - Caching (minimally in-memory/redis etc, future database caching of metadata. With detection of image file changes)
 - Configure map tile provider options
 - UI improvements, filtering etc
