@@ -14,6 +14,8 @@ public class ImageService : IImageService
     {
         _config = config;
         _imagesRoot = _config["ImageFolder"] ?? throw new InvalidOperationException("ImageFolder not configured");
+
+        Log.Information("ImageService initialized with ImageFolder: {ImageFolder}", _imagesRoot);
     }
 
     public async Task<IEnumerable<ImageInfo>> GetImagesAsync(CancellationToken ct = default)
@@ -63,10 +65,25 @@ public class ImageService : IImageService
 
     public async Task<byte[]?> GetImageBytesAsync(string relativePath, CancellationToken ct = default)
     {
-        var full = Path.Combine(_imagesRoot, relativePath.Replace('/', Path.DirectorySeparatorChar));
-        if (!File.Exists(full))
+        // Normalize path separators to OS-specific
+        var normalized = relativePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+        var full = Path.Combine(_imagesRoot, normalized);
+        var fullPath = Path.GetFullPath(full);
+        var rootPath = Path.GetFullPath(_imagesRoot);
+        
+        // Ensure rootPath ends with separator for proper boundary checking
+        if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
+            rootPath += Path.DirectorySeparatorChar;
+        
+        // Validate that the resolved path is within the root directory
+        if (!fullPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("Path traversal detected", nameof(relativePath));
+        }
+
+        if (!File.Exists(fullPath))
             return null;
 
-        return await File.ReadAllBytesAsync(full, ct);
+        return await File.ReadAllBytesAsync(fullPath, ct);
     }
 }

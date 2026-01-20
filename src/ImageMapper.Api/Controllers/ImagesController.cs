@@ -26,10 +26,18 @@ public class ImagesController(IImageService svc) : ControllerBase
     {
         Log.Debug("GET /api/images/raw/{RelativePath} - Retrieving image", relativePath);
 
-        var bytes = await _svc.GetImageBytesAsync(relativePath, ct);
-        if (bytes == null)
-            return NotFound();
+        try
+        {
+            var bytes = await _svc.GetImageBytesAsync(relativePath, ct);
+            if (bytes == null)
+                return NotFound();
 
-        return File(bytes, "application/octet-stream");
+            return File(bytes, "application/octet-stream");
+        }
+        catch (ArgumentException ex)
+        {
+            Log.Warning("Path traversal rejected: {Message}", ex.Message);
+            return BadRequest("Invalid path");
+        }
     }
 }
