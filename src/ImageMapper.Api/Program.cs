@@ -39,8 +39,10 @@ builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Configuration: folder path
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+// Configuration
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
 builder.Services.AddSingleton<IImageService, ImageService>();
 builder.Services.AddControllers();
