@@ -2,14 +2,17 @@
 
 [![Build](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml/badge.svg)](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml)
 
-ImageMapper is a server hosted application that processes images from a configured server folder,
-extracts GPS metadata, and in a web application generates an interactive map displaying the locations of these images
+ImageMapper is a server hosted application that processes images from a configured server folder and maps them based on geotagged metadata within the images.
 
 This application is built using .NET and leverages the Leaflet.js library for map rendering
+
+Initial development has partly been an experiment in using AI tools to assist in code generation, architecture design, and unit test creation.
+With strict human review and modification to ensure quality and correctness.
 
 ## Dependencies
 
 - .NET 10 (likely will work with .NET 8+)
+- [Aspire](https://aspire.dev/)
 - [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor-dotnet)
 - [Leaflet.js](https://leafletjs.com/)
 - [openstreetmap.org](https://www.openstreetmap.org/)
@@ -60,12 +63,12 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 
 ## TODO
 
-- Further unit tests
-- Optimise image processing for large number of images and folders
+- Restore cluster grouping of markers when dynamically loading images
+- Show progress when loading images
+- Potential for optimising Leaflet rendering, only render markers in view etc? Would need back-end to cache image locations and support querying by bounding box?
 - Abstract file enumeration and loading to allow varied sources not just a file folder
-- Caching (minimally in-memory/redis etc, future database caching of metadata. With detection of image file changes)
+- Caching
 - Configure map tile provider options
 - UI improvements, filtering etc
-- Optimise Leaflet rendering from back-end images especially to handle large numbers of images
 - Error handling and logging improvements
 - Container support

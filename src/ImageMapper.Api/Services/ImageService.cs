@@ -2,6 +2,7 @@ using ImageMapper.Models;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using Serilog;
+using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Api.Services;
 
@@ -18,19 +19,16 @@ public class ImageService : IImageService
         Log.Information("ImageService initialized with ImageFolder: {ImageFolder}", _imagesRoot);
     }
 
-    public async Task<IEnumerable<ImageInfo>> GetImagesAsync(CancellationToken ct = default)
+    public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
         if (!System.IO.Directory.Exists(_imagesRoot))
-            return [];
-
-        // TODO: this will need to be optimised for large file stores and possibly return async enumerable
+            yield break;
 
         var extensions = new[] { ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef" };
 
         var files = System.IO.Directory.EnumerateFiles(_imagesRoot, "*.*", SearchOption.AllDirectories)
             .Where(f => extensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
 
-        var list = new List<ImageInfo>();
         foreach (string f in files)
         {
             ct.ThrowIfCancellationRequested();
@@ -57,10 +55,8 @@ public class ImageService : IImageService
             {
                 Log.Warning("Failed to read metadata for file: {File}", f);
             }
-            list.Add(info);
+            yield return info;
         }
-
-        return await Task.FromResult(list);
     }
 
     public async Task<byte[]?> GetImageBytesAsync(string relativePath, CancellationToken ct = default)

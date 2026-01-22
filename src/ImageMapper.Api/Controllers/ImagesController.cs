@@ -12,13 +12,9 @@ public class ImagesController(IImageService svc) : ControllerBase
     private readonly IImageService _svc = svc;
 
     [HttpGet]
-    public async Task<IEnumerable<ImageInfo>> Get(CancellationToken ct)
+    public IAsyncEnumerable<ImageInfo> Get(CancellationToken ct)
     {
-        var images = await _svc.GetImagesAsync(ct);
-
-        Log.Debug("GET /api/images - Retrieved {Count} images", images.Count());
-
-        return images;
+        return _svc.GetImagesAsync(ct);
     }
 
     [HttpGet("raw/{**relativePath}")]
