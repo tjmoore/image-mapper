@@ -100,7 +100,7 @@ namespace ImageMapper.Tests
         [Test]
         [TestCase("subfolder/nested-image.jpg")]
         [TestCase("subfolder/deep/deep-image.png")]
-        public async Task GetImageBytesAsyncReturnsNestedImageBytes(string relativePath)
+        public async Task GetImageBytesAsyncReturnsValidImageBytesFromSubfolders(string relativePath)
         {
             // Arrange
             var config = new ConfigurationBuilder()
@@ -114,6 +114,25 @@ namespace ImageMapper.Tests
             // Assert
             Assert.That(bytes, Is.Not.Null);
             Assert.That(bytes, Has.Length.GreaterThan(0));
+        }
+
+        [Test]
+        [TestCase("subfolder/nonexistent.jpg")]
+        [TestCase("subfolder/deep/missing-image.png")]
+        [TestCase("nonexistent-folder/image.jpg")]
+        public async Task GetImageBytesAsyncReturnsNullForNonExistentFilesInSubfolders(string relativePath)
+        {
+            // Arrange
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .Build();
+            var service = new ImageService(config);
+
+            // Act
+            var bytes = await service.GetImageBytesAsync(relativePath);
+
+            // Assert
+            Assert.That(bytes, Is.Null);
         }
 
         [Test]
