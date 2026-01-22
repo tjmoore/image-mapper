@@ -1,4 +1,6 @@
 using Aspire.Hosting;
+using ImageMapper.Models;
+using ImageMapper.Web.Client;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
@@ -8,6 +10,7 @@ namespace ImageMapper.Tests
     {
         private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
         private string _testImagesDirectory = null!;
+        private string _testSubdirectory = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -18,6 +21,13 @@ namespace ImageMapper.Tests
             // Create a test image file
             var testImagePath = Path.Combine(_testImagesDirectory, "test-image.jpg");
             File.WriteAllBytes(testImagePath, [0xFF, 0xD8, 0xFF, 0xE0]); // JPEG magic bytes
+
+            // Create a subdirectory with test images
+            _testSubdirectory = Path.Combine(_testImagesDirectory, "subfolder");
+            Directory.CreateDirectory(_testSubdirectory);
+            
+            var subImagePath = Path.Combine(_testSubdirectory, "nested-image.png");
+            File.WriteAllBytes(subImagePath, [0x89, 0x50, 0x4E, 0x47]); // PNG magic bytes
         }
 
         [OneTimeTearDown]
@@ -73,6 +83,95 @@ namespace ImageMapper.Tests
 
             // Assert
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        }
+
+        [Test]
+        public async Task GetImagesListReturnsAllImages()
+        {
+            // Arrange
+            using var cts = new CancellationTokenSource(DefaultTimeout);
+            var cancellationToken = cts.Token;
+            
+            await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
+            using var httpClient = app.CreateHttpClient("imagemapper-api");
+            await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
+
+            var fetcher = new ImageItemFetcher(httpClient);
+
+            // Act
+            var images = new List<ImageInfo>();
+            await foreach (var image in fetcher.Fetch(cancellationToken))
+            {
+                if (image != null)
+                    images.Add(image);
+            }
+
+            // Assert
+            Assert.That(images, Has.Count.EqualTo(2));
+            Assert.That(images.Select(i => i.FileName), Does.Contain("test-image.jpg"));
+            Assert.That(images.Select(i => i.FileName), Does.Contain("nested-image.png"));
+        }
+
+        [Test]
+        public async Task GetImagesListReturnsCorrectRelativePaths()
+        {
+            // Arrange
+            using var cts = new CancellationTokenSource(DefaultTimeout);
+            var cancellationToken = cts.Token;
+            
+            await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
+            using var httpClient = app.CreateHttpClient("imagemapper-api");
+            await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
+
+            var fetcher = new ImageItemFetcher(httpClient);
+
+            // Act
+            var images = new List<ImageInfo>();
+            await foreach (var image in fetcher.Fetch(cancellationToken))
+            {
+                if (image != null)
+                    images.Add(image);
+            }
+
+            // Assert
+            Assert.That(images.Select(i => i.RelativePath), Does.Contain("test-image.jpg"));
+            Assert.That(images.Select(i => i.RelativePath), Does.Contain("subfolder/nested-image.png"));
+        }
+
+        [Test]
+        public async Task GetImagesListReturnsEmptyWhenNoImagesExist()
+        {
+            // Arrange
+            using var cts = new CancellationTokenSource(DefaultTimeout);
+            var cancellationToken = cts.Token;
+            
+            var emptyDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, $"empty-test-{Guid.NewGuid()}");
+            Directory.CreateDirectory(emptyDirectory);
+
+            try
+            {
+                await using var app = await BuildAndStartAppAsync(cancellationToken, emptyDirectory);
+                using var httpClient = app.CreateHttpClient("imagemapper-api");
+                await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
+
+                var fetcher = new ImageItemFetcher(httpClient);
+
+                // Act
+                var images = new List<ImageInfo>();
+                await foreach (var image in fetcher.Fetch(cancellationToken))
+                {
+                    if (image != null)
+                        images.Add(image);
+                }
+
+                // Assert
+                Assert.That(images, Is.Empty);
+            }
+            finally
+            {
+                if (Directory.Exists(emptyDirectory))
+                    Directory.Delete(emptyDirectory, recursive: true);
+            }
         }
 
         [Test]

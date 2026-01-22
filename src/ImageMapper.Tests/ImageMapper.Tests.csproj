@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
     <ProjectReference Include="..\ImageMapper.AppHost\ImageMapper.AppHost.csproj" />
+    <ProjectReference Include="..\ImageMapper.Web\ImageMapper.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

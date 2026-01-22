@@ -5,23 +5,32 @@ namespace ImageMapper.Web.Components.Pages
 {
     public partial class Home
     {
-        private IEnumerable<ImageInfo> images = [];
         private readonly CancellationTokenSource cts = new();
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                // Any additional JS interop can be done here if needed
-                images = await imageFetcher.Fetch(cts.Token);
+                // Initialize the map once
+                await JS.InvokeVoidAsync("initClusterMap", cts.Token);
 
-                await JS.InvokeVoidAsync("initClusterMap",
-                    cts.Token,
-                    images.Select(i => new
-                    {
-                        i.FileName, i.Latitude, i.Longitude,
-                        Url = $"/api/images/raw/{Uri.EscapeDataString(i.RelativePath)}"
-                    }));
+                // Add markers as images arrive
+                await foreach (ImageInfo? image in imageFetcher.Fetch(cts.Token))
+                {
+                    if (image == null)
+                        continue;
+
+                    await JS.InvokeVoidAsync("addMarkerToMap",
+                        new
+                        {
+                            image.FileName,
+                            image.Latitude,
+                            image.Longitude,
+                            Url = $"/api/images/raw/{Uri.EscapeDataString(image.RelativePath)}"
+                        });
+                    
+                    StateHasChanged();
+                }
             }
         }
 

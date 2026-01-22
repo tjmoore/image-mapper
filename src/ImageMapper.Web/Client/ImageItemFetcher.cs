@@ -5,12 +5,12 @@ namespace ImageMapper.Web.Client
     public class ImageItemFetcher(HttpClient httpClient)
     {
         /// <summary>
-        /// Fetch list of available images with metadata
+        /// Fetch list of available images with metadata, streamed as async enumerable
         /// </summary>
         /// <returns></returns>
-        public async Task<IEnumerable<ImageInfo>> Fetch(CancellationToken ct)
+        public IAsyncEnumerable<ImageInfo?> Fetch(CancellationToken ct = default)
         {
-            return (await httpClient.GetFromJsonAsync<List<ImageInfo>>("/api/images", ct)) ?? [];
+            return httpClient.GetFromJsonAsAsyncEnumerable<ImageInfo>("/api/images", ct);
         }
 
 

@@ -1,4 +1,5 @@
 using ImageMapper.Api.Services;
+using ImageMapper.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace ImageMapper.Tests
@@ -132,6 +133,124 @@ namespace ImageMapper.Tests
 
             // Assert
             Assert.That(bytes, Is.Null);
+        }
+
+        [Test]
+        public async Task GetImagesAsyncReturnsAllImagesFromDirectory()
+        {
+            // Arrange
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .Build();
+            var service = new ImageService(config);
+
+            // Act
+            var images = new List<ImageInfo>();
+            await foreach (var image in service.GetImagesAsync())
+            {
+                images.Add(image);
+            }
+
+            // Assert
+            Assert.That(images, Has.Count.EqualTo(3));
+            Assert.That(images.Select(i => i.FileName), Does.Contain("test-image.jpg"));
+            Assert.That(images.Select(i => i.FileName), Does.Contain("nested-image.jpg"));
+            Assert.That(images.Select(i => i.FileName), Does.Contain("deep-image.png"));
+        }
+
+        [Test]
+        public async Task GetImagesAsyncReturnsCorrectRelativePaths()
+        {
+            // Arrange
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .Build();
+            var service = new ImageService(config);
+
+            // Act
+            var images = new List<ImageInfo>();
+            await foreach (var image in service.GetImagesAsync())
+            {
+                images.Add(image);
+            }
+
+            // Assert
+            Assert.That(images.Select(i => i.RelativePath), Does.Contain("test-image.jpg"));
+            Assert.That(images.Select(i => i.RelativePath), Does.Contain("subfolder/nested-image.jpg"));
+            Assert.That(images.Select(i => i.RelativePath), Does.Contain("subfolder/deep/deep-image.png"));
+        }
+
+        [Test]
+        public async Task GetImagesAsyncReturnsEmptyListForNonExistentDirectory()
+        {
+            // Arrange
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", Path.Combine(_testImagesDirectory, "nonexistent") } })
+                .Build();
+            var service = new ImageService(config);
+
+            // Act
+            var images = new List<ImageInfo>();
+            await foreach (var image in service.GetImagesAsync())
+            {
+                images.Add(image);
+            }
+
+            // Assert
+            Assert.That(images, Is.Empty);
+        }
+
+        [Test]
+        public async Task GetImagesAsyncIsCancellable()
+        {
+            // Arrange
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .Build();
+            var service = new ImageService(config);
+            using var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<OperationCanceledException>(
+                async () =>
+                {
+                    await foreach (var image in service.GetImagesAsync(cts.Token))
+                    {
+                        // This should throw due to cancellation
+                    }
+                });
+
+            Assert.That(ex, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetImagesAsyncFiltersOnlyImageExtensions()
+        {
+            // Arrange
+            var config = new ConfigurationBuilder()
+                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .Build();
+            
+            // Create a non-image file
+            var nonImagePath = Path.Combine(_testImagesDirectory, "readme.txt");
+            File.WriteAllText(nonImagePath, "This is not an image");
+
+            var service = new ImageService(config);
+
+            // Act
+            var images = new List<ImageInfo>();
+            await foreach (var image in service.GetImagesAsync())
+            {
+                images.Add(image);
+            }
+
+            // Assert
+            Assert.That(images, Has.Count.EqualTo(3)); // Still only 3 images, not 4
+            Assert.That(images.Select(i => i.FileName), Does.Not.Contain("readme.txt"));
+
+            // Cleanup
+            File.Delete(nonImagePath);
         }
     }
 }
