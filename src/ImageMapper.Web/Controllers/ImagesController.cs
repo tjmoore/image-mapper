@@ -1,5 +1,6 @@
 ﻿using ImageMapper.Web.Client;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 
 namespace ImageMapper.Web.Controllers
 {
@@ -13,7 +14,9 @@ namespace ImageMapper.Web.Controllers
             if (string.IsNullOrWhiteSpace(relativePath))
                 return BadRequest("Relative path cannot be empty.");
 
-            var stream = await imageFetcher.FetchRawImageStream(relativePath, ct);
+            // URL-decode the path to handle encoded path separators (%2F -> /)
+            var decodedPath = HttpUtility.UrlDecode(relativePath);
+            var stream = await imageFetcher.FetchRawImageStream(decodedPath, ct);
             if (stream == null)
                 return NotFound();
 
