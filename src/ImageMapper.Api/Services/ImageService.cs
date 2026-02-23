@@ -1,3 +1,4 @@
+using ImageMapper.Api.Exceptions;
 using ImageMapper.Models;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -74,7 +75,7 @@ public class ImageService : IImageService
         // Validate that the resolved path is within the root directory
         if (!fullPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
         {
-            throw new ArgumentException("Path traversal detected", nameof(relativePath));
+            throw new PathTraversalException("Path traversal detected", nameof(relativePath));
         }
 
         if (!File.Exists(fullPath))

@@ -1,3 +1,4 @@
+using ImageMapper.Api.Exceptions;
 using ImageMapper.Api.Services;
 using ImageMapper.Models;
 using Microsoft.Extensions.Configuration;
@@ -56,7 +57,7 @@ namespace ImageMapper.Tests
             var service = new ImageService(config);
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<ArgumentException>(
+            var ex = Assert.ThrowsAsync<PathTraversalException>(
                 async () => await service.GetImageBytesAsync(traversalPath));
             
             Assert.That(ex.ParamName, Is.EqualTo("relativePath"));

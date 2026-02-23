@@ -1,7 +1,9 @@
+using ImageMapper.Api.Exceptions;
 using ImageMapper.Api.Services;
 using ImageMapper.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Web;
 
 namespace ImageMapper.Api.Controllers;
 
@@ -20,17 +22,20 @@ public class ImagesController(IImageService svc) : ControllerBase
     [HttpGet("raw/{**relativePath}")]
     public async Task<IActionResult> GetRaw(string relativePath, CancellationToken ct)
     {
-        Log.Debug("GET /api/images/raw/{RelativePath} - Retrieving image", relativePath);
+        // URL-decode the path to handle encoded path separators (%2F -> /)
+        var decodedPath = HttpUtility.UrlDecode(relativePath);
+
+        Log.Debug("GET /api/images/raw/{RelativePath} - Retrieving image", decodedPath);
 
         try
         {
-            var bytes = await _svc.GetImageBytesAsync(relativePath, ct);
+            var bytes = await _svc.GetImageBytesAsync(decodedPath, ct);
             if (bytes == null)
                 return NotFound();
 
             return File(bytes, "application/octet-stream");
         }
-        catch (ArgumentException ex)
+        catch (PathTraversalException ex)
         {
             Log.Warning("Path traversal rejected: {Message}", ex.Message);
             return BadRequest("Invalid path");

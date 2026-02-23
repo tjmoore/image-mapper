@@ -11,10 +11,12 @@ namespace ImageMapper.Web.Components.Pages
         {
             if (firstRender)
             {
-                // Initialize the map once
+                // Initialize the map with cluster grouping
                 await JS.InvokeVoidAsync("initClusterMap", cts.Token);
 
-                // Add markers as images arrive
+                // Add markers as images arrive in batches for better performance
+                int batchSize = 10;
+                int batchCount = 0;
                 await foreach (ImageInfo? image in imageFetcher.Fetch(cts.Token))
                 {
                     if (image == null)
@@ -28,9 +30,16 @@ namespace ImageMapper.Web.Components.Pages
                             image.Longitude,
                             Url = $"/api/images/raw/{Uri.EscapeDataString(image.RelativePath)}"
                         });
-                    
-                    StateHasChanged();
+
+                    batchCount++;
+                    if (batchCount % batchSize == 0)
+                    {
+                        StateHasChanged();
+                    }
                 }
+
+                // Final update to ensure UI is synchronized
+                StateHasChanged();
             }
         }
 
