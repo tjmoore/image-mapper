@@ -63,12 +63,10 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 
 ## TODO
 
-- Restore cluster grouping of markers when dynamically loading images
 - Show progress when loading images
-- Potential for optimising Leaflet rendering, only render markers in view etc? Would need back-end to cache image locations and support querying by bounding box?
 - Abstract file enumeration and loading to allow varied sources not just a file folder
-- Caching
-- Configure map tile provider options
+- Caching. Memory and/or stored cache of processed image metadata to speed up subsequent loads and reduce processing on each request. Would need to detect changes however.
+- Configurable map tile provider options?
 - UI improvements, filtering etc
 - Error handling and logging improvements
 - Container support
