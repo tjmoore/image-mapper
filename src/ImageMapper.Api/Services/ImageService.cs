@@ -67,11 +67,11 @@ public class ImageService : IImageService
         var full = Path.Combine(_imagesRoot, normalized);
         var fullPath = Path.GetFullPath(full);
         var rootPath = Path.GetFullPath(_imagesRoot);
-        
+
         // Ensure rootPath ends with separator for proper boundary checking
         if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
             rootPath += Path.DirectorySeparatorChar;
-        
+
         // Validate that the resolved path is within the root directory
         if (!fullPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
         {
@@ -82,5 +82,18 @@ public class ImageService : IImageService
             return null;
 
         return await File.ReadAllBytesAsync(fullPath, ct);
+    }
+
+    public Task<int> GetImageCountAsync(CancellationToken ct = default)
+    {
+        if (!System.IO.Directory.Exists(_imagesRoot))
+            return Task.FromResult(0);
+
+        var extensions = new[] { ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef" };
+
+        var count = System.IO.Directory.EnumerateFiles(_imagesRoot, "*.*", SearchOption.AllDirectories)
+            .Count(f => extensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+
+        return Task.FromResult(count);
     }
 }

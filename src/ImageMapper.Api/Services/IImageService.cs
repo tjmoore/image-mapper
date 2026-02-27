@@ -27,4 +27,11 @@ public interface IImageService
     /// null if the image could not be found.</returns>
     /// <exception cref="PathTraversalException">Thrown when the provided relative path is invalid or attempts to traverse outside the allowed directory.</exception>"
     Task<byte[]?> GetImageBytesAsync(string relativePath, CancellationToken ct = default);
+
+    /// <summary>
+    /// Asynchronously retrieves the total count of image files.
+    /// </summary>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The total count of image files.</returns>
+    Task<int> GetImageCountAsync(CancellationToken ct = default);
 }

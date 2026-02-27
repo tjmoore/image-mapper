@@ -1,9 +1,19 @@
 ﻿using ImageMapper.Models;
+using System.Net.Http.Json;
 
 namespace ImageMapper.Web.Client
 {
     public class ImageItemFetcher(HttpClient httpClient)
     {
+        /// <summary>
+        /// Fetch the total count of available images
+        /// </summary>
+        /// <returns>The total count of images</returns>
+        public async Task<int> FetchImageCount(CancellationToken ct = default)
+        {
+            return await httpClient.GetFromJsonAsync<int>("/api/images/count", ct);
+        }
+
         /// <summary>
         /// Fetch list of available images with metadata, streamed as async enumerable
         /// </summary>
