@@ -8,6 +8,12 @@
 
 <div id="map" style="height:700px;"></div>
 
+<!-- Image count section -->
+<div id="imageCountContainer" style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-radius: 4px; display: none;">
+    <span id="imageCountText" style="font-size: 14px; color: #333;">Total images on map: <strong id="imageCountValue">0</strong></span>
+    <span id="skippedCountText" style="font-size: 14px; color: #666; margin-left: 20px; display: none;">Skipped: <strong id="skippedCountValue">0</strong></span>
+</div>
+
 <!-- Progress bar section -->
 <div id="progressContainer" style="margin-top: 20px; display: none;">
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
@@ -152,6 +158,29 @@
         const container = document.getElementById('progressContainer');
         if (container) {
             container.style.display = 'none';
+        }
+    }
+
+    window.updateImageCount = function(count, skipped = 0) {
+        const countValue = document.getElementById('imageCountValue');
+        const countContainer = document.getElementById('imageCountContainer');
+        const skippedCountText = document.getElementById('skippedCountText');
+        const skippedCountValue = document.getElementById('skippedCountValue');
+
+        if (countValue) {
+            countValue.textContent = count;
+        }
+        if (countContainer && count > 0) {
+            countContainer.style.display = 'block';
+        }
+
+        if (skipped > 0) {
+            if (skippedCountValue) {
+                skippedCountValue.textContent = skipped;
+            }
+            if (skippedCountText) {
+                skippedCountText.style.display = 'inline';
+            }
         }
     }
 

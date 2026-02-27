@@ -7,6 +7,7 @@ namespace ImageMapper.Web.Components.Pages
     {
         private readonly CancellationTokenSource cts = new();
         private int totalImages = 0;
+        private int skippedImages = 0;
         private int imagesLoaded = 0;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -30,8 +31,11 @@ namespace ImageMapper.Web.Components.Pages
                 int batchCount = 0;
                 await foreach (ImageInfo? image in imageFetcher.Fetch(cts.Token))
                 {
-                    if (image == null)
+                    if (image == null || image.Longitude == null || image.Latitude == null)
+                    {
+                        skippedImages++;
                         continue;
+                    }
 
                     await JS.InvokeVoidAsync("addMarkerToMap",
                         new
@@ -60,6 +64,9 @@ namespace ImageMapper.Web.Components.Pages
 
                 // Hide progress container when done
                 await JS.InvokeVoidAsync("hideProgressContainer");
+
+                // Update image count with skipped count if any
+                await JS.InvokeVoidAsync("updateImageCount", imagesLoaded, skippedImages);
 
                 // Final update to ensure UI is synchronized
                 StateHasChanged();
