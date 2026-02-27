@@ -19,6 +19,13 @@ public class ImagesController(IImageService svc) : ControllerBase
         return _svc.GetImagesAsync(ct);
     }
 
+    [HttpGet("count")]
+    public async Task<ActionResult<int>> GetCount(CancellationToken ct)
+    {
+        var count = await _svc.GetImageCountAsync(ct);
+        return Ok(count);
+    }
+
     [HttpGet("raw/{**relativePath}")]
     public async Task<IActionResult> GetRaw(string relativePath, CancellationToken ct)
     {

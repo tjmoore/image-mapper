@@ -8,6 +8,24 @@
 
 <div id="map" style="height:700px;"></div>
 
+<!-- Image count section -->
+<div id="imageCountContainer" style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-radius: 4px; display: none;">
+    <span id="imageCountText" style="font-size: 14px; color: #333;">Total images on map: <strong id="imageCountValue">0</strong></span>
+    <span id="skippedCountText" style="font-size: 14px; color: #666; margin-left: 20px; display: none;">Skipped: <strong id="skippedCountValue">0</strong></span>
+</div>
+
+<!-- Progress bar section -->
+<div id="progressContainer" style="margin-top: 20px; display: none;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+        <span id="progressText" style="font-weight: 500; min-width: 150px;">Loading images...</span>
+        <div style="flex: 1; background-color: #e0e0e0; border-radius: 4px; height: 24px; overflow: hidden;">
+            <div id="progressBar" style="width: 0%; height: 100%; background-color: #4CAF50; transition: width 0.3s ease; display: flex; align-items: center; justify-content: center;">
+                <span id="progressPercentage" style="color: white; font-size: 12px; font-weight: bold;"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Full-size image modal -->
 <div id="imageModal" class="image-modal" style="display: none;">
     <span class="close">&times;</span>
@@ -126,6 +144,59 @@
 
             markers.push(marker);
             markerClusterGroup.addLayer(marker);
+        }
+    }
+
+    window.showProgressContainer = function() {
+        const container = document.getElementById('progressContainer');
+        if (container) {
+            container.style.display = 'block';
+        }
+    }
+
+    window.hideProgressContainer = function() {
+        const container = document.getElementById('progressContainer');
+        if (container) {
+            container.style.display = 'none';
+        }
+    }
+
+    window.updateImageCount = function(count, skipped = 0) {
+        const countValue = document.getElementById('imageCountValue');
+        const countContainer = document.getElementById('imageCountContainer');
+        const skippedCountText = document.getElementById('skippedCountText');
+        const skippedCountValue = document.getElementById('skippedCountValue');
+
+        if (countValue) {
+            countValue.textContent = count;
+        }
+        if (countContainer && count > 0) {
+            countContainer.style.display = 'block';
+        }
+
+        if (skipped > 0) {
+            if (skippedCountValue) {
+                skippedCountValue.textContent = skipped;
+            }
+            if (skippedCountText) {
+                skippedCountText.style.display = 'inline';
+            }
+        }
+    }
+
+    window.updateProgress = function(loaded, total, percentage) {
+        const progressBar = document.getElementById('progressBar');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const progressText = document.getElementById('progressText');
+
+        if (progressBar) {
+            progressBar.style.width = percentage + '%';
+        }
+        if (progressPercentage) {
+            progressPercentage.textContent = percentage + '%';
+        }
+        if (progressText) {
+            progressText.textContent = `Loading images... (${loaded}/${total})`;
         }
     }
 </script>

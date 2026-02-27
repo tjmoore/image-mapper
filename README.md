@@ -63,11 +63,11 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 
 ## TODO
 
-- Click to show full size image and optionally metadata details / path
-- Show progress when loading images
-- Abstract file enumeration and loading to allow varied sources not just a file folder
+- Support multiple image folders
+- CSS improvements - SASS and/or Blazor CSS isolation. Not embedded in JS
 - Caching. Memory and/or stored cache of processed image metadata to speed up subsequent loads and reduce processing on each request. Would need to detect changes however.
-- Configurable map tile provider options?
 - UI improvements, filtering etc
 - Error handling and logging improvements
 - Container support
+- Configurable map tile provider options?
+- Support for varied image sources not just a file folder
