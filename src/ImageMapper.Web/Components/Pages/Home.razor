@@ -8,6 +8,63 @@
 
 <div id="map" style="height:700px;"></div>
 
+<!-- Full-size image modal -->
+<div id="imageModal" class="image-modal" style="display: none;">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImage" src="" alt="Full-size image">
+</div>
+
+<style>
+    .image-modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-modal.show {
+        display: flex !important;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        cursor: pointer;
+    }
+
+    .close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #bbb;
+    }
+
+    .popup-thumb {
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .popup-thumb:hover {
+        opacity: 0.8;
+    }
+</style>
+
 <script>
     let map;
     let markerClusterGroup;
@@ -24,12 +81,48 @@
         // Create marker cluster group
         markerClusterGroup = L.markerClusterGroup();
         map.addLayer(markerClusterGroup);
+
+        // Set up modal close handlers
+        window.setupImageModal();
+    }
+
+    window.setupImageModal = function() {
+        const modal = document.getElementById('imageModal');
+        const closeBtn = document.querySelector('.close');
+
+        // Close modal when clicking the close button
+        closeBtn.onclick = function() {
+            modal.classList.remove('show');
+        }
+
+        // Close modal when clicking outside the image
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.classList.contains('show')) {
+                modal.classList.remove('show');
+            }
+        });
+    }
+
+    window.showFullImage = function(imageSrc) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        modalImage.src = imageSrc;
+        modal.classList.add('show');
     }
 
     window.addMarkerToMap = function(imageData) {
         if (imageData.latitude && imageData.longitude) {
+            const popupContent = `<div><strong>${imageData.fileName}</strong><br><img class="popup-thumb" src="${imageData.url}" style="max-width:100%; height: auto;" onclick="window.showFullImage('${imageData.url}')" title="Click to view full-size image">`;
+
             const marker = L.marker([imageData.latitude, imageData.longitude])
-                .bindPopup(`<div><strong>${imageData.fileName}</strong><br><img class="popup-thumb" src="${imageData.url}" style="max-width:100%; height: auto;">`);
+                .bindPopup(popupContent);
 
             markers.push(marker);
             markerClusterGroup.addLayer(marker);
