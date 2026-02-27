@@ -12,6 +12,8 @@ public class ImageService : IImageService
     private readonly IConfiguration _config;
     private readonly string _imagesRoot;
 
+    private static readonly string[] ValidExtensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef"];
+
     public ImageService(IConfiguration config)
     {
         _config = config;
@@ -25,10 +27,8 @@ public class ImageService : IImageService
         if (!System.IO.Directory.Exists(_imagesRoot))
             yield break;
 
-        var extensions = new[] { ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef" };
-
         var files = System.IO.Directory.EnumerateFiles(_imagesRoot, "*.*", SearchOption.AllDirectories)
-            .Where(f => extensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+            .Where(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
 
         foreach (string f in files)
         {
@@ -89,10 +89,8 @@ public class ImageService : IImageService
         if (!System.IO.Directory.Exists(_imagesRoot))
             return Task.FromResult(0);
 
-        var extensions = new[] { ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef" };
-
         var count = System.IO.Directory.EnumerateFiles(_imagesRoot, "*.*", SearchOption.AllDirectories)
-            .Count(f => extensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+            .Count(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
 
         return Task.FromResult(count);
     }

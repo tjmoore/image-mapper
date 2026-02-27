@@ -1,5 +1,4 @@
 ﻿using ImageMapper.Models;
-using System.Net.Http.Json;
 
 namespace ImageMapper.Web.Client
 {

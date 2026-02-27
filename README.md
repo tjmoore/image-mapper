@@ -64,6 +64,7 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 ## TODO
 
 - Support multiple image folders
+- CSS improvements - SASS and/or Blazor CSS isolation. Not embedded in JS
 - Caching. Memory and/or stored cache of processed image metadata to speed up subsequent loads and reduce processing on each request. Would need to detect changes however.
 - UI improvements, filtering etc
 - Error handling and logging improvements
