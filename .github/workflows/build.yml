@@ -32,7 +32,7 @@ jobs:
       run: |
         dotnet dev-certs https --trust
       env:
-        SSL_CERT_DIR: '$(HOME)/.aspnet/dev-certs/trust'
+        SSL_CERT_DIR: '${{ env.HOME }}/.aspnet/dev-certs/trust'
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
