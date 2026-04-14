@@ -33,6 +33,7 @@ jobs:
         dotnet dev-certs https --trust
       env:
         SSL_CERT_DIR: '$HOME/.aspnet/dev-certs/trust:$SSL_CERT_DIR'
+      continue-on-error: true
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
