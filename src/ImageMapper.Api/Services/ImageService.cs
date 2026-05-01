@@ -13,7 +13,7 @@ public class ImageService : IImageService
     private readonly string _imagesRoot;
 
     // In-memory lookup from ID to full file path
-    private static readonly Dictionary<string, string> IdToPathMapping = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, string> IdToPathMapping = [];
     private static readonly SemaphoreSlim MappingSem = new(1, 1);
 
     private static readonly string[] ValidExtensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef"];
