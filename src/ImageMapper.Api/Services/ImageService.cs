@@ -1,8 +1,8 @@
-using ImageMapper.Api.Exceptions;
 using ImageMapper.Models;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
 using Serilog;
+using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Api.Services;
@@ -11,6 +11,10 @@ public class ImageService : IImageService
 {
     private readonly IConfiguration _config;
     private readonly string _imagesRoot;
+
+    // In-memory lookup from ID to full file path
+    private static readonly Dictionary<string, string> IdToPathMapping = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly SemaphoreSlim MappingSem = new(1, 1);
 
     private static readonly string[] ValidExtensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef"];
 
@@ -33,8 +37,8 @@ public class ImageService : IImageService
         foreach (string f in files)
         {
             ct.ThrowIfCancellationRequested();
-            var rel = Path.GetRelativePath(_imagesRoot, f).Replace("\\", "/");
-            var info = new ImageInfo { RelativePath = rel, FileName = Path.GetFileName(f) };
+            var id = await GenerateIdForPath(f, ct);
+            var info = new ImageInfo { Id = id, FileName = Path.GetFileName(f) };
             try
             {
                 var directories = ImageMetadataReader.ReadMetadata(f);
@@ -60,28 +64,45 @@ public class ImageService : IImageService
         }
     }
 
-    public async Task<byte[]?> GetImageBytesAsync(string relativePath, CancellationToken ct = default)
+    private static async Task<string> GenerateIdForPath(string fullPath, CancellationToken ct = default)
     {
-        // Normalize path separators to OS-specific
-        var normalized = relativePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
-        var full = Path.Combine(_imagesRoot, normalized);
-        var fullPath = Path.GetFullPath(full);
-        var rootPath = Path.GetFullPath(_imagesRoot);
+        // Generate a unique ID based on the full path
+        var id = Base64Url.EncodeToString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fullPath)));
 
-        // Ensure rootPath ends with separator for proper boundary checking
-        if (!rootPath.EndsWith(Path.DirectorySeparatorChar))
-            rootPath += Path.DirectorySeparatorChar;
-
-        // Validate that the resolved path is within the root directory
-        if (!fullPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase))
+        await MappingSem.WaitAsync(ct);
+        try
         {
-            throw new PathTraversalException("Path traversal detected", nameof(relativePath));
+            IdToPathMapping[id] = fullPath;
+        }
+        finally
+        {
+            MappingSem.Release();
         }
 
-        if (!File.Exists(fullPath))
-            return null;
+        return id;
+    }
 
-        return await File.ReadAllBytesAsync(fullPath, ct);
+    public async Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default)
+    {
+        await MappingSem.WaitAsync(ct);
+        try
+        {
+            if (!IdToPathMapping.TryGetValue(id, out var fullPath))
+                return null;
+
+            if (!File.Exists(fullPath))
+            {
+                // Remove stale mapping
+                IdToPathMapping.Remove(id);
+                return null;
+            }
+
+            return await File.ReadAllBytesAsync(fullPath, ct);
+        }
+        finally
+        {
+            MappingSem.Release();
+        }
     }
 
     public Task<int> GetImageCountAsync(CancellationToken ct = default)

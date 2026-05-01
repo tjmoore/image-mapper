@@ -113,32 +113,6 @@ namespace ImageMapper.Tests
         }
 
         [Test]
-        public async Task GetImagesListReturnsCorrectRelativePaths()
-        {
-            // Arrange
-            using var cts = new CancellationTokenSource(DefaultTimeout);
-            var cancellationToken = cts.Token;
-            
-            await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
-            using var httpClient = app.CreateHttpClient("imagemapper-api");
-            await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
-
-            var fetcher = new ImageItemFetcher(httpClient);
-
-            // Act
-            var images = new List<ImageInfo>();
-            await foreach (var image in fetcher.Fetch(cancellationToken))
-            {
-                if (image != null)
-                    images.Add(image);
-            }
-
-            // Assert
-            Assert.That(images.Select(i => i.RelativePath), Does.Contain("test-image.jpg"));
-            Assert.That(images.Select(i => i.RelativePath), Does.Contain("subfolder/nested-image.png"));
-        }
-
-        [Test]
         public async Task GetImagesListReturnsEmptyWhenNoImagesExist()
         {
             // Arrange
@@ -180,18 +154,31 @@ namespace ImageMapper.Tests
             // Arrange
             using var cts = new CancellationTokenSource(DefaultTimeout);
             var cancellationToken = cts.Token;
-            
+
             await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
 
             // Act
-            using var httpClient = app.CreateHttpClient("imagemapper-web");
+            using var httpClientApi = app.CreateHttpClient("imagemapper-api");
             await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
-            using var response = await httpClient.GetAsync("/api/images/raw/test-image.jpg", cancellationToken);
+
+            var fetcher = new ImageItemFetcher(httpClientApi);
+            var images = new List<ImageInfo>();
+            await foreach (var image in fetcher.Fetch(cancellationToken))
+            {
+                if (image != null)
+                    images.Add(image);
+            }
+
+            var testImageId = images.FirstOrDefault(i => i.FileName == "test-image.jpg")?.Id;
+            Assert.That(testImageId, Is.Not.Null, "test-image.jpg not found");
+
+            using var httpClientWeb = app.CreateHttpClient("imagemapper-web");
+            using var response = await httpClientWeb.GetAsync($"/api/images/raw/{testImageId}", cancellationToken);
 
             // Assert
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Content.Headers.ContentType?.MediaType, Is.EqualTo("application/octet-stream"));
-            
+
             var content = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             Assert.That(content, Has.Length.GreaterThan(0));
             Assert.That(content[0], Is.EqualTo(0xFF)); // JPEG magic byte
@@ -203,25 +190,25 @@ namespace ImageMapper.Tests
             // Arrange
             using var cts = new CancellationTokenSource(DefaultTimeout);
             var cancellationToken = cts.Token;
-            
+
             await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
 
             // Act
             using var httpClient = app.CreateHttpClient("imagemapper-web");
             await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
-            using var response = await httpClient.GetAsync("/api/images/raw/nonexistent-image.jpg", cancellationToken);
+            using var response = await httpClient.GetAsync("/api/images/raw/nonexistent-id", cancellationToken);
 
             // Assert
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
 
         [Test]
-        public async Task GetRawImageReturnsBadRequestForEmptyPath()
+        public async Task GetRawImageReturnsNotFoundForEmptyPath()
         {
             // Arrange
             using var cts = new CancellationTokenSource(DefaultTimeout);
             var cancellationToken = cts.Token;
-            
+
             await using var app = await BuildAndStartAppAsync(cancellationToken);
 
             // Act
@@ -230,7 +217,7 @@ namespace ImageMapper.Tests
             using var response = await httpClient.GetAsync("/api/images/raw/", cancellationToken);
 
             // Assert
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         }
     }
 }

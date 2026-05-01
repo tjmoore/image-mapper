@@ -1,6 +1,5 @@
 ﻿using ImageMapper.Web.Client;
 using Microsoft.AspNetCore.Mvc;
-using System.Web;
 
 namespace ImageMapper.Web.Controllers
 {
@@ -8,15 +7,10 @@ namespace ImageMapper.Web.Controllers
     [ApiController]
     public class ImagesController(ImageItemFetcher imageFetcher) : ControllerBase
     {
-        [HttpGet("raw/{**relativePath}")]
-        public async Task<IActionResult> GetRaw(string relativePath, CancellationToken ct)
+        [HttpGet("raw/{id}")]
+        public async Task<IActionResult> GetRaw(string id, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(relativePath))
-                return BadRequest("Relative path cannot be empty.");
-
-            // URL-decode the path to handle encoded path separators (%2F -> /)
-            var decodedPath = HttpUtility.UrlDecode(relativePath);
-            var stream = await imageFetcher.FetchRawImageStream(decodedPath, ct);
+            var stream = await imageFetcher.FetchRawImageStream(id, ct);
             if (stream == null)
                 return NotFound();
 

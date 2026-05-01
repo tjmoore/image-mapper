@@ -1,4 +1,3 @@
-using ImageMapper.Api.Exceptions;
 using ImageMapper.Api.Services;
 using ImageMapper.Models;
 using Microsoft.Extensions.Configuration;
@@ -42,29 +41,6 @@ namespace ImageMapper.Tests
         }
 
         [Test]
-        [TestCase("../../etc/passwd")]
-        [TestCase("../../../windows/system32/config/sam")]
-        [TestCase("..\\..\\..\\windows\\system32\\config\\sam")]
-        [TestCase("images/../../etc/passwd")]
-        [TestCase("subfolder/../../../../sensitive.txt")]
-        [TestCase("valid-image.jpg/../../../etc/passwd")]
-        public void GetImageBytesAsyncRejectsPathTraversalAttempts(string traversalPath)
-        {
-            // Arrange
-            var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
-                .Build();
-            var service = new ImageService(config);
-
-            // Act & Assert
-            var ex = Assert.ThrowsAsync<PathTraversalException>(
-                async () => await service.GetImageBytesAsync(traversalPath));
-            
-            Assert.That(ex.ParamName, Is.EqualTo("relativePath"));
-            Assert.That(ex.Message, Contains.Substring("Path traversal detected"));
-        }
-
-        [Test]
         public async Task GetImageBytesAsyncReturnsValidImageBytes()
         {
             // Arrange
@@ -73,8 +49,18 @@ namespace ImageMapper.Tests
                 .Build();
             var service = new ImageService(config);
 
+            // Get the image ID first
+            var images = new List<ImageInfo>();
+            await foreach (var image in service.GetImagesAsync())
+            {
+                if (image.FileName == "test-image.jpg")
+                    images.Add(image);
+            }
+            Assert.That(images, Has.Count.GreaterThan(0), "test-image.jpg not found");
+            var testImageId = images[0].Id;
+
             // Act
-            var bytes = await service.GetImageBytesAsync("test-image.jpg");
+            var bytes = await service.GetImageBytesAsync(testImageId);
 
             // Assert
             Assert.That(bytes, Is.Not.Null);
@@ -91,17 +77,17 @@ namespace ImageMapper.Tests
                 .Build();
             var service = new ImageService(config);
 
-            // Act
-            var bytes = await service.GetImageBytesAsync("nonexistent.jpg");
+            // Act - use a fake ID that doesn't exist
+            var bytes = await service.GetImageBytesAsync("nonexistent-id-12345");
 
             // Assert
             Assert.That(bytes, Is.Null);
         }
 
         [Test]
-        [TestCase("subfolder/nested-image.jpg")]
-        [TestCase("subfolder/deep/deep-image.png")]
-        public async Task GetImageBytesAsyncReturnsValidImageBytesFromSubfolders(string relativePath)
+        [TestCase("nested-image.jpg")]
+        [TestCase("deep-image.png")]
+        public async Task GetImageBytesAsyncReturnsValidImageBytesFromSubfolders(string fileName)
         {
             // Arrange
             var config = new ConfigurationBuilder()
@@ -109,31 +95,22 @@ namespace ImageMapper.Tests
                 .Build();
             var service = new ImageService(config);
 
+            // Get the image ID first
+            var images = new List<ImageInfo>();
+            await foreach (var image in service.GetImagesAsync())
+            {
+                if (image.FileName == fileName)
+                    images.Add(image);
+            }
+            Assert.That(images, Has.Count.GreaterThan(0), $"{fileName} not found");
+            var imageId = images[0].Id;
+
             // Act
-            var bytes = await service.GetImageBytesAsync(relativePath);
+            var bytes = await service.GetImageBytesAsync(imageId);
 
             // Assert
             Assert.That(bytes, Is.Not.Null);
             Assert.That(bytes, Has.Length.GreaterThan(0));
-        }
-
-        [Test]
-        [TestCase("subfolder/nonexistent.jpg")]
-        [TestCase("subfolder/deep/missing-image.png")]
-        [TestCase("nonexistent-folder/image.jpg")]
-        public async Task GetImageBytesAsyncReturnsNullForNonExistentFilesInSubfolders(string relativePath)
-        {
-            // Arrange
-            var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
-                .Build();
-            var service = new ImageService(config);
-
-            // Act
-            var bytes = await service.GetImageBytesAsync(relativePath);
-
-            // Assert
-            Assert.That(bytes, Is.Null);
         }
 
         [Test]
@@ -157,28 +134,6 @@ namespace ImageMapper.Tests
             Assert.That(images.Select(i => i.FileName), Does.Contain("test-image.jpg"));
             Assert.That(images.Select(i => i.FileName), Does.Contain("nested-image.jpg"));
             Assert.That(images.Select(i => i.FileName), Does.Contain("deep-image.png"));
-        }
-
-        [Test]
-        public async Task GetImagesAsyncReturnsCorrectRelativePaths()
-        {
-            // Arrange
-            var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
-                .Build();
-            var service = new ImageService(config);
-
-            // Act
-            var images = new List<ImageInfo>();
-            await foreach (var image in service.GetImagesAsync())
-            {
-                images.Add(image);
-            }
-
-            // Assert
-            Assert.That(images.Select(i => i.RelativePath), Does.Contain("test-image.jpg"));
-            Assert.That(images.Select(i => i.RelativePath), Does.Contain("subfolder/nested-image.jpg"));
-            Assert.That(images.Select(i => i.RelativePath), Does.Contain("subfolder/deep/deep-image.png"));
         }
 
         [Test]

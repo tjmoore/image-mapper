@@ -43,7 +43,7 @@ namespace ImageMapper.Web.Components.Pages
                             image.FileName,
                             image.Latitude,
                             image.Longitude,
-                            Url = $"/api/images/raw/{Uri.EscapeDataString(image.RelativePath)}"
+                            Url = $"/api/images/raw/{image.Id}"
                         });
 
                     imagesLoaded++;
