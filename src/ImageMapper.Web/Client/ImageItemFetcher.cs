@@ -27,12 +27,12 @@ namespace ImageMapper.Web.Client
         /// Fetch image content streamed to the caller without buffering the entire response in memory.
         /// Caller is responsible for disposing the returned Stream when finished. 
         /// </summary>
-        /// <param name="relativePath"></param>
+        /// <param name="id">The unique image ID</param>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public async Task<Stream?> FetchRawImageStream(string relativePath, CancellationToken ct)
+        public async Task<Stream?> FetchRawImageStream(string id, CancellationToken ct)
         {
-            var requestUrl = $"/api/images/raw/{Uri.EscapeDataString(relativePath)}";
+            var requestUrl = $"/api/images/raw/{id}";
             var response = await httpClient.GetAsync(requestUrl, HttpCompletionOption.ResponseHeadersRead, ct);
             if (!response.IsSuccessStatusCode)
                 return null;
