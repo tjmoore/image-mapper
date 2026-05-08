@@ -22,18 +22,19 @@ public class ImageService : IImageService
     {
         _config = config;
 
-        string[]? imageFolders = _config.GetSection("ImageFolders").Get<string[]>();
-
-        if (imageFolders == null || imageFolders.Length == 0)
+        string? imageFolder = _config["ImageFolder"];
+        if (string.IsNullOrEmpty(imageFolder))
         {
-            if (string.IsNullOrEmpty(_config["ImageFolder"]))
-                throw new InvalidOperationException("Either ImageFolders or ImageFolder must be configured");
+            string[]? imageFolders = _config.GetSection("ImageFolders").Get<string[]>();
 
-            _imageFolders = [_config["ImageFolder"]!];
+            if (imageFolders == null || imageFolders.Length == 0)
+                throw new InvalidOperationException("Either ImageFolder or ImageFolders must be configured");
+
+            _imageFolders = imageFolders;
         }
         else
         {
-            _imageFolders = imageFolders;
+            _imageFolders = [imageFolder];
         }
         
         Log.Information("ImageService initialized with ImageFolders: {@ImageFolders}", _imageFolders);

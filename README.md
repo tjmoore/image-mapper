@@ -75,7 +75,7 @@ or for multuple image folders:
 }
 ```
 
-If multiple image folders are defined, this takes precedence over the single `ImageFolder` setting
+`ImageFolder` setting takes precedence over `ImageFolders` if both are present
 
 ## TODO
 
