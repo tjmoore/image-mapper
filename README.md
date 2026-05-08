@@ -4,10 +4,14 @@
 
 ImageMapper is a server hosted application that processes images from a configured server folder and maps them based on geotagged metadata within the images.
 
-This application is built using .NET and leverages the Leaflet.js library for map rendering
+This application is built using .NET and leverages the Leaflet.js library for map rendering. Aspire is used for hosting and orchestrating the application components, while MetadataExtractor is used to extract geotagged metadata from the images.
 
-Initial development has partly been an experiment in using AI tools to assist in code generation, architecture design, and unit test creation.
-With strict human review and modification to ensure quality and correctness.
+This project has partly been an experiment in using AI tools such as GitHub Copilot as a coding assistant, for initial scaffolding, and unit test creation.
+With strict human review and modification to ensure quality and correctness with an exact idea of the design, using the tools to assist rather than replace human decision-making.
+
+Also to use Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features, and to demonstrate how it can be used in a real-world application.
+
+The concepts here are not unique to .NET and could be implemented in any language or framework.
 
 ## Dependencies
 
@@ -61,9 +65,23 @@ The folder for images can be configured via `appsettings.json` file in ImageMapp
 }
 ```
 
+or for multuple image folders:
+```json
+{
+  "ImageFolders": [
+	"/path/to/your/images1",
+	"/path/to/your/images2"
+  ]
+}
+```
+
+If multiple image folders are defined, this takes precedence over the single `ImageFolder` setting
+
 ## TODO
 
-- Support multiple image folders
+- Support for folder patterns in image folder config
+- Support for folder exclusion
+- Support for other formats including HIEF/HEIC and various raw image formats and/or anything MetadataExtractor supports (see https://github.com/drewnoakes/metadata-extractor-dotnet/blob/main/MetadataExtractor.Tools.FileProcessor/FileHandlerBase.cs)
 - CSS improvements - SASS and/or Blazor CSS isolation. Not embedded in JS
 - Caching. Memory and/or stored cache of processed image metadata to speed up subsequent loads and reduce processing on each request. Would need to detect changes however.
 - UI improvements, filtering etc

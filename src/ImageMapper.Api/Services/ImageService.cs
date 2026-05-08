@@ -10,7 +10,7 @@ namespace ImageMapper.Api.Services;
 public class ImageService : IImageService
 {
     private readonly IConfiguration _config;
-    private readonly string _imagesRoot;
+    private readonly string[] _imageFolders;
 
     // In-memory lookup from ID to full file path
     private static readonly Dictionary<string, string> IdToPathMapping = [];
@@ -21,17 +21,32 @@ public class ImageService : IImageService
     public ImageService(IConfiguration config)
     {
         _config = config;
-        _imagesRoot = _config["ImageFolder"] ?? throw new InvalidOperationException("ImageFolder not configured");
 
-        Log.Information("ImageService initialized with ImageFolder: {ImageFolder}", _imagesRoot);
+        string[]? imageFolders = _config.GetSection("ImageFolders").Get<string[]>();
+
+        if (imageFolders == null || imageFolders.Length == 0)
+        {
+            if (string.IsNullOrEmpty(_config["ImageFolder"]))
+                throw new InvalidOperationException("Either ImageFolders or ImageFolder must be configured");
+
+            _imageFolders = [_config["ImageFolder"]!];
+        }
+        else
+        {
+            _imageFolders = imageFolders;
+        }
+        
+        Log.Information("ImageService initialized with ImageFolders: {@ImageFolders}", _imageFolders);
     }
 
     public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
-        if (!System.IO.Directory.Exists(_imagesRoot))
+        if (_imageFolders == null || _imageFolders.Length == 0)
             yield break;
 
-        var files = System.IO.Directory.EnumerateFiles(_imagesRoot, "*.*", SearchOption.AllDirectories)
+        var files = _imageFolders
+            .Where(folder => System.IO.Directory.Exists(folder))
+            .SelectMany(folder => System.IO.Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
             .Where(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
 
         foreach (string f in files)
@@ -107,10 +122,12 @@ public class ImageService : IImageService
 
     public Task<int> GetImageCountAsync(CancellationToken ct = default)
     {
-        if (!System.IO.Directory.Exists(_imagesRoot))
+        if (_imageFolders == null || _imageFolders.Length == 0)
             return Task.FromResult(0);
 
-        var count = System.IO.Directory.EnumerateFiles(_imagesRoot, "*.*", SearchOption.AllDirectories)
+        var count = _imageFolders
+            .Where(folder => System.IO.Directory.Exists(folder))
+            .SelectMany(folder => System.IO.Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
             .Count(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
 
         return Task.FromResult(count);
