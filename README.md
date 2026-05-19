@@ -6,16 +6,16 @@ ImageMapper is a server hosted application that processes images from a configur
 
 This application is built using .NET and leverages the Leaflet.js library for map rendering. Aspire is used for hosting and orchestrating the application components, while MetadataExtractor is used to extract geotagged metadata from the images.
 
-This project has partly been an experiment in using AI tools such as GitHub Copilot as a coding assistant, for initial scaffolding, and unit test creation.
+This project has partly been an experiment in using AI tools such as GitHub Copilot as a coding assistant particularly for initial scaffolding and unit test creation.
 With strict human review and modification to ensure quality and correctness with an exact idea of the design, using the tools to assist rather than replace human decision-making.
 
-Also to use Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features, and to demonstrate how it can be used in a real-world application.
+Also to use Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features.
 
 The concepts here are not unique to .NET and could be implemented in any language or framework.
 
 ## Dependencies
 
-- .NET 10 (likely will work with .NET 8+)
+- .NET 10 (likely can be retargeted to work with .NET 8+)
 - [Aspire](https://aspire.dev/)
 - [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor-dotnet)
 - [Leaflet.js](https://leafletjs.com/)
@@ -26,6 +26,8 @@ The concepts here are not unique to .NET and could be implemented in any languag
 - ImageMapper.Api - Back end API that fetches and processes image data
 - ImageMapper.Web - Front end .NET Blazor web app that produces the UI to render the data on a map
 - ImageMapper.Models - .NET class library of shared models
+
+### Aspire components
 - ImageMapper.AppHost - .NET Aspire orchestrator to run and debug in a development environment
 - ImageMapper.ServiceDefaults - Extensions for .NET Aspire support including service discovery, health checks and telemetry
 
@@ -76,16 +78,3 @@ or for multuple image folders:
 ```
 
 `ImageFolder` setting takes precedence over `ImageFolders` if both are present
-
-## TODO
-
-- Support for folder patterns in image folder config
-- Support for folder exclusion
-- Support for other formats including HIEF/HEIC and various raw image formats and/or anything MetadataExtractor supports (see https://github.com/drewnoakes/metadata-extractor-dotnet/blob/main/MetadataExtractor.Tools.FileProcessor/FileHandlerBase.cs)
-- CSS improvements - SASS and/or Blazor CSS isolation. Not embedded in JS
-- Caching. Memory and/or stored cache of processed image metadata to speed up subsequent loads and reduce processing on each request. Would need to detect changes however.
-- UI improvements, filtering etc
-- Error handling and logging improvements
-- Container support
-- Configurable map tile provider options?
-- Support for varied image sources not just a file folder

@@ -4,6 +4,7 @@
     <File Path="AGENTS.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />
+    <File Path="TODO.md" />
   </Folder>
   <Project Path="src/ImageMapper.Api/ImageMapper.Api.csproj" />
   <Project Path="src/ImageMapper.AppHost/ImageMapper.AppHost.csproj" />
