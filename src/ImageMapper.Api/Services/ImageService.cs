@@ -16,7 +16,10 @@ public class ImageService : IImageService
     private static readonly Dictionary<string, string> IdToPathMapping = [];
     private static readonly SemaphoreSlim MappingSem = new(1, 1);
 
-    private static readonly string[] ValidExtensions = [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".nef"];
+    private static readonly string[] ValidExtensions = [
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".heic", ".heif", ".ico", ".webp", ".pcx",".tif", ".tiff",
+        ".nef", ".crw", ".cr2", ".orf", ".arw", ".raf", ".srw", ".x3f", ".rw2", ".rwl", ".dcr", ".dng"        
+    ];
 
     public ImageService(IConfiguration config)
     {
