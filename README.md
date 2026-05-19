@@ -78,3 +78,35 @@ or for multuple image folders:
 ```
 
 `ImageFolder` setting takes precedence over `ImageFolders` if both are present
+
+## Supported Image Formats
+
+Based on support in MetadataExtractor
+
+### Standard Image Formats
+
+- jpg / jpeg — JPEG Image
+- png — Portable Network Graphics
+- gif — Graphics Interchange Format
+- bmp — Bitmap Image
+- heic — High Efficiency Image Container
+- heif — High Efficiency Image Format
+- ico — Windows Icon File
+- webp — WebP Image
+- pcx — PC Paintbrush Image
+- tif / tiff — Tagged Image File Format
+
+### RAW Camera Formats
+
+- nef — Nikon Electronic Format (RAW)
+- crw — Canon RAW (CRW)
+- cr2 — Canon RAW (CR2)
+- orf — Olympus RAW Image
+- arw — Sony RAW Image
+- raf — Fujifilm RAW Image
+- srw — Samsung RAW Image
+- x3f — Sigma RAW Image
+- rw2 — Panasonic RAW Image
+- rwl — Leica RAW Image
+- dcr — Kodak RAW Image
+- dng — Digital Negative (Adobe)

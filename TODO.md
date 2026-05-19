@@ -1,6 +1,5 @@
 # TODO
 
-- Support for other formats including HIEF/HEIC and various raw image formats and/or anything MetadataExtractor supports (see https://github.com/drewnoakes/metadata-extractor-dotnet/blob/main/MetadataExtractor.Tools.FileProcessor/FileHandlerBase.cs)
 - Support for folder patterns in image folder config
 - Support for folder exclusion
 - Fetch from backend in batches for performance instead of or as well as front-end render batching
