@@ -2,14 +2,11 @@
 
 [![Build](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml/badge.svg)](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml)
 
-ImageMapper is a server hosted application that processes images from a configured server folder and maps them based on geotagged metadata within the images.
+ImageMapper is a .NET application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
 
-This application is built using .NET and leverages the Leaflet.js library for map rendering. Aspire is used for hosting and orchestrating the application components, while MetadataExtractor is used to extract geotagged metadata from the images.
+This project has partly been an learning experience in using AI tools such as GitHub Copilot as a coding assistant. It is not an AI generated application, but rather a human-designed application where AI tools have been used occasionally to assist in the coding process, and other times purely human development.
 
-This project has partly been an experiment in using AI tools such as GitHub Copilot as a coding assistant particularly for initial scaffolding and unit test creation.
-With strict human review and modification to ensure quality and correctness with an exact idea of the design, using the tools to assist rather than replace human decision-making.
-
-Also to use Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features.
+It has also been an exercise in using Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features.
 
 The concepts here are not unique to .NET and could be implemented in any language or framework.
 
