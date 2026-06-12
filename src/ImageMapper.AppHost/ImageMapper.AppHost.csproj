@@ -9,11 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.Docker" Version="13.4.3" />
-      <PackageReference Include="Aspire.Hosting.Redis" Version="13.4.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
     <ProjectReference Include="..\ImageMapper.Web\ImageMapper.Web.csproj" />
   </ItemGroup>
