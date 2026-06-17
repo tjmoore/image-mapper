@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.4.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.4.5">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,6 +11,10 @@
   <ItemGroup>
     <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
     <ProjectReference Include="..\ImageMapper.Web\ImageMapper.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Docker" Version="13.4.5" />
   </ItemGroup>
 
 </Project>
