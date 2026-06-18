@@ -1,61 +1,77 @@
-# Copilot instructions
+# Project: ImageMapper
 
-This repository is set up to use Aspire. Aspire is an orchestrator for the entire application and will take care of configuring dependencies, building, and running the application. The resources that make up the application are defined in `apphost.cs` including application code and external dependencies.
+## Overview
 
-## General recommendations for working with Aspire
-1. Before making any changes always run the apphost using `aspire run` and inspect the state of resources to make sure you are building from a known state.
-1. Changes to the _apphost.cs_ file will require a restart of the application to take effect.
-2. Make changes incrementally and run the aspire application using the `aspire run` command to validate changes.
-3. Use the Aspire MCP tools to check the status of resources and debug issues.
+ImageMapper is a .NET application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
 
-## Running the application
-To run the application run the following command:
+This guide covers key concepts and workflows for working with an Aspire-based project.
 
-```
+## Quick Start
+
+To run the application and start development:
+
+```bash
 aspire run
 ```
 
-If there is already an instance of the application running it will prompt to stop the existing instance. You only need to restart the application if code in `apphost.cs` is changed, but if you experience problems it can be useful to reset everything to the starting state.
+This starts the Aspire dashboard and orchestrates all configured resources (API, Web, etc.). If an instance is already running, you'll be prompted to stop it first.
 
-## Checking resources
-To check the status of resources defined in the app model use the _list resources_ tool. This will show you the current state of each resource and if there are any issues. If a resource is not running as expected you can use the _execute resource command_ tool to restart it or perform other actions.
+The dashboard provides a central view of service health, logs, and traces.
 
-## Listing integrations
-IMPORTANT! When a user asks you to add a resource to the app model you should first use the _list integrations_ tool to get a list of the current versions of all the available integrations. You should try to use the version of the integration which aligns with the version of the Aspire.AppHost.Sdk. Some integration versions may have a preview suffix. Once you have identified the correct integration you should always use the _get integration docs_ tool to fetch the latest documentation for the integration and follow the links to get additional guidance.
+## Architecture & Resources
 
-## Debugging issues
-IMPORTANT! Aspire is designed to capture rich logs and telemetry for all resources defined in the app model. Use the following diagnostic tools when debugging issues with the application before making changes to make sure you are focusing on the right things.
+The solution is structured into several projects, each serving a specific role:
 
-1. _list structured logs_; use this tool to get details about structured logs.
-2. _list console logs_; use this tool to get details about console logs.
-3. _list traces_; use this tool to get details about traces.
-4. _list trace structured logs_; use this tool to get logs related to a trace
+- **ImageMapper.Api** — Backend service that enumerates images, extracts EXIF/geolocation metadata, and exposes endpoints
+- **ImageMapper.Web** — Blazor frontend that consumes the API and renders images on a map using Leaflet.js
+- **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
+- **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
+- **ImageMapper.Models** — Shared models used by both API and Web projects
+- **ImageMapper.Tests** — NUnit tests covering core services and API flows
 
-## Other Aspire MCP tools
+Configuration is managed through `appsettings.json` files in each project. The API's image folder(s) are configured via `ImageFolder` (single) or `ImageFolders` (array) keys.
 
-1. _select apphost_; use this tool if working with multiple app hosts within a workspace.
-2. _list apphosts_; use this tool to get details about active app hosts.
+## Development Workflow
 
-## Playwright MCP server
+### Best Practices
 
-The playwright MCP server has also been configured in this repository and you should use it to perform functional investigations of the resources defined in the app model as you work on the codebase. To get endpoints that can be used for navigation using the playwright MCP server use the list resources tool.
+1. **Run before changes** — Start with `aspire run` and inspect resource health to establish a known state
+2. **Incremental changes** — Make small, focused edits and validate with `aspire run`
+3. **Restart on apphost.cs changes** — Modifications to `apphost.cs` require stopping and restarting the Aspire host
+4. **Test early** — Use the dashboard and browser to verify behavior after each change
 
-## Updating the app host
-The user may request that you update the Aspire apphost. You can do this using the `aspire update` command. This will update the apphost to the latest version and some of the Aspire specific packages in referenced projects, however you may need to manually update other packages in the solution to ensure compatibility. You can consider using the `dotnet-outdated` with the users consent. To install the `dotnet-outdated` tool use the following command:
+### Making Changes
 
-```
-dotnet tool install --global dotnet-outdated-tool
-```
+- **Code changes** (Services, Controllers, Components) — Reload with individual resource restarts or full app restart as needed
+- **AppHost changes** (adding resources, modifying composition) — Full restart of `aspire run` required
+- **Configuration changes** (appsettings.json) — Restart Aspire for changes to take effect
 
-## Persistent containers
-IMPORTANT! Consider avoiding persistent containers early during development to avoid creating state management issues when restarting the app.
+## Diagnostics & Debugging
 
-## Aspire workload
-IMPORTANT! The aspire workload is obsolete. You should never attempt to install or use the Aspire workload.
+Aspire captures detailed logs and distributed traces for all resources. Before making changes to debug an issue:
 
-## Official documentation
-IMPORTANT! Always prefer official documentation when available. The following sites contain the official documentation for Aspire and related components
+1. **Check resource health** — Use the Aspire dashboard to see resource status and any error indicators
+2. **Review logs** — Access console output and structured logs from the dashboard for each resource
+3. **Examine traces** — Use distributed trace data to understand request flows and timing
+4. **Analyze trace logs** — View logs associated with specific traces for deeper diagnostics
 
-1. https://aspire.dev
-2. https://learn.microsoft.com/dotnet/aspire
-3. https://nuget.org (for specific integration package details)
+The dashboard is the primary tool for monitoring and understanding what's happening in your services.
+
+## Key Files
+
+- [README.md](README.md) — Overview, supported image formats, running instructions
+- [apphost.cs](src/ImageMapper.AppHost/AppHost.cs) — Aspire resource definitions and composition
+- [appsettings.json](src/ImageMapper.Api/appsettings.json) — Configuration (image folders, etc.)
+- [.github/copilot-instructions.md](.github/copilot-instructions.md) — Agent-specific build and test commands
+
+## Related Resources
+
+- **Aspire Official Docs** — https://aspire.dev and https://learn.microsoft.com/dotnet/aspire
+- **NuGet Packages** — https://nuget.org (for integration version details and compatibility)
+- **Playwright Testing** — This repo includes Playwright support for functional testing of resources
+
+## Notes
+
+- **Aspire workload** is obsolete; use the Aspire CLI (`aspire run`) instead
+- **Persistent containers** should generally be avoided early in development to prevent state management issues when restarting
+- When updating the apphost, use `aspire update` to refresh the SDK and core packages; you may need to manually update other dependencies for compatibility

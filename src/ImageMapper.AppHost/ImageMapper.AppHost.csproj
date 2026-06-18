@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.4.5">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,12 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.Redis" Version="13.3.3" />
+    <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
+    <ProjectReference Include="..\ImageMapper.Web\ImageMapper.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
-    <ProjectReference Include="..\ImageMapper.Web\ImageMapper.Web.csproj" />
+    <PackageReference Include="Aspire.Hosting.Docker" Version="13.4.5" />
   </ItemGroup>
 
 </Project>
