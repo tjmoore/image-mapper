@@ -6,7 +6,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var isPublishMode = builder.ExecutionContext.IsPublishMode;
 var composeDefaults = isPublishMode
     ? ResolveComposeDefaults(builder.Configuration)
-    : new ComposeDefaults([]);
+    : new ComposeDefaults([], null, null);
 
 builder.AddDockerComposeEnvironment("compose")
     .ConfigureEnvFile(envFile =>
@@ -74,9 +74,11 @@ static ComposeDefaults ResolveComposeDefaults(IConfiguration configuration)
     var composeDefaultsSection = configuration.GetSection("ComposeDefaults");
     var defaults = composeDefaultsSection.Get<ComposeDefaultsOptions>() ?? new ComposeDefaultsOptions();
 
-    var imageFolders = defaults.ImageFolders ?? [];
+    string[] imageFolders = defaults.ImageFolders ?? [];
+    int? apiPort = defaults.ApiPort;
+    int? webPort = defaults.WebPort;
 
-    return new ComposeDefaults(imageFolders);
+    return new ComposeDefaults(imageFolders, apiPort, webPort);
 }
 
 static string ComposeVariableReference(string variableName) => $"${{{variableName}}}";
@@ -96,6 +98,20 @@ static void AddComposeEnvFileEntries(
         };
     }
 
+    envFile["IMAGEMAPPER_API_PORT"] = new CapturedEnvironmentVariable
+    {
+        Name = "IMAGEMAPPER_API_PORT",
+        DefaultValue = composeDefaults.ApiPort?.ToString(),
+        Description = "Default value for API port"
+    };
+
+    envFile["IMAGEMAPPER_WEB_PORT"] = new CapturedEnvironmentVariable
+    {
+        Name = "IMAGEMAPPER_WEB_PORT",
+        DefaultValue = composeDefaults.WebPort?.ToString(),
+        Description = "Default value for Web port"
+    };
+
     var expectedFolderVariables = composeDefaults.ImageFolders
         .Select((_, index) => $"IMAGEMAPPER_API_IMAGE_FOLDERS_{index}")
         .ToHashSet(StringComparer.Ordinal);
@@ -112,9 +128,11 @@ static void AddComposeEnvFileEntries(
     envFile.Remove("IMAGEMAPPER_API_IMAGE_FOLDER");
 }
 
-sealed record ComposeDefaults(string[] ImageFolders);
+sealed record ComposeDefaults(string[] ImageFolders, int? ApiPort, int? WebPort);
 
 sealed class ComposeDefaultsOptions
 {
     public string[]? ImageFolders { get; init; }
+    public int? ApiPort { get; init; }
+    public int? WebPort { get; init; }
 }
