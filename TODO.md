@@ -14,7 +14,7 @@
 	- Allows for adding search features and maybe AI support through MCP perhaps
 	- Need to detect changes
 - UI improvements, filtering, search etc
+- Configurability in UI for folder selection, map tile provider, etc. Needs persistence when running in a container (e.g. volume mount for config file or database)
 - Optionally show metadata in enlarged photo view
 - Error handling and logging improvements
-- Configurable map tile provider options?
 - Support for varied image sources not just a file folder
