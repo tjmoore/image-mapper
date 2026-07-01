@@ -4,7 +4,7 @@
 
 ImageMapper is a .NET application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
 
-This project has partly been an learning experience in using AI tools such as GitHub Copilot as a coding assistant. It is not an AI generated application, but rather a human-designed application where AI tools have been used occasionally to assist in the coding process, and other times purely human development.
+This project has partly been an learning exercise in using tools such as GitHub Copilot. This is a human-designed application where AI tools have been used at times to assist in the coding process, and other times purely human development. Reviews are human or where automated only with human final approval.
 
 It has also been an exercise in using Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features.
 
@@ -57,14 +57,8 @@ Launch the front end application from imagemapper-web link
 
 ## Configuration
 
-The folder for images can be configured via `appsettings.json` file in ImageMapper.Api project
-```json
-{
-  "ImageFolder": "/path/to/your/images"
-}
-```
+The image folders are configured via `appsettings.json` file in ImageMapper.Api project. This is generally used in development and/or when not deploying a container.
 
-or for multuple image folders:
 ```json
 {
   "ImageFolders": [
@@ -74,7 +68,37 @@ or for multuple image folders:
 }
 ```
 
-`ImageFolder` setting takes precedence over `ImageFolders` if both are present
+## Container deployment configuration (Aspire CLI)
+
+`ImageMapper.AppHost` controls Docker Compose artifact generation for:
+
+- `aspire publish`
+- `aspire do prepare-compose --environment <Staging|Production>`
+- `aspire deploy --environment <Staging|Production>`
+
+As an alternative to configuration in ImageMapper.Api `appsettings.json`, image folders can be configured with compose defaults for the environment.
+
+Compose environment defaults are configured in `src/ImageMapper.AppHost/appsettings.<environment>.json` under `ComposeDefaults`:
+
+```json
+{
+  "ComposeDefaults": {
+    "ImageFolders": [
+        "/path/to/your/images1",
+        "/path/to/your/images2"
+    ]
+  }
+}
+```
+
+Replace the `CHANGE_ME_*` default values in the files with the folder paths for each deployment environment.
+
+Generated `.env` keys include optional override variables:
+
+- `IMAGEMAPPER_API_IMAGE_FOLDERS_0`, `IMAGEMAPPER_API_IMAGE_FOLDERS_1`, ...
+
+These keys are mapped to API configuration (`ImageFolders__<index>`) during compose publish/deploy flows.
+When a key is left blank in `.env`, Docker Compose falls back to the `ComposeDefaults` value embedded in `docker-compose.yaml` for the selected deployment environment.
 
 ## Supported Image Formats
 

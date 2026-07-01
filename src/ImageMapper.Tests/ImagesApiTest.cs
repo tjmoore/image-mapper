@@ -45,7 +45,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
             var service = new ImageService(config);
 
@@ -73,7 +73,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
             var service = new ImageService(config);
 
@@ -91,7 +91,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
             var service = new ImageService(config);
 
@@ -118,7 +118,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
             var service = new ImageService(config);
 
@@ -141,7 +141,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", Path.Combine(_testImagesDirectory, "nonexistent") } })
+                .AddInMemoryCollection([new("ImageFolders:0", Path.Combine(_testImagesDirectory, "nonexistent"))])
                 .Build();
             var service = new ImageService(config);
 
@@ -161,7 +161,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
             var service = new ImageService(config);
             using var cts = new CancellationTokenSource();
@@ -185,7 +185,7 @@ namespace ImageMapper.Tests
         {
             // Arrange
             var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string?> { { "ImageFolder", _testImagesDirectory } })
+                .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
             
             // Create a non-image file

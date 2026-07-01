@@ -13,7 +13,7 @@ To run the application and start development:
 ```bash
 aspire run
 ```
-
+	
 This starts the Aspire dashboard and orchestrates all configured resources (API, Web, etc.). If an instance is already running, you'll be prompted to stop it first.
 
 The dashboard provides a central view of service health, logs, and traces.
@@ -23,13 +23,13 @@ The dashboard provides a central view of service health, logs, and traces.
 The solution is structured into several projects, each serving a specific role:
 
 - **ImageMapper.Api** — Backend service that enumerates images, extracts EXIF/geolocation metadata, and exposes endpoints
-- **ImageMapper.Web** — Blazor frontend that consumes the API and renders images on a map using Leaflet.js
+- **ImageMapper.Web** — Blazor frontend that consumes the API and renders images on a map using Leaflet.js (OpenStreetMap)
 - **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
 - **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
 - **ImageMapper.Models** — Shared models used by both API and Web projects
 - **ImageMapper.Tests** — NUnit tests covering core services and API flows
 
-Configuration is managed through `appsettings.json` files in each project. The API's image folder(s) are configured via `ImageFolder` (single) or `ImageFolders` (array) keys.
+Configuration is managed through `appsettings.json` files in each project. The API image folders are configured via the `ImageFolders` (array) key.
 
 ## Development Workflow
 

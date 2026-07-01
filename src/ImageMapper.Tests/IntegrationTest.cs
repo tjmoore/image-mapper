@@ -39,8 +39,26 @@ namespace ImageMapper.Tests
 
         private static async Task<DistributedApplication> BuildAndStartAppAsync(CancellationToken cancellationToken, string? imageFolderPath = null)
         {
+            // IGNORE values ensure existing appsettings values are overridden and ignored. This assumes no more than 5 image folders are configured in the appsettings.json file
+            // in ImageMappier.Api in a development environment. A clean test environment wouldn't have any defined in appsettings.json,
+            // so this is just a precaution for development environments.
+
             if (imageFolderPath != null)
-                Environment.SetEnvironmentVariable("ImageFolder", imageFolderPath);
+            {
+                Environment.SetEnvironmentVariable("ImageFolders__0", imageFolderPath);
+                Environment.SetEnvironmentVariable("ImageFolders__1", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__2", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__3", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__4", "IGNORE");
+            }
+            else
+            {
+                Environment.SetEnvironmentVariable("ImageFolders__0", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__1", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__2", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__3", "IGNORE");
+                Environment.SetEnvironmentVariable("ImageFolders__4", "IGNORE");
+            }
 
             var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.ImageMapper_AppHost>();
 
