@@ -1,9 +1,34 @@
-# Copilot instructions for ImageMapper
+# Copilot instructions
 
-Purpose
-- Provide concise, repository-specific instructions for Copilot-style assistants and future contributors. Prefer repository docs first (README.md, AGENTS.md) for deeper context.
+## Overview
 
-Build, test, and lint commands
+ImageMapper is a .NET application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
+
+Refer also to repository docs (README.md, AGENTS.md) for further context
+
+## Coding style
+- Follow .NET conventions (PascalCase for types and methods, camelCase for local variables).
+- Use async/await for asynchronous operations; avoid blocking calls.
+- Use consistent naming conventions
+
+## Architecture
+
+- **ImageMapper.Api** — Backend service that enumerates images, extracts EXIF/geolocation metadata, and exposes endpoints
+- **ImageMapper.Web** — Blazor frontend that consumes the API and renders images on a map using Leaflet.js (OpenStreetMap)
+- **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
+- **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
+- **ImageMapper.Models** — Shared models used by both API and Web projects
+- **ImageMapper.Tests** — NUnit tests covering core services and API flows
+
+- Runtime flow:
+  1. AppHost (aspire) starts configured resources and services.
+  2. Api scans configured ImageFolders, uses MetadataExtractor to pull EXIF/geotag info and builds ImageInfo objects.
+  3. Web (Blazor + Leaflet) fetches image metadata from Api and renders markers on the map.
+- Configuration:
+  - ImageFolders (array) lives in appsettings.json for ImageMapper.Api.
+
+## Build
+
 - Restore & build solution (root):
   - dotnet restore ImageMapper.slnx && dotnet build ImageMapper.slnx -c Debug
 - Run development environment (preferred):
@@ -12,61 +37,33 @@ Build, test, and lint commands
 - Run individual projects:
   - API: dotnet run --project src\ImageMapper.Api\ImageMapper.Api.csproj
   - Web (Blazor): dotnet run --project src\ImageMapper.Web\ImageMapper.Web.csproj
-- Tests:
-  - Run all tests: dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj
-  - Run a single test method (example using fully-qualified name):
-    dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj --filter "FullyQualifiedName~ImageMapper.Tests.ImagesApiTest.GetImageBytesAsyncReturnsValidImageBytes"
-  - Alternative single-test filter (partial display name):
-    dotnet test --filter "DisplayName~PartialTestName"
-- Formatting / linting:
-  - No repository linter/formatter is configured by default. To run dotnet-format (optional):
-    dotnet tool install --global dotnet-format
-    dotnet format ImageMapper.slnx
 
-High-level architecture (big picture)
-- Solution layout:
-  - ImageMapper.Api: backend API that enumerates images from configured folder(s), extracts metadata and exposes endpoints.
-  - ImageMapper.Web: front-end Blazor app that consumes the API and renders maps using Leaflet.js (OpenStreetMap).
-  - ImageMapper.Models: shared POCO models used by Api and Web.
-  - ImageMapper.AppHost: Aspire AppHost that composes and runs the services for development (apphost.cs defines resources).
-  - ImageMapper.ServiceDefaults: Aspire-related extensions (service discovery, health checks, telemetry).
-  - ImageMapper.Tests: NUnit tests covering core services (ImageService, API flows).
-- Runtime flow:
-  1. AppHost (aspire) starts configured resources and services.
-  2. Api scans ImageFolder(s), uses MetadataExtractor to pull EXIF/geotag info and builds ImageInfo objects.
-  3. Web (Blazor + Leaflet) fetches image metadata from Api and renders markers on the map.
-- Configuration:
-  - ImageFolder / ImageFolders keys live in appsettings.json for ImageMapper.Api. ImageFolder takes precedence over ImageFolders.
+## Testing
 
-Key conventions and patterns (repo-specific)
+- Run all tests: dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj
+- Run a single test method (example using fully-qualified name):
+dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj --filter "FullyQualifiedName~ImageMapper.Tests.ImagesApiTest.GetImageBytesAsyncReturnsValidImageBytes"
+- Alternative single-test filter (partial display name):
+dotnet test --filter "DisplayName~PartialTestName"
+
+## Key conventions and patterns
+
 - Aspire-first workflow:
   - apphost.cs (ImageMapper.AppHost) defines resources. Changes to apphost.cs require restarting the AppHost (aspire run).
   - Use `aspire run` when iterating on multi-component behavior — it reliably composes Api + Web + diagnostics.
 - Configuration keys:
-  - "ImageFolder" (single path) and "ImageFolders" (array). The code prioritizes ImageFolder if both present.
+  - "ImageFolders" (array of one or more paths).
 - Tests & temporary assets:
-  - NUnit is used (OneTimeSetUp / Test / TestCase). Tests create temporary image files using magic bytes and cleanup after run.
-  - Tests use TestContext.CurrentContext.TestDirectory for temporary test folders.
+  - NUnit is used and should follow arrange/act/assert pattern
+  - Tests use TestContext.CurrentContext.TestDirectory where temporary files are needed
 - Async enumeration and cancellation:
   - IAsyncEnumerable<T> producers in services honor cancellation tokens. Keep using the `[EnumeratorCancellation]` attribute on CancellationToken parameters where appropriate.
-- Project structure conventions:
-  - Each project has its .csproj under src. Use explicit --project when running dotnet commands for a single project.
+- Use swagger / OpenAPI for API documentation and testing. The Api project exposes Swagger UI at /swagger when running.
 
-Important files to reference quickly
-- README.md — usage, supported image formats, run instructions.
-- AGENTS.md — Aspire and MCP tooling guidance (lists Playwright MCP server usage in this repo).
+## Containerisation
 
-Notes for assistants (Copilot / AI)
-- Prefer repository docs (README.md, AGENTS.md) for environment specifics (Aspire usage, Playwright MCP server configured).
-- When suggesting edits that affect apphost.cs or service composition, recommend running `aspire run` and checking resource status via the Aspire MCP tools.
-- Keep changes surgical; follow existing patterns in ServiceDefaults and AppHost.
-
-MCP servers
-- This repo already documents Playwright MCP server usage in AGENTS.md. Ask the developer before changing MCP server configuration.
-
-References
-- README.md
-- AGENTS.md
-
---
-(Generated: concise, repo-specific Copilot instructions.)
+- Do not directly generate Dockerfiles or docker-compose.yml, use apire publish to generate
+- aspire apphost.cs should define the configuration for docker-compose.yml and .env generation
+- generate docker-compose.yml and unfilled .env  when running `aspire publish`
+- do as above with environment specific .env and build container images, when running `aspire do prepare-compose --environment <env>` for Staging or Prodution environment
+- do as above and deploy with docker compose up for example, when running `aspire deploy` and optional `--environment <env>` for Staging or Production environment (default Production)

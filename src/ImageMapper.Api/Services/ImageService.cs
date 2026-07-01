@@ -9,7 +9,6 @@ namespace ImageMapper.Api.Services;
 
 public class ImageService : IImageService
 {
-    private readonly IConfiguration _config;
     private readonly string[] _imageFolders;
 
     // In-memory lookup from ID to full file path
@@ -23,25 +22,19 @@ public class ImageService : IImageService
 
     public ImageService(IConfiguration config)
     {
-        _config = config;
+        var imageFolders = ResolveImageFolders(config);
+        if (imageFolders == null || imageFolders.Length == 0)
+            throw new InvalidOperationException("ImageFolders must be configured with at least one folder");
 
-        string? imageFolder = _config["ImageFolder"];
-        if (string.IsNullOrEmpty(imageFolder))
-        {
-            string[]? imageFolders = _config.GetSection("ImageFolders").Get<string[]>();
-
-            if (imageFolders == null || imageFolders.Length == 0)
-                throw new InvalidOperationException("Either ImageFolder or ImageFolders must be configured");
-
-            _imageFolders = imageFolders;
-        }
-        else
-        {
-            _imageFolders = [imageFolder];
-        }
+        _imageFolders = imageFolders;
         
         Log.Information("ImageService initialized with ImageFolders: {@ImageFolders}", _imageFolders);
     }
+
+    private static string[]? ResolveImageFolders(IConfiguration config) => config.GetSection("ImageFolders")
+            .Get<string[]>()?
+            .Where(folder => !string.IsNullOrWhiteSpace(folder) && folder != "IGNORE")
+            .ToArray();
 
     public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
