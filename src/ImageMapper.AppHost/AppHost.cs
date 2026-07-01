@@ -22,22 +22,15 @@ if (isPublishMode)
         .Select((folder, index) => new
         {
             ConfigurationKey = $"ImageFolders__{index}",
-            VariableName = $"IMAGEMAPPER_API_IMAGE_FOLDERS_{index}",
-            DefaultValue = folder,
-            Parameter = builder.AddParameter(
-                $"imagemapper-api-image-folders-{index}",
-                folder,
-                publishValueAsDefault: true,
-                secret: false)
+            VariableName = $"IMAGEMAPPER_API_IMAGE_FOLDERS_{index}"
         })
         .ToArray();
 
     foreach (var imageFoldersParameter in imageFoldersParameters)
     {
-        api.WithEnvironment(imageFoldersParameter.ConfigurationKey, imageFoldersParameter.Parameter);
         api.WithEnvironment(
             imageFoldersParameter.ConfigurationKey,
-            ComposeVariableReference(imageFoldersParameter.VariableName, imageFoldersParameter.DefaultValue));
+            ComposeVariableReference(imageFoldersParameter.VariableName));
     }
 }
 else
@@ -67,8 +60,6 @@ api.WithHttpHealthCheck("/health")
 builder.AddProject<Projects.ImageMapper_Web>("imagemapper-web")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
-    //.WithReference(cache)
-    //.WaitFor(cache)
     .WithReference(api)
     .WaitFor(api)
     .PublishAsDockerComposeService((_, service) =>
@@ -88,12 +79,7 @@ static ComposeDefaults ResolveComposeDefaults(IConfiguration configuration)
     return new ComposeDefaults(imageFolders);
 }
 
-static string ComposeVariableReference(string variableName, string defaultValue)
-{
-    return string.IsNullOrWhiteSpace(defaultValue)
-        ? $"${{{variableName}}}"
-        : $"${{{variableName}:-{defaultValue}}}";
-}
+static string ComposeVariableReference(string variableName) => $"${{{variableName}}}";
 
 static void AddComposeEnvFileEntries(
     IDictionary<string, CapturedEnvironmentVariable> envFile,
@@ -105,7 +91,8 @@ static void AddComposeEnvFileEntries(
         envFile[variableName] = new CapturedEnvironmentVariable
         {
             Name = variableName,
-            Description = $"Optional override for API ImageFolders[{i}]"
+            DefaultValue = composeDefaults.ImageFolders[i],
+            Description = $"Default value for API ImageFolders[{i}]"
         };
     }
 

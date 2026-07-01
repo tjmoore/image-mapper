@@ -98,7 +98,9 @@ Generated `.env` keys include optional override variables:
 - `IMAGEMAPPER_API_IMAGE_FOLDERS_0`, `IMAGEMAPPER_API_IMAGE_FOLDERS_1`, ...
 
 These keys are mapped to API configuration (`ImageFolders__<index>`) during compose publish/deploy flows.
-When a key is left blank in `.env`, Docker Compose falls back to the `ComposeDefaults` value embedded in `docker-compose.yaml` for the selected deployment environment.
+`docker-compose.yaml` references these variables directly.
+Environment-specific defaults are written into generated environment files during environment-targeted flows (for example `.env.Staging` for `aspire do prepare-compose --environment Staging`).
+`aspire publish` keeps `.env` unfilled.
 
 ## Supported Image Formats
 
