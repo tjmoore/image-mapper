@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ImageMapper.Tests
 {
-    public class ImagesApiTest
+    public class ImageServiceTest
     {
         private string _testImagesDirectory = null!;
         private string _testSubdirectory = null!;
@@ -59,6 +59,8 @@ namespace ImageMapper.Tests
             Assert.That(images, Has.Count.GreaterThan(0), "test-image.jpg not found");
             var testImageId = images[0].Id;
 
+            Assert.That(testImageId, Is.Not.Empty.And.Not.WhiteSpace, "Image ID should not be empty or whitespace");
+
             // Act
             var bytes = await service.GetImageBytesAsync(testImageId);
 
@@ -104,6 +106,8 @@ namespace ImageMapper.Tests
             }
             Assert.That(images, Has.Count.GreaterThan(0), $"{fileName} not found");
             var imageId = images[0].Id;
+
+            Assert.That(imageId, Is.Not.Empty.And.Not.WhiteSpace, "Image ID should not be empty or whitespace");
 
             // Act
             var bytes = await service.GetImageBytesAsync(imageId);

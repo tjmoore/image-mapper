@@ -31,7 +31,7 @@ namespace ImageMapper.Web.Components.Pages
                 int batchCount = 0;
                 await foreach (ImageInfo? image in imageFetcher.Fetch(cts.Token))
                 {
-                    if (image == null || image.Longitude == null || image.Latitude == null)
+                    if (image == null || string.IsNullOrWhiteSpace(image.Id) || string.IsNullOrWhiteSpace(image.FileName))
                     {
                         skippedImages++;
                         continue;

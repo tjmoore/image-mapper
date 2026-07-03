@@ -1,132 +1,82 @@
 using ImageMapper.Models;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
+using Microsoft.Extensions.Caching.Memory;
 using Serilog;
-using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Api.Services;
 
-public class ImageService : IImageService
+public sealed class ImageService(
+    IMemoryCache _cache,
+    CacheSignal<ImageInfo> _imageCacheSignal) : IImageService
 {
-    private readonly string[] _imageFolders;
-
-    // In-memory lookup from ID to full file path
-    private static readonly Dictionary<string, string> IdToPathMapping = [];
-    private static readonly SemaphoreSlim MappingSem = new(1, 1);
-
-    private static readonly string[] ValidExtensions = [
-        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".heic", ".heif", ".ico", ".webp", ".pcx",".tif", ".tiff",
-        ".nef", ".crw", ".cr2", ".orf", ".arw", ".raf", ".srw", ".x3f", ".rw2", ".rwl", ".dcr", ".dng"        
-    ];
-
-    public ImageService(IConfiguration config)
-    {
-        var imageFolders = ResolveImageFolders(config);
-        if (imageFolders == null || imageFolders.Length == 0)
-            throw new InvalidOperationException("ImageFolders must be configured with at least one folder");
-
-        _imageFolders = imageFolders;
-        
-        Log.Information("ImageService initialized with ImageFolders: {@ImageFolders}", _imageFolders);
-    }
-
-    private static string[]? ResolveImageFolders(IConfiguration config) => config.GetSection("ImageFolders")
-            .Get<string[]>()?
-            .Where(folder => !string.IsNullOrWhiteSpace(folder) && folder != "IGNORE")
-            .ToArray();
-
+    /// <summary>
+    /// Asynchronously retrieves a sequence of image information.
+    /// </summary>
+    /// <remarks>This method allows for cancellation of the operation through the provided cancellation token.
+    /// If the operation is canceled, an <see cref="OperationCanceledException"/> will be thrown.</remarks>
+    /// <param name="ct">The cancellation token to observe while waiting for the asynchronous operation to complete.</param>
+    /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images.</returns>
     public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
-        if (_imageFolders == null || _imageFolders.Length == 0)
-            yield break;
+        try
+        {            
+            await _imageCacheSignal.WaitAsync(ct);
 
-        var files = _imageFolders
-            .Where(folder => System.IO.Directory.Exists(folder))
-            .SelectMany(folder => System.IO.Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
-            .Where(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+            if (!_cache.TryGetValue("ImageCacheInfo", out ImageCacheInfo? cacheInfo) || cacheInfo == null || cacheInfo.Keys.Count == 0)
+                yield break;
 
-        foreach (string f in files)
-        {
-            ct.ThrowIfCancellationRequested();
-            var id = await GenerateIdForPath(f, ct);
-            var info = new ImageInfo { Id = id, FileName = Path.GetFileName(f) };
-            try
+            foreach (var key in cacheInfo.Keys)
             {
-                var directories = ImageMetadataReader.ReadMetadata(f);
-                var gps = directories.OfType<GpsDirectory>().FirstOrDefault();
-                if (gps != null)
+                ct.ThrowIfCancellationRequested();
+
+                if (await _cache.GetOrCreateAsync(
+                    key, _ =>
+                    {
+                        Log.Warning("GetImagesAsync - This should never happen!");
+                        return Task.FromResult(default(ImageInfo));
+                    }) is ImageInfo image)
                 {
-                    if (gps.TryGetGeoLocation(out GeoLocation location))
-                    {
-                        info.Latitude = location.Latitude;
-                        info.Longitude = location.Longitude;
-                    }
-                    else
-                    {
-                        Log.Debug("No geolocation found in GPS data for file: {File}", f);
-                    }
+                    yield return image;
                 }
             }
-            catch
-            {
-                Log.Warning("Failed to read metadata for file: {File}", f);
-            }
-            yield return info;
-        }
-    }
-
-    private static async Task<string> GenerateIdForPath(string fullPath, CancellationToken ct = default)
-    {
-        // Generate a unique ID based on the full path
-        var id = Base64Url.EncodeToString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fullPath)));
-
-        await MappingSem.WaitAsync(ct);
-        try
-        {
-            IdToPathMapping[id] = fullPath;
         }
         finally
         {
-            MappingSem.Release();
+            _imageCacheSignal.Release();
         }
-
-        return id;
     }
 
+    /// <summary>
+    /// Asynchronously retrieves the image data as a byte array from the specified image ID.
+    /// </summary>
+    /// <remarks>The image ID is a unique identifier generated from the image's full path.
+    /// This prevents the frontend from accessing file system paths.</remarks>
+    /// <param name="id">The unique image ID</param>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a byte array of the image data, or
+    /// null if the image could not be found.</returns>
     public async Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default)
     {
-        await MappingSem.WaitAsync(ct);
-        try
-        {
-            if (!IdToPathMapping.TryGetValue(id, out var fullPath))
-                return null;
+        if (!_cache.TryGetValue(id, out ImageInfo? image) || image == null)
+            return null;
 
-            if (!File.Exists(fullPath))
-            {
-                // Remove stale mapping
-                IdToPathMapping.Remove(id);
-                return null;
-            }
-
-            return await File.ReadAllBytesAsync(fullPath, ct);
-        }
-        finally
-        {
-            MappingSem.Release();
-        }
+        return await ImageFetcherHelpers.GetImageBytesAsync(image.FileName, ct);
     }
 
-    public Task<int> GetImageCountAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Asynchronously retrieves the total count of image files.
+    /// </summary>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>The total count of image files.</returns>
+    public async Task<int> GetImageCountAsync(CancellationToken ct = default)
     {
-        if (_imageFolders == null || _imageFolders.Length == 0)
-            return Task.FromResult(0);
+        ImageCacheInfo? cacheInfo = await _cache.GetOrCreateAsync(
+        "ImageCacheInfo", _ =>
+        {
+            Log.Warning("GetImageCountAsync - This should never happen!");
+            return Task.FromResult(default(ImageCacheInfo));
+        });
 
-        var count = _imageFolders
-            .Where(folder => System.IO.Directory.Exists(folder))
-            .SelectMany(folder => System.IO.Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
-            .Count(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
-
-        return Task.FromResult(count);
+        return cacheInfo?.TotalImageFiles ?? 0;
     }
 }

@@ -20,6 +20,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
+
     // include common binary/image mime types
     options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
     [
@@ -39,7 +40,14 @@ builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddSingleton<IImageService, ImageService>();
+builder.Services.AddMemoryCache();
+
+builder.Services.AddSingleton(typeof(CacheSignal<>));
+builder.Services.AddSingleton<ImageInfoFetcher>();
+builder.Services.AddScoped<IImageService, ImageService>();
+
+builder.Services.AddHostedService<ImageWorkerService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
