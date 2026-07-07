@@ -9,9 +9,10 @@ public interface IImageService
     /// </summary>
     /// <remarks>This method allows for cancellation of the operation through the provided cancellation token.
     /// If the operation is canceled, an <see cref="OperationCanceledException"/> will be thrown.</remarks>
+    /// <param name="reinitialise">Indicates whether to reinitialise the image fetcher before retrieving images.</param>
     /// <param name="ct">The cancellation token to observe while waiting for the asynchronous operation to complete.</param>
     /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images.</returns>
-    IAsyncEnumerable<ImageInfo> GetImagesAsync(CancellationToken ct = default);
+    IAsyncEnumerable<ImageInfo> GetImagesAsync(bool reinitialise = false, CancellationToken ct = default);
 
     /// <summary>
     /// Asynchronously retrieves the image data as a byte array from the specified image ID.
@@ -25,9 +26,8 @@ public interface IImageService
     Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default);
 
     /// <summary>
-    /// Asynchronously retrieves the total count of image files.
+    /// Retrieves the total count of image files.
     /// </summary>
-    /// <param name="ct">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>The total count of image files.</returns>
-    Task<int> GetImageCountAsync(CancellationToken ct = default);
+    int GetImageCount();
 }

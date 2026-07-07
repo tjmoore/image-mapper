@@ -34,21 +34,22 @@ builder.Services.AddResponseCompression(options =>
     options.Providers.Add<GzipCompressionProvider>();
 });
 
-builder.Services.Configure<BrotliCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
-builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
+builder.Services
+    .Configure<BrotliCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest)
+    .Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddMemoryCache();
-
-builder.Services.AddSingleton(typeof(CacheSignal<>));
-builder.Services.AddSingleton<ImageInfoFetcher>();
-builder.Services.AddScoped<IImageService, ImageService>();
-
-builder.Services.AddHostedService<ImageWorkerService>();
+builder.Services
+    .AddMemoryCache()
+    .AddSingleton(typeof(CacheSignal<>))
+    .AddSingleton<ImageInfoFetcher>()
+    .AddSingleton<IImageService, ImageService>()
+    .AddHostedService<ImageWorkerService>();
 
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -1,38 +1,44 @@
 ﻿using ImageMapper.Models;
 using Serilog;
-using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Api.Services
 {
     /// <summary>
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available
     /// </summary>
+    /// <remarks>This class is not itself thread-safe</remarks>
     public class ImageInfoFetcher(IConfiguration _config)
     {
-        private List<string>? _imageFiles;
+        private List<BasicFileInfo>? _imageFiles;
+
+        private int _imageCount;
 
         private bool _initialised = false;
 
         /// <summary>
-        /// Fetches all image info from the configured folders and extracts their metadata, including geolocation if available
+        /// Fetches a list of all image files from the configured folders
         /// </summary>
-        /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None</param>
-        /// <returns></returns>
-        /// <remarks>This method uses asynchronous streaming to yield image information as it is processed</remarks>
-        public async IAsyncEnumerable<ImageInfo> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
+        /// <returns>An enumerable of image file paths</returns>
+        public IEnumerable<BasicFileInfo> GetImageFiles()
         {
-            if (!_initialised)
-                Initialise();
+            CheckInitialise();
 
-            if (_imageFiles == null || _imageFiles.Count == 0)
-                yield break;
+            return _imageFiles ?? Enumerable.Empty<BasicFileInfo>();
+        }
 
-            foreach (string f in _imageFiles)
-            {
-                ct.ThrowIfCancellationRequested();
+        /// <summary>
+        /// Gets the image information for a specific image file, including metadata and geolocation if available
+        /// </summary>
+        /// <param name="imageFile">The image file</param>
+        /// <returns>The image information, or null if the image file is not found</returns>
+        public ImageInfo? GetImageInfo(BasicFileInfo imageFile)
+        {
+            CheckInitialise();
 
-                yield return ImageInfoHelpers.GetImageInfo(f);
-            }
+            if (_imageFiles == null || !_imageFiles.Contains(imageFile))
+                return null;
+
+            return ImageInfoHelpers.GetImageInfo(imageFile);
         }
 
         /// <summary>
@@ -41,27 +47,43 @@ namespace ImageMapper.Api.Services
         /// <returns>The total count of image files</returns>
         public int GetImageCount()
         {
-            if (!_initialised)
-                Initialise();
+            CheckInitialise();
 
-            return _imageFiles?.Count ?? 0;
+            return _imageCount;
+        }
+
+        /// <summary>
+        /// Clears the initialised flag and triggers reinitialisation of the fetcher
+        /// </summary>
+        public void Reinitialise()
+        {
+            _initialised = false;
         }
 
         /// <summary>
         /// Initialises the fetcher by resolving folders and finding valid files in those folders
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        private void Initialise()
+        private void CheckInitialise()
         {
+            if (_initialised)
+                return;
+
             var imageFolders = ImageFetcherHelpers.ResolveImageFolders(_config);
             if (imageFolders == null || imageFolders.Length == 0)
-                throw new InvalidOperationException("ImageFolders must be configured with at least one folder");
+            {
+                Log.Warning("No valid image folders found in configuration");
+                return;
+            }
 
             Log.Information("ImageInfoFetcher initialized with ImageFolders: {@ImageFolders}", imageFolders);
 
-            _imageFiles = [.. ImageFetcherHelpers.GetImageList(imageFolders)];
+            _imageFiles = [.. ImageFetcherHelpers.GetImageList(imageFolders)
+                .Select(f => new BasicFileInfo(ImageFetcherHelpers.GenerateIdForPath(f), Path.GetFileName(f), f))];
 
-            Log.Information("ImageInfoFetcher found {ImageCount} image files in configured folders", _imageFiles.Count);
+            _imageCount = _imageFiles.Count;
+
+            Log.Information("ImageInfoFetcher found {ImageCount} image files in configured folders", _imageCount);
 
             _initialised = true;
         }

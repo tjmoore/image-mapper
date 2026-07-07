@@ -47,7 +47,11 @@ namespace ImageMapper.Tests
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
-            var service = new ImageService(config);
+
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
 
             // Get the image ID first
             var images = new List<ImageInfo>();
@@ -77,7 +81,11 @@ namespace ImageMapper.Tests
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
-            var service = new ImageService(config);
+
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
 
             // Act - use a fake ID that doesn't exist
             var bytes = await service.GetImageBytesAsync("nonexistent-id-12345");
@@ -95,7 +103,11 @@ namespace ImageMapper.Tests
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
-            var service = new ImageService(config);
+
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
 
             // Get the image ID first
             var images = new List<ImageInfo>();
@@ -124,7 +136,11 @@ namespace ImageMapper.Tests
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
-            var service = new ImageService(config);
+
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
 
             // Act
             var images = new List<ImageInfo>();
@@ -147,7 +163,11 @@ namespace ImageMapper.Tests
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection([new("ImageFolders:0", Path.Combine(_testImagesDirectory, "nonexistent"))])
                 .Build();
-            var service = new ImageService(config);
+
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
 
             // Act
             var images = new List<ImageInfo>();
@@ -167,7 +187,12 @@ namespace ImageMapper.Tests
             var config = new ConfigurationBuilder()
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
-            var service = new ImageService(config);
+
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
+
             using var cts = new CancellationTokenSource();
             cts.Cancel();
 
@@ -175,7 +200,7 @@ namespace ImageMapper.Tests
             var ex = Assert.ThrowsAsync<OperationCanceledException>(
                 async () =>
                 {
-                    await foreach (var image in service.GetImagesAsync(cts.Token))
+                    await foreach (var image in service.GetImagesAsync(ct: cts.Token))
                     {
                         // This should throw due to cancellation
                     }
@@ -196,7 +221,10 @@ namespace ImageMapper.Tests
             var nonImagePath = Path.Combine(_testImagesDirectory, "readme.txt");
             File.WriteAllText(nonImagePath, "This is not an image");
 
-            var service = new ImageService(config);
+            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var fetcher = new ImageInfoFetcher(config);
+            var cacheSignal = new CacheSignal<ImageInfo>();
+            var service = new ImageService(cache, fetcher, cacheSignal);
 
             // Act
             var images = new List<ImageInfo>();

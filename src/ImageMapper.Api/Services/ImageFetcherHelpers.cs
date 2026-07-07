@@ -10,17 +10,17 @@ namespace ImageMapper.Api.Services
         ];
 
         /// <summary>
-        /// Asynchronously retrieves the image data as a byte array from the specified filename
+        /// Asynchronously retrieves the image data as a byte array from the specified file path
         /// </summary>
-        /// <param name="filename">The filename of the image</param>
+        /// <param name="filepath">The file path of the image</param>
         /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a byte array of the image data, or
         /// null if the image could not be found.</returns>
-        public static async Task<byte[]?> GetImageBytesAsync(string filename, CancellationToken ct = default)
+        public static async Task<byte[]?> GetImageBytesAsync(string filepath, CancellationToken ct = default)
         {
-            if (File.Exists(filename))
+            if (File.Exists(filepath))
             {
-                return await File.ReadAllBytesAsync(filename, ct);
+                return await File.ReadAllBytesAsync(filepath, ct);
             }
 
             return null;
@@ -42,10 +42,10 @@ namespace ImageMapper.Api.Services
         /// <summary>
         /// // Generate a unique ID based on the full path
         /// </summary>
-        /// <param name="fullPath"></param>
+        /// <param name="filepath"></param>
         /// <returns></returns>
-        public static string GenerateIdForPath(string fullPath) =>
-            Base64Url.EncodeToString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(fullPath)));
+        public static string GenerateIdForPath(string filepath) =>
+            Base64Url.EncodeToString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(filepath)));
 
         /// <summary>
         /// Returns a list of valid image folders

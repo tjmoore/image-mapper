@@ -1,19 +1,15 @@
-﻿using ImageMapper.Models;
-using Microsoft.Extensions.Caching.Memory;
-using Serilog;
+﻿using Serilog;
 
 namespace ImageMapper.Api.Services
 {
-    // Based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
+    // Very loosly based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
+    // but caching is done in GetImagesAsync() as required and the worker service just calls that to update the cache at regular intervals instead of caching
+    // in the worker and reading the cache in GetImagesAsync(). This simplifies synchronisation.
 
     public sealed class ImageWorkerService(
-        IConfiguration _config,
-        CacheSignal<ImageInfo> _imageCacheSignal,
-        IMemoryCache _cache) : BackgroundService
+        IImageService _imageService) : BackgroundService
     {
         private readonly TimeSpan _updateInterval = TimeSpan.FromHours(3);
-
-        private bool _isCacheInitialized = false;
 
         /// <summary>
         /// Start the worker service
@@ -37,40 +33,23 @@ namespace ImageMapper.Api.Services
             {
                 Log.Information("Updating cache");
 
-                var fetcher = new ImageInfoFetcher(_config);
-
-                int totalImageCount = fetcher.GetImageCount();
-
-                var cacheInfo = new ImageCacheInfo(totalImageCount, 0, []);
-                _cache.Set("ImageCacheInfo", cacheInfo);
-
                 try
                 {
-                    await _imageCacheSignal.WaitAsync(ct);
+                    int totalImageCount = await _imageService.GetImagesAsync(reinitialise: true, ct: ct).CountAsync(ct);
 
-                    var keys = new HashSet<string>();
-
-                    // Set each image info in the cache under its ID as key
-                    await foreach (ImageInfo image in fetcher.GetAllAsync(ct))
-                    {
-                        _cache.Set(image.Id, image);
-                        keys.Add(image.Id);
-                    }
-
-                    // Update cache info with the list of keys and count for easy retrieval
-                    cacheInfo = new ImageCacheInfo(totalImageCount, keys.Count, keys);
-                    _cache.Set("ImageCacheInfo", cacheInfo);
-
-                    Log.Information("Cache updated with {Count} images", cacheInfo.TotalImageFiles);
+                    Log.Information("Cache updated with {Count} images", totalImageCount);
                 }
-                finally
+                catch (OperationCanceledException)
                 {
-                    if (!_isCacheInitialized)
-                    {
-                        _imageCacheSignal.Release();
-                        _isCacheInitialized = true;
-                    }
+                    Log.Warning("Cancellation acknowledged: shutting down");
+                    break;
                 }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error occurred while updating cache");
+                }
+
+                // TODO: Consider update schedule based on detected changes in the image folders, rather than a fixed interval
 
                 try
                 {
