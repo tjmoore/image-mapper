@@ -197,7 +197,7 @@ namespace ImageMapper.Tests
             cts.Cancel();
 
             // Act & Assert
-            var ex = Assert.ThrowsAsync<OperationCanceledException>(
+            var ex = Assert.ThrowsAsync<TaskCanceledException>(
                 async () =>
                 {
                     await foreach (var image in service.GetImagesAsync(ct: cts.Token))

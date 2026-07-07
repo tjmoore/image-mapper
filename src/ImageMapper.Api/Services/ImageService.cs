@@ -19,10 +19,10 @@ public sealed class ImageService(
     /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images.</returns>
     public async IAsyncEnumerable<ImageInfo> GetImagesAsync(bool reinitialise = false, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        try
-        {            
-            await _imageCacheSignal.WaitAsync(ct);
+        await _imageCacheSignal.WaitAsync(ct);
 
+        try
+        {           
             if (reinitialise)
             {
                 _imageInfoFetcher.Reinitialise();
