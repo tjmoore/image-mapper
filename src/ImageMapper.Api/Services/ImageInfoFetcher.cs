@@ -8,7 +8,11 @@ namespace ImageMapper.Api.Services
     /// <summary>
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available
     /// </summary>
-    public class ImageInfoFetcher(IConfiguration _config, IMemoryCache _cache, CacheSignal<ImageInfo> _cacheSignal)
+    public class ImageInfoFetcher(
+        IConfiguration _config,
+        IMemoryCache _cache,
+        CacheSignal<ImageInfo> _cacheSignal,
+        CacheActivityStatus _cacheActivityStatus)
     {
         /// <summary>
         /// Fetches a list of all image files from the configured folders
@@ -39,10 +43,17 @@ namespace ImageMapper.Api.Services
 
                 if (!_cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? imageFiles) || imageFiles == null)
                 {
+                    _cacheActivityStatus.MarkCachingStarted(0);
+                    _cacheActivityStatus.UpdateProgress(0, 0);
                     return 0;
                 }
 
                 int imageCount = 0;
+                int processedFileCount = 0;
+                int totalFileCount = imageFiles.Count;
+
+                _cacheActivityStatus.MarkCachingStarted(totalFileCount);
+                _cacheActivityStatus.UpdateProgress(processedFileCount, totalFileCount);
 
                 foreach (BasicFileInfo imageFile in imageFiles)
                 {
@@ -56,6 +67,9 @@ namespace ImageMapper.Api.Services
                         _cache.Set(imageFile.Id, imageInfo);
                         imageCount++;
                     }
+
+                    processedFileCount++;
+                    _cacheActivityStatus.UpdateProgress(processedFileCount, totalFileCount);
                 }
                 Log.Information("Cache updated with {Count} images", imageCount);
 
@@ -65,6 +79,7 @@ namespace ImageMapper.Api.Services
             }
             finally
             {
+                _cacheActivityStatus.MarkCachingStopped();
                 _cacheSignal.Release();
             }
         }

@@ -50,7 +50,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);
@@ -86,7 +87,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);
@@ -110,7 +112,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);
@@ -145,7 +148,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);
@@ -174,7 +178,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);
@@ -200,7 +205,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);
@@ -235,7 +241,8 @@ namespace ImageMapper.Tests
 
             var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
-            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal);
+            var cacheActivityStatus = new CacheActivityStatus();
+            var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
             var service = new ImageService(fetcher);
 
             await fetcher.ProcessImagesAsync(CancellationToken.None);

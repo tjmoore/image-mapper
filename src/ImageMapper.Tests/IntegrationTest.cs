@@ -3,6 +3,7 @@ using ImageMapper.Models;
 using ImageMapper.Web.Client;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using System.Net.Http.Json;
 
 namespace ImageMapper.Tests
 {
@@ -128,6 +129,56 @@ namespace ImageMapper.Tests
             Assert.That(images, Has.Count.EqualTo(2));
             Assert.That(images.Select(i => i.FileName), Does.Contain("test-image.jpg"));
             Assert.That(images.Select(i => i.FileName), Does.Contain("nested-image.png"));
+        }
+
+        [Test]
+        public async Task GetCacheStatusReturnsValidResponse()
+        {
+            // Arrange
+            using var cts = new CancellationTokenSource(DefaultTimeout);
+            var cancellationToken = cts.Token;
+
+            await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
+            using var httpClient = app.CreateHttpClient("imagemapper-api");
+            await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
+
+            // Act
+            using var response = await httpClient.GetAsync("/api/images/cache-status", cancellationToken);
+            var cacheStatus = await response.Content.ReadFromJsonAsync<CacheStatusInfo>(cancellationToken);
+
+            // Assert
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(cacheStatus, Is.Not.Null);
+        }
+
+        [Test]
+        public async Task GetCacheStatusStreamReturnsInitialStatus()
+        {
+            // Arrange
+            using var cts = new CancellationTokenSource(DefaultTimeout);
+            var cancellationToken = cts.Token;
+
+            await using var app = await BuildAndStartAppAsync(cancellationToken, _testImagesDirectory);
+            using var httpClient = app.CreateHttpClient("imagemapper-api");
+            await app.ResourceNotifications.WaitForResourceHealthyAsync("imagemapper-web", cancellationToken).WaitAsync(DefaultTimeout, cancellationToken);
+
+            // Act
+            using var response = await httpClient.GetAsync("/api/images/cache-status/events", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using var reader = new StreamReader(stream);
+            var firstLine = await reader.ReadLineAsync(cancellationToken);
+            var secondLine = await reader.ReadLineAsync(cancellationToken);
+            var payload = secondLine?["data: ".Length..];
+            var status = payload == null ? null : System.Text.Json.JsonSerializer.Deserialize<CacheStatusInfo>(payload);
+
+            // Assert
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(response.Content.Headers.ContentType?.MediaType, Is.EqualTo("text/event-stream"));
+            Assert.That(firstLine, Is.EqualTo("event: cache-status"));
+            Assert.That(secondLine, Does.StartWith("data: "));
+            Assert.That(status, Is.Not.Null);
+            Assert.That(status!.ProcessedFileCount, Is.GreaterThanOrEqualTo(0));
+            Assert.That(status.TotalFileCount, Is.GreaterThanOrEqualTo(0));
         }
 
         [Test]

@@ -1,8 +1,6 @@
 # TODO
 
 - Indexing / caching of image metadata
-	- Back-end caching of file list and metadata to avoid reprocessing on each request
-	- UI update as cache builds
 	- Detect folder/file changes instead of recaching on schedule
 - Show file info in photo view, including filename and GPS coordinates
 - Support for folder patterns in image folder config and/or folder exclusion

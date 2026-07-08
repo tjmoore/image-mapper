@@ -1,5 +1,7 @@
 using ImageMapper.Models;
 using Microsoft.JSInterop;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace ImageMapper.Web.Components.Pages
 {
@@ -9,11 +11,14 @@ namespace ImageMapper.Web.Components.Pages
         private int totalImages = 0;
         private int skippedImages = 0;
         private int imagesLoaded = 0;
+        private string cacheStatusText = "Checking...";
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                _ = ConsumeCacheStatusStreamAsync(cts.Token);
+
                 // Fetch total image count
                 totalImages = await imageFetcher.FetchImageCount(cts.Token);
 
@@ -73,6 +78,68 @@ namespace ImageMapper.Web.Components.Pages
                 // Final update to ensure UI is synchronized
                 StateHasChanged();
             }
+        }
+
+        private async Task ConsumeCacheStatusStreamAsync(CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    await foreach (var cacheStatus in imageFetcher.StreamCacheStatus(ct))
+                    {
+                        cacheStatusText = FormatCacheStatusText(cacheStatus);
+                        await InvokeAsync(StateHasChanged);
+                    }
+
+                    cacheStatusText = "Unavailable";
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    break;
+                }
+                catch (HttpRequestException)
+                {
+                    cacheStatusText = "Unavailable";
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (JsonException)
+                {
+                    cacheStatusText = "Unavailable";
+                    await InvokeAsync(StateHasChanged);
+                }
+
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), ct);
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    break;
+                }
+            }
+        }
+
+        private static string FormatCacheStatusText(CacheStatusInfo? cacheStatus)
+        {
+            if (cacheStatus == null)
+            {
+                return "Unavailable";
+            }
+
+            if (!cacheStatus.IsCaching)
+            {
+                return "Idle";
+            }
+
+            if (cacheStatus.TotalFileCount <= 0)
+            {
+                return "Processing images...";
+            }
+
+            var processedCount = Math.Min(cacheStatus.ProcessedFileCount, cacheStatus.TotalFileCount);
+            return $"Processing images... ({processedCount}/{cacheStatus.TotalFileCount})";
         }
 
         public void Dispose()

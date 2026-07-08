@@ -6,7 +6,11 @@
 
 <PageTitle>Image Map</PageTitle>
 
-<div id="map" style="height:700px;"></div>
+<div id="map" style="height: 60vh; min-height: 220px;"></div>
+
+<div id="statusContainer" style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-radius: 4px;">
+    <span style="font-size: 14px; color: #333;"><strong>Status:</strong> @cacheStatusText</span>
+</div>
 
 <!-- Image count section -->
 <div id="imageCountContainer" style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-radius: 4px; display: none;">
@@ -102,6 +106,50 @@
 
         // Set up modal close handlers
         window.setupImageModal();
+
+        // Ensure map and surrounding status sections fit in the viewport.
+        window.adjustMapLayout();
+
+        if (!window._imageMapperMapResizeHandlerAttached) {
+            window.addEventListener('resize', window.adjustMapLayout);
+            window._imageMapperMapResizeHandlerAttached = true;
+        }
+    }
+
+    window.adjustMapLayout = function() {
+        const mapElement = document.getElementById('map');
+        if (!map || !mapElement) {
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            const mapTop = mapElement.getBoundingClientRect().top;
+            const viewportHeight = window.innerHeight;
+            const bottomSpacing = 20;
+
+            const containerIds = ['statusContainer', 'imageCountContainer', 'progressContainer'];
+            let visibleContainerHeight = 0;
+
+            for (const id of containerIds) {
+                const element = document.getElementById(id);
+                if (!element) {
+                    continue;
+                }
+
+                const style = window.getComputedStyle(element);
+                if (style.display === 'none') {
+                    continue;
+                }
+
+                const marginTop = parseFloat(style.marginTop || '0');
+                const marginBottom = parseFloat(style.marginBottom || '0');
+                visibleContainerHeight += element.offsetHeight + marginTop + marginBottom;
+            }
+
+            const availableHeight = viewportHeight - mapTop - visibleContainerHeight - bottomSpacing;
+            mapElement.style.height = `${Math.max(220, availableHeight)}px`;
+            map.invalidateSize();
+        });
     }
 
     window.setupImageModal = function() {
@@ -151,6 +199,7 @@
         const container = document.getElementById('progressContainer');
         if (container) {
             container.style.display = 'block';
+            window.adjustMapLayout();
         }
     }
 
@@ -158,6 +207,7 @@
         const container = document.getElementById('progressContainer');
         if (container) {
             container.style.display = 'none';
+            window.adjustMapLayout();
         }
     }
 
@@ -172,6 +222,7 @@
         }
         if (countContainer && count > 0) {
             countContainer.style.display = 'block';
+            window.adjustMapLayout();
         }
 
         if (skipped > 0) {
@@ -182,6 +233,8 @@
                 skippedCountText.style.display = 'inline';
             }
         }
+
+        window.adjustMapLayout();
     }
 
     window.updateProgress = function(loaded, total, percentage) {
