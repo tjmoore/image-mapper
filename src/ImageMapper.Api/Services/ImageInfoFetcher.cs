@@ -72,11 +72,11 @@ namespace ImageMapper.Api.Services
         /// <summary>
         /// Fetches the image information for a specific image file from the cache, if available
         /// </summary>
-        /// <param name="file">The image file for which to fetch information</param>
+        /// <param name="id">The ID of the image for which to fetch information</param>
         /// <returns>The image information if available; otherwise, null</returns>
-        public ImageInfo? GetImageInfo(BasicFileInfo file)
+        public ImageInfo? GetImageInfo(string id)
         {
-            if (_cache.TryGetValue(file.Id, out ImageInfo? cachedImage) && cachedImage != null)
+            if (_cache.TryGetValue(id, out ImageInfo? cachedImage) && cachedImage != null)
                 return cachedImage;
 
             return null;

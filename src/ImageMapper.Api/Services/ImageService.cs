@@ -1,11 +1,9 @@
 using ImageMapper.Models;
-using Microsoft.Extensions.Caching.Memory;
 using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Api.Services;
 
 public sealed class ImageService(
-    IMemoryCache _cache,
     ImageInfoFetcher _imageInfoFetcher) : IImageService
 {
     /// <summary>
@@ -25,7 +23,7 @@ public sealed class ImageService(
         {
             ct.ThrowIfCancellationRequested();
 
-            var image = _imageInfoFetcher.GetImageInfo(file);
+            var image = _imageInfoFetcher.GetImageInfo(file.Id);
             if (image != null)
                 yield return image;
         }
@@ -43,10 +41,12 @@ public sealed class ImageService(
     /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
     public async Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default)
     {
-        if (!_cache.TryGetValue(id, out ImageInfo? image) || image == null)
-            return null;
+        var image = _imageInfoFetcher.GetImageInfo(id);
 
-        return await ImageFetcherHelpers.GetImageBytesAsync(image.FilePath, ct);
+        if (image != null)
+            return await ImageFetcherHelpers.GetImageBytesAsync(image.FilePath, ct);
+
+        return null;
     }
 
     /// <summary>
