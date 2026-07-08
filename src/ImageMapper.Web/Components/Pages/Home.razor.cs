@@ -31,7 +31,9 @@ namespace ImageMapper.Web.Components.Pages
                 int batchCount = 0;
                 await foreach (ImageInfo? image in imageFetcher.Fetch(cts.Token))
                 {
-                    if (image == null || image.Longitude == null || image.Latitude == null)
+                    // Skips images that are null or have invalid data, or have no geolocation information as there's nothing to plot on the map
+                    if (image == null || string.IsNullOrWhiteSpace(image.Id) || string.IsNullOrWhiteSpace(image.FileName) ||
+                        image.Latitude == 0 || image.Longitude == 0)
                     {
                         skippedImages++;
                         continue;

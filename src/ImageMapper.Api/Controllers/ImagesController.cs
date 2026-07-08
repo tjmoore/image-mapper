@@ -14,14 +14,14 @@ public class ImagesController(IImageService svc) : ControllerBase
     [HttpGet]
     public IAsyncEnumerable<ImageInfo> Get(CancellationToken ct)
     {
-        return _svc.GetImagesAsync(ct);
+        return _svc.GetImagesAsync(ct: ct);
     }
 
     [HttpGet("count")]
-    public async Task<ActionResult<int>> GetCount(CancellationToken ct)
+    public Task<int> GetCount()
     {
-        var count = await _svc.GetImageCountAsync(ct);
-        return Ok(count);
+        var count = _svc.GetImageCount();
+        return Task.FromResult(count);
     }
 
     [HttpGet("raw/{id}")]
