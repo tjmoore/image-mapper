@@ -29,7 +29,7 @@ public class ImagesController(IImageService svc, CacheActivityStatus cacheActivi
     [HttpGet("cache-status")]
     public Task<CacheStatusInfo> GetCacheStatus()
     {
-        return Task.FromResult(new CacheStatusInfo(_cacheActivityStatus.IsCaching));
+        return Task.FromResult(_cacheActivityStatus.GetStatus());
     }
 
     [HttpGet("cache-status/events")]

@@ -88,7 +88,7 @@ namespace ImageMapper.Web.Components.Pages
                 {
                     await foreach (var cacheStatus in imageFetcher.StreamCacheStatus(ct))
                     {
-                        cacheStatusText = cacheStatus?.IsCaching == true ? "Caching images..." : "Idle";
+                        cacheStatusText = FormatCacheStatusText(cacheStatus);
                         await InvokeAsync(StateHasChanged);
                     }
 
@@ -119,6 +119,27 @@ namespace ImageMapper.Web.Components.Pages
                     break;
                 }
             }
+        }
+
+        private static string FormatCacheStatusText(CacheStatusInfo? cacheStatus)
+        {
+            if (cacheStatus == null)
+            {
+                return "Unavailable";
+            }
+
+            if (!cacheStatus.IsCaching)
+            {
+                return "Idle";
+            }
+
+            if (cacheStatus.TotalFileCount <= 0)
+            {
+                return "Processing images...";
+            }
+
+            var processedCount = Math.Min(cacheStatus.ProcessedFileCount, cacheStatus.TotalFileCount);
+            return $"Processing images... ({processedCount}/{cacheStatus.TotalFileCount})";
         }
 
         public void Dispose()

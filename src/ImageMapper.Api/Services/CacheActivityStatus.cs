@@ -8,17 +8,41 @@ namespace ImageMapper.Api.Services;
 public sealed class CacheActivityStatus
 {
     private int _activeCacheOperations;
+    private int _processedFileCount;
+    private int _totalFileCount;
     private readonly ConcurrentDictionary<Guid, Channel<CacheStatusInfo>> _subscribers = [];
 
     public bool IsCaching => Volatile.Read(ref _activeCacheOperations) > 0;
 
-    public void MarkCachingStarted()
+    public CacheStatusInfo GetStatus()
+    {
+        return new CacheStatusInfo(
+            IsCaching,
+            Volatile.Read(ref _processedFileCount),
+            Volatile.Read(ref _totalFileCount));
+    }
+
+    public void MarkCachingStarted(int totalFileCount)
     {
         var previousCount = Interlocked.Increment(ref _activeCacheOperations) - 1;
         if (previousCount == 0)
         {
-            PublishStatus(new CacheStatusInfo(IsCaching: true));
+            Interlocked.Exchange(ref _processedFileCount, 0);
+            Interlocked.Exchange(ref _totalFileCount, Math.Max(0, totalFileCount));
+            PublishStatus(GetStatus());
         }
+    }
+
+    public void UpdateProgress(int processedFileCount, int totalFileCount)
+    {
+        if (!IsCaching)
+        {
+            return;
+        }
+
+        Interlocked.Exchange(ref _processedFileCount, Math.Max(0, processedFileCount));
+        Interlocked.Exchange(ref _totalFileCount, Math.Max(0, totalFileCount));
+        PublishStatus(GetStatus());
     }
 
     public void MarkCachingStopped()
@@ -32,7 +56,7 @@ public sealed class CacheActivityStatus
 
         if (remainingCount == 0)
         {
-            PublishStatus(new CacheStatusInfo(IsCaching: false));
+            PublishStatus(GetStatus() with { IsCaching = false });
         }
     }
 
@@ -46,7 +70,7 @@ public sealed class CacheActivityStatus
 
         var subscriberId = Guid.NewGuid();
         _subscribers[subscriberId] = channel;
-        channel.Writer.TryWrite(new CacheStatusInfo(IsCaching));
+        channel.Writer.TryWrite(GetStatus());
 
         return ReadStatusesAsync(subscriberId, channel, ct);
     }

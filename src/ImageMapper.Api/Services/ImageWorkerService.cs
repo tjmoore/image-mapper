@@ -5,8 +5,7 @@ namespace ImageMapper.Api.Services
     // Very loosly based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
 
     public sealed class ImageWorkerService(
-        ImageInfoFetcher _imageInfoFetcher,
-        CacheActivityStatus _cacheActivityStatus) : BackgroundService
+        ImageInfoFetcher _imageInfoFetcher) : BackgroundService
     {
         private readonly TimeSpan _updateInterval = TimeSpan.FromHours(3);
 
@@ -32,8 +31,6 @@ namespace ImageMapper.Api.Services
             {
                 Log.Information("Updating cache");
 
-                _cacheActivityStatus.MarkCachingStarted();
-
                 try
                 {
                     int processedCount = await _imageInfoFetcher.ProcessImagesAsync(ct);
@@ -48,10 +45,6 @@ namespace ImageMapper.Api.Services
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Error occurred while updating cache");
-                }
-                finally
-                {
-                    _cacheActivityStatus.MarkCachingStopped();
                 }
 
                 // TODO: Consider update schedule based on detected changes in the image folders, rather than a fixed interval

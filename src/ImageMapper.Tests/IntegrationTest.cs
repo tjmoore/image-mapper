@@ -168,12 +168,17 @@ namespace ImageMapper.Tests
             using var reader = new StreamReader(stream);
             var firstLine = await reader.ReadLineAsync(cancellationToken);
             var secondLine = await reader.ReadLineAsync(cancellationToken);
+            var payload = secondLine?["data: ".Length..];
+            var status = payload == null ? null : System.Text.Json.JsonSerializer.Deserialize<CacheStatusInfo>(payload);
 
             // Assert
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
             Assert.That(response.Content.Headers.ContentType?.MediaType, Is.EqualTo("text/event-stream"));
             Assert.That(firstLine, Is.EqualTo("event: cache-status"));
             Assert.That(secondLine, Does.StartWith("data: "));
+            Assert.That(status, Is.Not.Null);
+            Assert.That(status!.ProcessedFileCount, Is.GreaterThanOrEqualTo(0));
+            Assert.That(status.TotalFileCount, Is.GreaterThanOrEqualTo(0));
         }
 
         [Test]
