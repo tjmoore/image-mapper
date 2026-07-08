@@ -3,19 +3,17 @@
 namespace ImageMapper.Api.Services
 {
     // Very loosly based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
-    // but caching is done in GetImagesAsync() as required and the worker service just calls that to update the cache at regular intervals instead of caching
-    // in the worker and reading the cache in GetImagesAsync(). This simplifies synchronisation.
 
     public sealed class ImageWorkerService(
-        IImageService _imageService) : BackgroundService
+        ImageInfoFetcher _imageInfoFetcher) : BackgroundService
     {
         private readonly TimeSpan _updateInterval = TimeSpan.FromHours(3);
 
         /// <summary>
         /// Start the worker service
         /// </summary>
-        /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
-        /// <returns></returns>
+        /// <param name="ct">A cancellation token that can be used to cancel the operation</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public override async Task StartAsync(CancellationToken ct)
         {
@@ -23,9 +21,9 @@ namespace ImageMapper.Api.Services
         }
 
         /// <summary>
-        /// The main execution loop of the worker service. It updates the image cache at regular intervals and handles cancellation requests.
+        /// The main execution loop of the worker service. It updates the image cache at regular intervals and handles cancellation requests
         /// </summary>
-        /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None</param>
+        /// <param name="ct">A cancellation token that can be used to cancel the operation</param>
         /// <returns>A task that represents the asynchronous operation</returns>
         protected override async Task ExecuteAsync(CancellationToken ct)
         {
@@ -35,9 +33,9 @@ namespace ImageMapper.Api.Services
 
                 try
                 {
-                    int totalImageCount = await _imageService.GetImagesAsync(reinitialise: true, ct: ct).CountAsync(ct);
+                    int processedCount = await _imageInfoFetcher.ProcessImagesAsync(ct);
 
-                    Log.Information("Cache updated with {Count} images", totalImageCount);
+                    Log.Information("Cache updated with {Count} images", processedCount);
                 }
                 catch (OperationCanceledException)
                 {

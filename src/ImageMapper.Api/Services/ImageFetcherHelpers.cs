@@ -16,6 +16,7 @@ namespace ImageMapper.Api.Services
         /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a byte array of the image data, or
         /// null if the image could not be found.</returns>
+        /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
         public static async Task<byte[]?> GetImageBytesAsync(string filepath, CancellationToken ct = default)
         {
             if (File.Exists(filepath))

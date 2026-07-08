@@ -44,8 +44,8 @@ builder.Services.AddOpenApi();
 builder.Services
     .AddMemoryCache()
     .AddSingleton(typeof(CacheSignal<>))
-    .AddSingleton<ImageInfoFetcher>()
-    .AddSingleton<IImageService, ImageService>()
+    .AddTransient<ImageInfoFetcher>()
+    .AddScoped<IImageService, ImageService>()
     .AddHostedService<ImageWorkerService>();
 
 builder.Services.AddControllers();

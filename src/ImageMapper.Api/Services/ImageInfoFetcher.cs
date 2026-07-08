@@ -1,74 +1,105 @@
 ﻿using ImageMapper.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Serilog;
+using System.Collections.Frozen;
 
 namespace ImageMapper.Api.Services
 {
     /// <summary>
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available
     /// </summary>
-    /// <remarks>This class is not itself thread-safe</remarks>
-    public class ImageInfoFetcher(IConfiguration _config)
+    public class ImageInfoFetcher(IConfiguration _config, IMemoryCache _cache, CacheSignal<ImageInfo> _cacheSignal)
     {
-        private List<BasicFileInfo>? _imageFiles;
-
-        private int _imageCount;
-
-        private bool _initialised = false;
-
         /// <summary>
         /// Fetches a list of all image files from the configured folders
         /// </summary>
         /// <returns>An enumerable of image file paths</returns>
         public IEnumerable<BasicFileInfo> GetImageFiles()
         {
-            CheckInitialise();
+            if (_cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? cachedImageFiles) && cachedImageFiles != null)
+            {
+                return cachedImageFiles.ToFrozenSet();
+            }
 
-            return _imageFiles ?? Enumerable.Empty<BasicFileInfo>();
+            return [];
         }
 
         /// <summary>
-        /// Gets the image information for a specific image file, including metadata and geolocation if available
+        /// Caches the image information for all image files found in the configured folders
         /// </summary>
-        /// <param name="imageFile">The image file</param>
-        /// <returns>The image information, or null if the image file is not found</returns>
-        public ImageInfo? GetImageInfo(BasicFileInfo imageFile)
+        /// <param name="ct">A cancellation token that can be used to cancel the operation</param>
+        /// <returns>The number of images processed</returns>
+        public async Task<int> ProcessImagesAsync(CancellationToken ct)
         {
-            CheckInitialise();
+            await _cacheSignal.WaitAsync(ct);
 
-            if (_imageFiles == null || !_imageFiles.Contains(imageFile))
-                return null;
+            try
+            {
+                ResolveFoldersAndFiles();
 
-            return ImageInfoHelpers.GetImageInfo(imageFile);
+                if (!_cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? imageFiles) || imageFiles == null)
+                {
+                    return 0;
+                }
+
+                int imageCount = 0;
+
+                foreach (BasicFileInfo imageFile in imageFiles)
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    var imageInfo = ImageInfoHelpers.GetImageInfo(imageFile);
+
+                    // Only cache images that have valid geolocation data (non-zero latitude and longitude)
+                    if (imageInfo != null && imageInfo.Longitude != 0 && imageInfo.Latitude != 0)
+                    {
+                        _cache.Set(imageFile.Id, imageInfo);
+                        imageCount++;
+                    }
+                }
+                Log.Information("Cache updated with {Count} images", imageCount);
+
+                _cache.Set("ImageCount", imageCount);
+
+                return imageCount;
+            }
+            finally
+            {
+                _cacheSignal.Release();
+            }
         }
 
         /// <summary>
-        /// Returns the total count of image files in the configured folders
+        /// Fetches the image information for a specific image file from the cache, if available
         /// </summary>
-        /// <returns>The total count of image files</returns>
+        /// <param name="file">The image file for which to fetch information</param>
+        /// <returns>The image information if available; otherwise, null</returns>
+        public ImageInfo? GetImageInfo(BasicFileInfo file)
+        {
+            if (_cache.TryGetValue(file.Id, out ImageInfo? cachedImage) && cachedImage != null)
+                return cachedImage;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the total count of processed images
+        /// </summary>
+        /// <returns>The total count of processed images</returns>
         public int GetImageCount()
         {
-            CheckInitialise();
+            if (_cache.TryGetValue("ImageCount", out int imageCount))
+                return imageCount;
 
-            return _imageCount;
-        }
-
-        /// <summary>
-        /// Clears the initialised flag and triggers reinitialisation of the fetcher
-        /// </summary>
-        public void Reinitialise()
-        {
-            _initialised = false;
+            return 0;
         }
 
         /// <summary>
         /// Initialises the fetcher by resolving folders and finding valid files in those folders
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        private void CheckInitialise()
+        private void ResolveFoldersAndFiles()
         {
-            if (_initialised)
-                return;
-
             var imageFolders = ImageFetcherHelpers.ResolveImageFolders(_config);
             if (imageFolders == null || imageFolders.Length == 0)
             {
@@ -78,14 +109,12 @@ namespace ImageMapper.Api.Services
 
             Log.Information("ImageInfoFetcher initialized with ImageFolders: {@ImageFolders}", imageFolders);
 
-            _imageFiles = [.. ImageFetcherHelpers.GetImageList(imageFolders)
+            List<BasicFileInfo> imageFiles = [.. ImageFetcherHelpers.GetImageList(imageFolders)
                 .Select(f => new BasicFileInfo(ImageFetcherHelpers.GenerateIdForPath(f), Path.GetFileName(f), f))];
 
-            _imageCount = _imageFiles.Count;
+            _cache.Set("ImageFiles", imageFiles);
 
-            Log.Information("ImageInfoFetcher found {ImageCount} image files in configured folders", _imageCount);
-
-            _initialised = true;
+            Log.Information("ImageInfoFetcher found {ImageCount} image files in configured folders", imageFiles?.Count ?? 0);
         }
     }
 }

@@ -6,54 +6,28 @@ namespace ImageMapper.Api.Services;
 
 public sealed class ImageService(
     IMemoryCache _cache,
-    ImageInfoFetcher _imageInfoFetcher,
-    CacheSignal<ImageInfo> _imageCacheSignal) : IImageService
+    ImageInfoFetcher _imageInfoFetcher) : IImageService
 {
     /// <summary>
-    /// Asynchronously retrieves a sequence of image information.
+    /// Asynchronously retrieves a sequence of image information
     /// </summary>
-    /// <remarks>This method allows for cancellation of the operation through the provided cancellation token.
-    /// If the operation is canceled, an <see cref="OperationCanceledException"/> will be thrown.</remarks>
-    /// <param name="reinitialise">Indicates whether to reinitialise the image fetcher before retrieving images.</param>
-    /// <param name="ct">The cancellation token to observe while waiting for the asynchronous operation to complete.</param>
-    /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images.</returns>
-    public async IAsyncEnumerable<ImageInfo> GetImagesAsync(bool reinitialise = false, [EnumeratorCancellation] CancellationToken ct = default)
+    /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation</param>
+    /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images</returns>
+    public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
-        await _imageCacheSignal.WaitAsync(ct);
+        IEnumerable<BasicFileInfo> imageFiles = _imageInfoFetcher.GetImageFiles();
 
-        try
-        {           
-            if (reinitialise)
-            {
-                _imageInfoFetcher.Reinitialise();
+        if (!imageFiles.Any())
+            yield break;
 
-                // Clear cache - may have issues if IMemoryCache is not MemoryCache
-                if (_cache is MemoryCache memoryCache)
-                    memoryCache.Clear();
-            }
-
-            IEnumerable<BasicFileInfo> imageFiles = _imageInfoFetcher.GetImageFiles();
-
-            if (!imageFiles.Any())
-                yield break;
-
-            foreach (BasicFileInfo file in imageFiles)
-            {
-                ct.ThrowIfCancellationRequested();
-
-                // TODO: if GetImageInfo becomes async, consider GetOrCreateAsync
-                if (_cache.GetOrCreate(file.Id, _ =>
-                    {
-                        return _imageInfoFetcher.GetImageInfo(file);
-                    }) is ImageInfo image)
-                {
-                    yield return image;
-                }
-            }
-        }
-        finally
+        foreach (BasicFileInfo file in imageFiles)
         {
-            _imageCacheSignal.Release();
+            ct.ThrowIfCancellationRequested();
+
+            var image = _imageInfoFetcher.GetImageInfo(file);
+            if (image != null)
+                yield return image;
         }
     }
 
@@ -66,6 +40,7 @@ public sealed class ImageService(
     /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a byte array of the image data, or
     /// null if the image could not be found.</returns>
+    /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
     public async Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default)
     {
         if (!_cache.TryGetValue(id, out ImageInfo? image) || image == null)
@@ -75,8 +50,8 @@ public sealed class ImageService(
     }
 
     /// <summary>
-    /// Retrieves the total count of image files.
+    /// Retrieves the count of processed image files.
     /// </summary>
-    /// <returns>The total count of image files.</returns>
+    /// <returns>The count of processed image files.</returns>
     public int GetImageCount() => _imageInfoFetcher.GetImageCount();
 }
