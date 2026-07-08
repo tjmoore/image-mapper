@@ -50,8 +50,8 @@ namespace ImageMapper.Api.Services
 
                     var imageInfo = ImageInfoHelpers.GetImageInfo(imageFile);
 
-                    // Only cache images that have valid geolocation data (non-zero latitude and longitude)
-                    if (imageInfo != null && imageInfo.Longitude != 0 && imageInfo.Latitude != 0)
+                    // All images cached even if they don't have geolocation data
+                    if (imageInfo != null)
                     {
                         _cache.Set(imageFile.Id, imageInfo);
                         imageCount++;
