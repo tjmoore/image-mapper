@@ -24,13 +24,13 @@ namespace ImageMapper.Web.Components.Pages
             {
                 var mapImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Pages/MapSection.razor.js").AsTask();
+                    "./Components/Sections/MapSection.razor.js").AsTask();
                 var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Pages/ProgressSection.razor.js").AsTask();
+                    "./Components/Sections/ProgressSection.razor.js").AsTask();
                 var imageModalImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Pages/ImageModalSection.razor.js").AsTask();
+                    "./Components/Overlays/ImageModalSection.razor.js").AsTask();
 
                 await Task.WhenAll(mapImportTask, progressImportTask, imageModalImportTask);
 
