@@ -1,6 +1,5 @@
 using ImageMapper.Models;
 using Microsoft.JSInterop;
-using System.Net.Http;
 using System.Text.Json;
 
 namespace ImageMapper.Web.Components.Pages
@@ -8,6 +7,10 @@ namespace ImageMapper.Web.Components.Pages
     public partial class Home
     {
         private readonly CancellationTokenSource cts = new();
+        private IJSObjectReference? mapSectionModule;
+        private IJSObjectReference? imageCountSectionModule;
+        private IJSObjectReference? progressSectionModule;
+        private IJSObjectReference? imageModalSectionModule;
         private int totalImages = 0;
         private int skippedImages = 0;
         private int imagesLoaded = 0;
@@ -17,19 +20,46 @@ namespace ImageMapper.Web.Components.Pages
         {
             if (firstRender)
             {
+                var mapImportTask = JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./Components/Pages/MapSection.razor.js").AsTask();
+                var imageCountImportTask = JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./Components/Pages/ImageCountSection.razor.js").AsTask();
+                var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./Components/Pages/ProgressSection.razor.js").AsTask();
+                var imageModalImportTask = JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./Components/Pages/ImageModalSection.razor.js").AsTask();
+
+                await Task.WhenAll(mapImportTask, imageCountImportTask, progressImportTask, imageModalImportTask);
+
+                var mapModule = mapImportTask.Result;
+                var imageCountModule = imageCountImportTask.Result;
+                var progressModule = progressImportTask.Result;
+                var imageModalModule = imageModalImportTask.Result;
+
+                mapSectionModule = mapModule;
+                imageCountSectionModule = imageCountModule;
+                progressSectionModule = progressModule;
+                imageModalSectionModule = imageModalModule;
+
                 _ = ConsumeCacheStatusStreamAsync(cts.Token);
 
                 // Fetch total image count
                 totalImages = await imageFetcher.FetchImageCount(cts.Token);
 
+                await imageModalModule.InvokeVoidAsync("setupImageModal");
+
                 // Show progress container if there are images
                 if (totalImages > 0)
                 {
-                    await JS.InvokeVoidAsync("showProgressContainer");
+                    await progressModule.InvokeVoidAsync("showProgressContainer");
                 }
 
                 // Initialize the map with cluster grouping
-                await JS.InvokeVoidAsync("initClusterMap", cts.Token);
+                await mapModule.InvokeVoidAsync("initClusterMap");
 
                 // Add markers as images arrive in batches for better performance
                 int batchSize = 10;
@@ -44,7 +74,7 @@ namespace ImageMapper.Web.Components.Pages
                         continue;
                     }
 
-                    await JS.InvokeVoidAsync("addMarkerToMap",
+                    await mapModule.InvokeVoidAsync("addMarkerToMap",
                         new
                         {
                             image.FileName,
@@ -60,7 +90,7 @@ namespace ImageMapper.Web.Components.Pages
                     if (totalImages > 0)
                     {
                         int percentage = (int)((imagesLoaded * 100) / totalImages);
-                        await JS.InvokeVoidAsync("updateProgress", imagesLoaded, totalImages, percentage);
+                        await progressModule.InvokeVoidAsync("updateProgress", imagesLoaded, totalImages, percentage);
                     }
 
                     if (batchCount % batchSize == 0)
@@ -70,10 +100,10 @@ namespace ImageMapper.Web.Components.Pages
                 }
 
                 // Hide progress container when done
-                await JS.InvokeVoidAsync("hideProgressContainer");
+                await progressModule.InvokeVoidAsync("hideProgressContainer");
 
                 // Update image count with skipped count if any
-                await JS.InvokeVoidAsync("updateImageCount", imagesLoaded, skippedImages);
+                await imageCountModule.InvokeVoidAsync("updateImageCount", imagesLoaded, skippedImages);
 
                 // Final update to ensure UI is synchronized
                 StateHasChanged();
@@ -142,10 +172,31 @@ namespace ImageMapper.Web.Components.Pages
             return $"Processing images... ({processedCount}/{cacheStatus.TotalFileCount})";
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
             cts.Cancel();
             cts.Dispose();
+
+            await DisposeModuleAsync(mapSectionModule);
+            await DisposeModuleAsync(imageCountSectionModule);
+            await DisposeModuleAsync(progressSectionModule);
+            await DisposeModuleAsync(imageModalSectionModule);
+        }
+
+        private static async ValueTask DisposeModuleAsync(IJSObjectReference? module)
+        {
+            if (module is null)
+            {
+                return;
+            }
+
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
         }
     }
 }
