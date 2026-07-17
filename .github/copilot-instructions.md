@@ -6,13 +6,15 @@ ImageMapper is a .NET application that scans configured folders for images, extr
 
 Refer also to repository docs (README.md, AGENTS.md) for further context
 
-## Coding style
+## Coding style and guidelines
+- Follow SOLID principles and clean code practices. Don't over-engineer; keep it simple and maintainable.
 - Follow .NET conventions (PascalCase for types and methods, camelCase for local variables).
 - Use async/await for asynchronous operations; avoid blocking calls.
 - Use consistent naming conventions
 - For Blazor components
 	- Use CSS Isolation and do not use inline styles. Global CSS in app.css for shared styles.
 	- Use data-bound properties and event callbacks for interactivity, avoiding direct DOM manipulation and JS interop where possible. Use JS interop only for functionality not achievable with Blazor.
+	- Aim for responsive design. Avoid fixed widths and heights where possible; use relative units and CSS flex/grid layouts.
 
 ## Architecture
 
