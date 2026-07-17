@@ -1,7 +1,7 @@
 import { statusContainerId } from './StatusSection.razor.js';
 import { imageCountContainerId } from './ImageCountSection.razor.js';
 import { progressContainerId } from './ProgressSection.razor.js';
-import { showImageEventName } from './ImageModalSection.razor.js';
+import { showImageEventName } from '../Overlays/ImageModal.razor.js';
 
 let map;
 let markerClusterGroup;

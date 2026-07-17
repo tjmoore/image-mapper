@@ -9,7 +9,7 @@ namespace ImageMapper.Web.Components.Pages
         private readonly CancellationTokenSource cts = new();
         private IJSObjectReference? mapSectionModule;
         private IJSObjectReference? progressSectionModule;
-        private IJSObjectReference? imageModalSectionModule;
+        private IJSObjectReference? imageModalModule;
         private int totalImages = 0;
         private int skippedImages = 0;
         private int imagesLoaded = 0;
@@ -24,13 +24,13 @@ namespace ImageMapper.Web.Components.Pages
             {
                 var mapImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Pages/MapSection.razor.js").AsTask();
+                    "./Components/Sections/MapSection.razor.js").AsTask();
                 var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Pages/ProgressSection.razor.js").AsTask();
+                    "./Components/Sections/ProgressSection.razor.js").AsTask();
                 var imageModalImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Pages/ImageModalSection.razor.js").AsTask();
+                    "./Components/Overlays/ImageModal.razor.js").AsTask();
 
                 await Task.WhenAll(mapImportTask, progressImportTask, imageModalImportTask);
 
@@ -40,7 +40,7 @@ namespace ImageMapper.Web.Components.Pages
 
                 mapSectionModule = mapModule;
                 progressSectionModule = progressModule;
-                imageModalSectionModule = imageModalModule;
+                this.imageModalModule = imageModalModule;
 
                 _ = ConsumeCacheStatusStreamAsync(cts.Token);
 
@@ -182,7 +182,7 @@ namespace ImageMapper.Web.Components.Pages
 
             await DisposeModuleAsync(mapSectionModule);
             await DisposeModuleAsync(progressSectionModule);
-            await DisposeModuleAsync(imageModalSectionModule);
+            await DisposeModuleAsync(imageModalModule);
         }
 
         private static async ValueTask DisposeModuleAsync(IJSObjectReference? module)

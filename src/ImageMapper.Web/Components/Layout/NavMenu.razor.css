@@ -86,7 +86,7 @@
     display: block;
 }
 
-@media (min-width: 641px) {
+@media (min-width: 40.0625rem) {
     .navbar-toggler {
         display: none;
     }
@@ -96,7 +96,7 @@
         display: block;
 
         /* Allow sidebar to scroll for tall menus */
-        height: calc(100vh - 3.5rem);
+        max-height: calc(100dvh - 3.5rem);
         overflow-y: auto;
     }
 }
