@@ -4,7 +4,8 @@
 	- Detect folder/file changes instead of recaching on schedule
 - Show file info in photo view, including filename and GPS coordinates
 - Support for folder patterns in image folder config and/or folder exclusion
-- CSS improvements - SASS and/or Blazor CSS isolation. Not embedded in JS
+- Responsive design
+- Further unit tests, including for API and Blazor components, checking UI rendered output
 - UI improvements, filtering, search etc
 	- Could use back-end cache instead of loading all into the browser and then processing
 - Show files without geolocation as a list on a separate page for example

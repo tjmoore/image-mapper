@@ -1,0 +1,43 @@
+.progress-container {
+    margin-top: 20px;
+}
+
+.progress-container.is-hidden {
+    display: none;
+}
+
+.progress-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.progress-text {
+    font-weight: 500;
+    min-width: 150px;
+}
+
+.progress-track {
+    flex: 1;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    height: 24px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-percentage {
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
