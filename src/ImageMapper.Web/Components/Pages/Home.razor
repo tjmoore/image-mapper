@@ -10,8 +10,8 @@
 
 <StatusSection StatusText="@cacheStatusText" />
 
-<ImageCountSection />
+<ImageCountSection IsVisible="@isImageCountVisible" ImageCount="@imagesLoaded" SkippedCount="@skippedImages" />
 
-<ProgressSection />
+<ProgressSection IsVisible="@isProgressVisible" LoadedImages="@imagesLoaded" TotalImages="@totalImages" Percentage="@progressPercentage" />
 
 <ImageModalSection />

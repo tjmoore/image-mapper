@@ -1,10 +1,26 @@
-<div id="progressContainer" class="progress-container">
+<div id="progressContainer" class="@ProgressContainerCssClass">
     <div class="progress-content">
-        <span id="progressText" class="progress-text">Loading images...</span>
+        <span id="progressText" class="progress-text">Loading images... (@LoadedImages/@TotalImages)</span>
         <div class="progress-track">
             <div id="progressBar" class="progress-bar">
-                <span id="progressPercentage" class="progress-percentage"></span>
+                <span id="progressPercentage" class="progress-percentage">@($"{Percentage}%")</span>
             </div>
         </div>
     </div>
 </div>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required bool IsVisible { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required int LoadedImages { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required int TotalImages { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required int Percentage { get; set; }
+
+    private string ProgressContainerCssClass => IsVisible ? "progress-container" : "progress-container is-hidden";
+}

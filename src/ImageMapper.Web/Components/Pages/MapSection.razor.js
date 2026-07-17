@@ -7,8 +7,6 @@ let map;
 let markerClusterGroup;
 let markers = [];
 let mapResizeHandlerAttached = false;
-let layoutHandlerAttached = false;
-const layoutChangedEventName = 'image-mapper:layout-changed';
 
 export function initClusterMap() {
     map = L.map('map').setView([0, 0], 2);
@@ -26,11 +24,6 @@ export function initClusterMap() {
     if (!mapResizeHandlerAttached) {
         window.addEventListener('resize', adjustMapLayout);
         mapResizeHandlerAttached = true;
-    }
-
-    if (!layoutHandlerAttached) {
-        window.addEventListener(layoutChangedEventName, adjustMapLayout);
-        layoutHandlerAttached = true;
     }
 }
 
@@ -56,7 +49,7 @@ export function addMarkerToMap(imageData) {
     }
 }
 
-function adjustMapLayout() {
+export function adjustMapLayout() {
     const mapElement = document.getElementById('map');
     if (!map || !mapElement) {
         return;

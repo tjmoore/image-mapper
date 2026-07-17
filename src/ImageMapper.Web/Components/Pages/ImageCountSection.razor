@@ -1,4 +1,21 @@
-<div id="imageCountContainer" class="info-container image-count-container">
-    <span id="imageCountText" class="status-text">Total images on map: <strong id="imageCountValue">0</strong></span>
-    <span id="skippedCountText" class="skipped-count-text">Skipped: <strong id="skippedCountValue">0</strong></span>
+<div id="imageCountContainer" class="@ImageCountContainerCssClass">
+    <span id="imageCountText" class="status-text">Total images on map: <strong id="imageCountValue">@ImageCount</strong></span>
+    @if (SkippedCount > 0)
+    {
+        <span id="skippedCountText" class="skipped-count-text">Skipped: <strong id="skippedCountValue">@SkippedCount</strong></span>
+    }
 </div>
+
+@code {
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required bool IsVisible { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required int ImageCount { get; set; }
+
+    [Microsoft.AspNetCore.Components.Parameter]
+    public required int SkippedCount { get; set; }
+
+    private string ImageCountContainerCssClass =>
+        IsVisible ? "info-container image-count-container" : "info-container image-count-container is-hidden";
+}

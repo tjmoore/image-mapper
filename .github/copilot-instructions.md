@@ -10,7 +10,9 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 - Follow .NET conventions (PascalCase for types and methods, camelCase for local variables).
 - Use async/await for asynchronous operations; avoid blocking calls.
 - Use consistent naming conventions
-- For Blazor components, use CSS Isolation and do not use inline styles. Global CSS in app.css for shared styles.
+- For Blazor components
+	- Use CSS Isolation and do not use inline styles. Global CSS in app.css for shared styles.
+	- Use data-bound properties and event callbacks for interactivity, avoiding direct DOM manipulation and JS interop where possible. Use JS interop only for functionality not achievable with Blazor.
 
 ## Architecture
 

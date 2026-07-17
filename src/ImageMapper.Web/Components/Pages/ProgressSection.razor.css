@@ -1,5 +1,8 @@
 .progress-container {
     margin-top: 20px;
+}
+
+.progress-container.is-hidden {
     display: none;
 }
 
