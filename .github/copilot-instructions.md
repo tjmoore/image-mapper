@@ -10,6 +10,7 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 - Follow .NET conventions (PascalCase for types and methods, camelCase for local variables).
 - Use async/await for asynchronous operations; avoid blocking calls.
 - Use consistent naming conventions
+- For Blazor components, use CSS Isolation and do not use inline styles. Global CSS in app.css for shared styles.
 
 ## Architecture
 
