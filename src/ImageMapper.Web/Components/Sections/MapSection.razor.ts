@@ -1,7 +1,7 @@
 import { statusContainerId } from './StatusSection.razor.js';
 import { imageCountContainerId } from './ImageCountSection.razor.js';
 import { progressContainerId } from './ProgressSection.razor.js';
-import { showImageEventName } from '../Overlays/ImageModal.razor.js';
+import { triggerShowImage } from '../Overlays/ImageModal.razor.js';
 
 type ImageData = {
     fileName: string;
@@ -46,9 +46,7 @@ export function addMarkerToMap(imageData: ImageData): void {
             const popupImage = event.popup.getElement()?.querySelector('.popup-full-image-trigger') as HTMLElement | null;
             if (popupImage) {
                 popupImage.addEventListener('click', function (): void {
-                    window.dispatchEvent(new CustomEvent(showImageEventName, {
-                        detail: { imageSrc: imageData.url }
-                    }));
+                    triggerShowImage(imageData.url);
                 });
             }
         });
