@@ -3,12 +3,21 @@ import { imageCountContainerId } from './ImageCountSection.razor.js';
 import { progressContainerId } from './ProgressSection.razor.js';
 import { showImageEventName } from '../Overlays/ImageModal.razor.js';
 
-let map;
-let markerClusterGroup;
-let markers = [];
+type ImageData = {
+    fileName: string;
+    latitude: number;
+    longitude: number;
+    url: string;
+};
+
+declare const L: any;
+
+let map: any;
+let markerClusterGroup: any;
+let markers: any[] = [];
 let mapResizeHandlerAttached = false;
 
-export function initClusterMap() {
+export function initClusterMap(): void {
     map = L.map('map').setView([0, 0], 2);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -27,16 +36,16 @@ export function initClusterMap() {
     }
 }
 
-export function addMarkerToMap(imageData) {
+export function addMarkerToMap(imageData: ImageData): void {
     if (imageData.latitude && imageData.longitude) {
         const popupContent = `<div><strong>${imageData.fileName}</strong><br><img class="popup-thumb popup-thumb-image popup-full-image-trigger" src="${imageData.url}" data-image-src="${imageData.url}" title="Click to view full-size image"></div>`;
 
         const marker = L.marker([imageData.latitude, imageData.longitude]).bindPopup(popupContent);
 
-        marker.on('popupopen', function (event) {
-            const popupImage = event.popup.getElement()?.querySelector('.popup-full-image-trigger');
+        marker.on('popupopen', function (event: any): void {
+            const popupImage = event.popup.getElement()?.querySelector('.popup-full-image-trigger') as HTMLElement | null;
             if (popupImage) {
-                popupImage.addEventListener('click', function () {
+                popupImage.addEventListener('click', function (): void {
                     window.dispatchEvent(new CustomEvent(showImageEventName, {
                         detail: { imageSrc: imageData.url }
                     }));
@@ -49,7 +58,7 @@ export function addMarkerToMap(imageData) {
     }
 }
 
-export function adjustMapLayout() {
+export function adjustMapLayout(): void {
     const mapElement = document.getElementById('map');
     if (!map || !mapElement) {
         return;

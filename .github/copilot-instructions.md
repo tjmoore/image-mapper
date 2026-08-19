@@ -13,8 +13,11 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 - Use consistent naming conventions
 - For Blazor components
 	- Use CSS Isolation and do not use inline styles. Global CSS in app.css for shared styles.
-	- Use data-bound properties and event callbacks for interactivity, avoiding direct DOM manipulation and JS interop where possible. Use JS interop only for functionality not achievable with Blazor.
 	- Aim for responsive design. Avoid fixed widths and heights where possible; use relative units and CSS flex/grid layouts.
+	- Prefer C# and Blazor syntax. Avoid JavaScript interops unless absolutely necessary.
+	- Avoid direct DOM manipulation and JavaScript events where possible; use Blazor's event handling and data binding.
+	- Use TypeScript .ts files for JavaScript logic instead of .js.
+	- Compiled .js and .js.map files should be ignored in source control.
 
 ## Architecture
 
