@@ -1,7 +1,7 @@
 export const progressContainerId = 'progressContainer';
-export function setProgressBarWidth(percentage) {
+export function setProgressBarWidth(percentage: number): void {
     const progressBar = document.getElementById('progressBar');
     if (progressBar) {
-        progressBar.style.width = percentage + '%';
+        (progressBar as HTMLElement).style.width = `${percentage}%`;
     }
 }

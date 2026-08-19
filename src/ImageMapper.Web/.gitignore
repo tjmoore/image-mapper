@@ -1,0 +1,3 @@
+# Ignore compiled JavaScript files and source maps
+*.js
+*.js.map
