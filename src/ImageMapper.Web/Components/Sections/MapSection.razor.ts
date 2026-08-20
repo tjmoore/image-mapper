@@ -11,6 +11,8 @@ export type ImageInfo = {
     fileName: string;
     filePath: string;
     url: string;
+    width: number;
+    height: number;
     latitude: number;
     longitude: number;    
 };
