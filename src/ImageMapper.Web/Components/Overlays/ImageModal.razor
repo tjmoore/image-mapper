@@ -7,13 +7,46 @@
 {
     <div class="image-modal" @onclick="OnBackdropClick">
         <span class="close" @onclick="CloseModal" @onclick:stopPropagation="true">&times;</span>
-        <img class="modal-content" src="@_imageSrc" alt="Full-size image" @onclick:stopPropagation="true">
+        <div class="modal-inner" @onclick:stopPropagation="true">
+            <div class="modal-image-area">
+                <img class="modal-content" src="@_imageSrc" alt="Full-size image">
+            </div>
+            <div class="panel-divider">
+                <button class="panel-toggle" @onclick="ToggleInfoPanel" title="@(_infoPanelOpen ? "Hide info" : "Show info")">
+                    <span class="toggle-icon">@(_infoPanelOpen ? "›" : "‹")</span>
+                </button>
+            </div>
+            <div class="info-panel @(_infoPanelOpen ? "open" : "")">
+                <div class="info-panel-content">
+                    <h3 class="info-panel-title">Image Info</h3>
+                    @if (_currentImageInfo is not null)
+                    {
+                        <dl class="info-fields">
+                            <dt>File Name</dt>
+                            <dd>@_currentImageInfo.FileName</dd>
+                            <dt>File Path</dt>
+                            <dd class="file-path">@_currentImageInfo.FilePath</dd>
+                            <dt>Width</dt>
+                            <dd>@_currentImageInfo.Width px</dd>
+                            <dt>Height</dt>
+                            <dd>@_currentImageInfo.Height px</dd>
+                            <dt>Latitude</dt>
+                            <dd>@_currentImageInfo.Latitude.ToString("F6")</dd>
+                            <dt>Longitude</dt>
+                            <dd>@_currentImageInfo.Longitude.ToString("F6")</dd>
+                        </dl>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 }
 
 @code {
     private bool _isVisible;
+    private bool _infoPanelOpen;
     private string _imageSrc = string.Empty;
+    private ImageInfo? _currentImageInfo;
     private DotNetObjectReference<ImageModal>? _dotNetRef;
     private IJSObjectReference? _imageModalModule;
 
@@ -33,6 +66,7 @@
     public Task ShowImage(ImageInfo imageInfo)
     {
         _imageSrc = imageInfo.Url;
+        _currentImageInfo = imageInfo;
         _isVisible = true;
         return InvokeAsync(StateHasChanged);
     }
@@ -47,6 +81,11 @@
     private void OnBackdropClick()
     {
         _isVisible = false;
+    }
+
+    private void ToggleInfoPanel()
+    {
+        _infoPanelOpen = !_infoPanelOpen;
     }
 
     public async ValueTask DisposeAsync()
