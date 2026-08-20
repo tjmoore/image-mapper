@@ -1,59 +1,28 @@
-export const showImageEventName = 'image-mapper:show-image';
+import { ImageInfo } from "../Sections/MapSection.razor.js";
 
-let modalHandlersAttached = false;
+let imageModalDotNetRef: any = null;
+let keydownListener: ((event: KeyboardEvent) => void) | null = null;
 
-type ShowImageEventDetail = {
-    imageSrc?: string;
-};
-
-type ShowImageEvent = Event & {
-    detail?: ShowImageEventDetail;
-};
-
-export function setupImageModal(): void {
-    if (modalHandlersAttached) {
-        return;
-    }
-
-    const modal = document.getElementById('imageModal');
-    const closeBtn = document.querySelector('.close') as HTMLElement | null;
-    if (!modal || !closeBtn) {
-        return;
-    }
-
-    closeBtn.onclick = function (): void {
-        modal.classList.remove('show');
-    };
-
-    modal.onclick = function (event: MouseEvent): void {
-        if (event.target === modal) {
-            modal.classList.remove('show');
-        }
-    };
-
-    document.addEventListener('keydown', function (event: KeyboardEvent): void {
-        if (event.key === 'Escape' && modal.classList.contains('show')) {
-            modal.classList.remove('show');
-        }
-    });
-
-    window.addEventListener(showImageEventName, function (event: Event): void {
-        const imageSrc = (event as ShowImageEvent).detail?.imageSrc;
-        if (imageSrc) {
-            showFullImage(imageSrc);
-        }
-    });
-
-    modalHandlersAttached = true;
+export function setImageModalDotNetRef(dotNetRef: any): void {
+    imageModalDotNetRef = dotNetRef;
 }
 
-function showFullImage(imageSrc: string): void {
-    const modal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-    if (!modal || !modalImage) {
+export function triggerShowImage(imageInfo: ImageInfo): void {
+    if (imageModalDotNetRef) {
+        imageModalDotNetRef.invokeMethodAsync('ShowImage', imageInfo);
+    }
+}
+
+export function setupImageModalKeyHandler(): void {
+    if (keydownListener) {
         return;
     }
 
-    (modalImage as HTMLImageElement).src = imageSrc;
-    modal.classList.add('show');
+    keydownListener = function (event: KeyboardEvent): void {
+        if (event.key === 'Escape' && imageModalDotNetRef) {
+            imageModalDotNetRef.invokeMethodAsync('CloseModal');
+        }
+    };
+
+    document.addEventListener('keydown', keydownListener);
 }

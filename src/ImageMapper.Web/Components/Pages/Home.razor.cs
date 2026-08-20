@@ -9,7 +9,6 @@ namespace ImageMapper.Web.Components.Pages
         private readonly CancellationTokenSource cts = new();
         private IJSObjectReference? mapSectionModule;
         private IJSObjectReference? progressSectionModule;
-        private IJSObjectReference? imageModalModule;
         private int totalImages = 0;
         private int skippedImages = 0;
         private int imagesLoaded = 0;
@@ -28,19 +27,14 @@ namespace ImageMapper.Web.Components.Pages
                 var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
                     "./Components/Sections/ProgressSection.razor.js").AsTask();
-                var imageModalImportTask = JS.InvokeAsync<IJSObjectReference>(
-                    "import",
-                    "./Components/Overlays/ImageModal.razor.js").AsTask();
 
-                await Task.WhenAll(mapImportTask, progressImportTask, imageModalImportTask);
+                await Task.WhenAll(mapImportTask, progressImportTask);
 
                 var mapModule = mapImportTask.Result;
                 var progressModule = progressImportTask.Result;
-                var imageModalModule = imageModalImportTask.Result;
 
                 mapSectionModule = mapModule;
                 progressSectionModule = progressModule;
-                this.imageModalModule = imageModalModule;
 
                 _ = ConsumeCacheStatusStreamAsync(cts.Token);
 
@@ -57,7 +51,6 @@ namespace ImageMapper.Web.Components.Pages
 
                 // Initialize the map with cluster grouping
                 await mapModule.InvokeVoidAsync("initClusterMap");
-                await imageModalModule.InvokeVoidAsync("setupImageModal");
 
                 if (isProgressVisible)
                 {
@@ -78,14 +71,9 @@ namespace ImageMapper.Web.Components.Pages
                         continue;
                     }
 
+                    // Add marker to the map with existing image detail and URL to the raw image
                     await mapModule.InvokeVoidAsync("addMarkerToMap",
-                        new
-                        {
-                            image.FileName,
-                            image.Latitude,
-                            image.Longitude,
-                            Url = $"/api/images/raw/{image.Id}"
-                        });
+                        new ImageInfo(image, $"/api/images/raw/{image.Id}"));
 
                     imagesLoaded++;
                     batchCount++;
@@ -182,7 +170,6 @@ namespace ImageMapper.Web.Components.Pages
 
             await DisposeModuleAsync(mapSectionModule);
             await DisposeModuleAsync(progressSectionModule);
-            await DisposeModuleAsync(imageModalModule);
         }
 
         private static async ValueTask DisposeModuleAsync(IJSObjectReference? module)
