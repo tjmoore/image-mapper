@@ -3,11 +3,16 @@ import { imageCountContainerId } from './ImageCountSection.razor.js';
 import { progressContainerId } from './ProgressSection.razor.js';
 import { triggerShowImage } from '../Overlays/ImageModal.razor.js';
 
-type ImageData = {
+/**
+ * Represents the information of an image, including its file name, geographic coordinates, and URL.
+ **/
+export type ImageInfo = {
+    id: string;
     fileName: string;
-    latitude: number;
-    longitude: number;
+    filePath: string;
     url: string;
+    latitude: number;
+    longitude: number;    
 };
 
 declare const L: any;
@@ -17,6 +22,9 @@ let markerClusterGroup: any;
 let markers: any[] = [];
 let mapResizeHandlerAttached = false;
 
+/**
+ * Initializes the Leaflet map and sets up the marker cluster group.
+**/
 export function initClusterMap(): void {
     map = L.map('map').setView([0, 0], 2);
 
@@ -36,7 +44,10 @@ export function initClusterMap(): void {
     }
 }
 
-export function addMarkerToMap(imageData: ImageData): void {
+/**
+ * Adds a marker to the map for the given image data.
+ **/
+export function addMarkerToMap(imageData: ImageInfo): void {
     if (imageData.latitude && imageData.longitude) {
         const popupContent = `<div><strong>${imageData.fileName}</strong><br><img class="popup-thumb popup-thumb-image popup-full-image-trigger" src="${imageData.url}" data-image-src="${imageData.url}" title="Click to view full-size image"></div>`;
 
@@ -46,7 +57,7 @@ export function addMarkerToMap(imageData: ImageData): void {
             const popupImage = event.popup.getElement()?.querySelector('.popup-full-image-trigger') as HTMLElement | null;
             if (popupImage) {
                 popupImage.addEventListener('click', function (): void {
-                    triggerShowImage(imageData.url);
+                    triggerShowImage(imageData);
                 });
             }
         });
@@ -56,6 +67,9 @@ export function addMarkerToMap(imageData: ImageData): void {
     }
 }
 
+/**
+ * Adjusts the map layout based on the viewport size and the visibility of other UI components.
+ **/
 export function adjustMapLayout(): void {
     const mapElement = document.getElementById('map');
     if (!map || !mapElement) {

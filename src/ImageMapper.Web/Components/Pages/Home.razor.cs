@@ -71,14 +71,9 @@ namespace ImageMapper.Web.Components.Pages
                         continue;
                     }
 
+                    // Add marker to the map with existing image detail and URL to the raw image
                     await mapModule.InvokeVoidAsync("addMarkerToMap",
-                        new
-                        {
-                            image.FileName,
-                            image.Latitude,
-                            image.Longitude,
-                            Url = $"/api/images/raw/{image.Id}"
-                        });
+                        new ImageInfo(image, $"/api/images/raw/{image.Id}"));
 
                     imagesLoaded++;
                     batchCount++;

@@ -1,3 +1,5 @@
+import { ImageInfo } from "../Sections/MapSection.razor.js";
+
 let imageModalDotNetRef: any = null;
 let keydownListener: ((event: KeyboardEvent) => void) | null = null;
 
@@ -5,9 +7,9 @@ export function setImageModalDotNetRef(dotNetRef: any): void {
     imageModalDotNetRef = dotNetRef;
 }
 
-export function triggerShowImage(imageSrc: string): void {
+export function triggerShowImage(imageInfo: ImageInfo): void {
     if (imageModalDotNetRef) {
-        imageModalDotNetRef.invokeMethodAsync('ShowImage', imageSrc);
+        imageModalDotNetRef.invokeMethodAsync('ShowImage', imageInfo);
     }
 }
 
