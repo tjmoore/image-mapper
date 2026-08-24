@@ -1,5 +1,6 @@
 ﻿using ImageMapper.Models;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.Collections.Frozen;
 

@@ -1,4 +1,5 @@
-﻿using System.Buffers.Text;
+﻿using Microsoft.Extensions.Configuration;
+using System.Buffers.Text;
 
 namespace ImageMapper.Api.Services
 {

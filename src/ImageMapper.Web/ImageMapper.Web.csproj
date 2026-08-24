@@ -7,6 +7,7 @@
   </PropertyGroup>
     
   <ItemGroup>
+    <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
     <ProjectReference Include="..\ImageMapper.Models\ImageMapper.Models.csproj" />
     <ProjectReference Include="..\ImageMapper.ServiceDefaults\ImageMapper.ServiceDefaults.csproj" />
   </ItemGroup>

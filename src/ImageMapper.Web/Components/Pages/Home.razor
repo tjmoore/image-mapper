@@ -2,7 +2,8 @@
 @using ImageMapper.Web.Components.Sections
 @using ImageMapper.Web.Components.Overlays
 @rendermode InteractiveServer
-@inject ImageItemFetcher imageFetcher
+@inject ImageFetcher imageFetcher
+@inject CacheStatus cacheStatus
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 

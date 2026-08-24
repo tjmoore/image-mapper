@@ -1,6 +1,5 @@
 using ImageMapper.Models;
 using Microsoft.JSInterop;
-using System.Text.Json;
 
 namespace ImageMapper.Web.Components.Pages
 {
@@ -39,7 +38,7 @@ namespace ImageMapper.Web.Components.Pages
                 _ = ConsumeCacheStatusStreamAsync(cts.Token);
 
                 // Fetch total image count
-                totalImages = await imageFetcher.FetchImageCount(cts.Token);
+                totalImages = imageFetcher.FetchImageCount();
 
                 // Show progress container if there are images
                 if (totalImages > 0)
@@ -61,7 +60,7 @@ namespace ImageMapper.Web.Components.Pages
                 // Add markers as images arrive in batches for better performance
                 int batchSize = 10;
                 int batchCount = 0;
-                await foreach (ImageInfo? image in imageFetcher.Fetch(cts.Token))
+                await foreach (ImageInfo? image in imageFetcher.FetchImageList(cts.Token))
                 {
                     // Skips images that are null or have invalid data, or have no geolocation information as there's nothing to plot on the map
                     if (image == null || string.IsNullOrWhiteSpace(image.Id) || string.IsNullOrWhiteSpace(image.FileName) ||
@@ -107,7 +106,7 @@ namespace ImageMapper.Web.Components.Pages
             {
                 try
                 {
-                    await foreach (var cacheStatus in imageFetcher.StreamCacheStatus(ct))
+                    await foreach (var cacheStatus in cacheStatus.StreamCacheStatus(ct))
                     {
                         cacheStatusText = FormatCacheStatusText(cacheStatus);
                         await InvokeAsync(StateHasChanged);
@@ -119,16 +118,6 @@ namespace ImageMapper.Web.Components.Pages
                 catch (OperationCanceledException) when (ct.IsCancellationRequested)
                 {
                     break;
-                }
-                catch (HttpRequestException)
-                {
-                    cacheStatusText = "Unavailable";
-                    await InvokeAsync(StateHasChanged);
-                }
-                catch (JsonException)
-                {
-                    cacheStatusText = "Unavailable";
-                    await InvokeAsync(StateHasChanged);
                 }
 
                 try
