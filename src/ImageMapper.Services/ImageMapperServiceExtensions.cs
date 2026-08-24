@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace ImageMapper.Api.Services
+namespace ImageMapper.Services
 {
     public static class ImageMapperServiceExtensions
     {

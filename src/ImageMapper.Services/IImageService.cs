@@ -1,6 +1,6 @@
 using ImageMapper.Models;
 
-namespace ImageMapper.Api.Services;
+namespace ImageMapper.Services;
 
 public interface IImageService
 {

@@ -1,7 +1,7 @@
 using ImageMapper.Models;
 using System.Runtime.CompilerServices;
 
-namespace ImageMapper.Api.Services;
+namespace ImageMapper.Services;
 
 public sealed class ImageService(
     ImageInfoFetcher _imageInfoFetcher) : IImageService

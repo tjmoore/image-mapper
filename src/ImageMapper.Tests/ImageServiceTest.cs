@@ -1,4 +1,4 @@
-using ImageMapper.Api.Services;
+using ImageMapper.Services;
 using ImageMapper.Models;
 using Microsoft.Extensions.Configuration;
 

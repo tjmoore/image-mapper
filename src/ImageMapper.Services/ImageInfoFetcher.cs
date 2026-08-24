@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.Collections.Frozen;
 
-namespace ImageMapper.Api.Services
+namespace ImageMapper.Services
 {
     /// <summary>
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available

@@ -16,7 +16,7 @@ It is built with Blazor for the front-end components with back-end services to e
 
 ## Components
 
-- ImageMapper.Api - Back end API that fetches and processes image data
+- ImageMapper.Services - Library of .NET services to extract metadata from images and provide data to the front end
 - ImageMapper.Web - Example front end .NET Blazor web app that produces the UI to render the data on a map
 - ImageMapper.Models - .NET class library of shared models
 

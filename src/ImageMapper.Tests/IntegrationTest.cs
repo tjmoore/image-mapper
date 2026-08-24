@@ -1,6 +1,6 @@
 using Aspire.Hosting;
-using ImageMapper.Api.Services;
 using ImageMapper.Models;
+using ImageMapper.Services;
 using ImageMapper.Web.Client;
 using Microsoft.Extensions.Logging;
 using Serilog;

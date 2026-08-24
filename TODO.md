@@ -23,9 +23,8 @@
 
 - Convert to a library package of Blazor components and backend services for ease of use in other projects, e.g. as a NuGet package. UI provided serves as an example.
 - Optional app wrapping, e.g. Electron or .NET MAUI (BlazorWebView), as alternative to deploying to a server, and/or to allow running as an app on mobile devices.
-	- Reducing to a single app instead of app and API service may help
 
 ## General
 
-- Further unit tests, including for API and Blazor components, checking UI rendered output
+- Further unit tests, including Blazor components, checking UI rendered output, etc
 - Possibility of adding missing geolocation data to images without any, via a map or by entering coordinates manually and/or by using a reverse geocoding service to find the nearest known location

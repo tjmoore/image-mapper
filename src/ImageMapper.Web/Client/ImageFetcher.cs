@@ -1,5 +1,5 @@
-﻿using ImageMapper.Api.Services;
-using ImageMapper.Models;
+﻿using ImageMapper.Models;
+using ImageMapper.Services;
 
 namespace ImageMapper.Web.Client
 {

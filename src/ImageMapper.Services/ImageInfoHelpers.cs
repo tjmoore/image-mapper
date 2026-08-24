@@ -9,7 +9,7 @@ using MetadataExtractor.Formats.Png;
 using MetadataExtractor.Formats.WebP;
 using Serilog;
 
-namespace ImageMapper.Api.Services
+namespace ImageMapper.Services
 {
     internal static class ImageInfoHelpers
     {

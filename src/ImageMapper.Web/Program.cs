@@ -1,4 +1,4 @@
-using ImageMapper.Api.Services;
+using ImageMapper.Services;
 using ImageMapper.Web.Components;
 using Microsoft.AspNetCore.ResponseCompression;
 using Serilog;

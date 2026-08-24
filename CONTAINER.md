@@ -16,7 +16,6 @@ Additionally the ports the container images listen on can be configured here. Th
         "/path/to/your/images1",
         "/path/to/your/images2"
     ],
-    "ApiPort": 8081,
     "WebPort": 8080
   }
 }
