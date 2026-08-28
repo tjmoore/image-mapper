@@ -37,6 +37,7 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(opts => opts.Level 
 builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 
 builder.Services.AddImageMapperServices();
+builder.Services.AddScoped<ImageMapper.Web.Client.ImageFetcher>();
 
 var app = builder.Build();
 
@@ -67,3 +68,9 @@ app.MapRazorComponents<App>()
 app.MapDefaultEndpoints();
 
 app.Run();
+
+namespace ImageMapper.Web
+{
+    // Required for WebApplicationFactory<Program> in tests
+    public partial class Program { }
+}
