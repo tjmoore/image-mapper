@@ -38,6 +38,7 @@ builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = 
 
 builder.Services.AddImageMapperServices();
 builder.Services.AddScoped<ImageMapper.Web.Client.ImageFetcher>();
+builder.Services.AddScoped<ImageMapper.Web.Client.CacheStatus>();
 
 var app = builder.Build();
 
