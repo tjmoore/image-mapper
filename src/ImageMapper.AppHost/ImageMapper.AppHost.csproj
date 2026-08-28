@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImageMapper.Api\ImageMapper.Api.csproj" />
     <ProjectReference Include="..\ImageMapper.Web\ImageMapper.Web.csproj" />
   </ItemGroup>
 

@@ -3,16 +3,14 @@
 ## UI
 
 - Show file info in photo view, including filename, GPS coordinates, camera model, settings, date taken, etc
+- Show small round thumbnail of image on map instead of just a pin
 - Responsive design enhancements where required across different screen sizes, including mobile devices
 - Filtering, search etc
 - Show files without geolocation as a list on a separate page for example
 
 ## Backend
 
-- Simply as a single app instead of deploying web app and API service, to reduce complexity and improve performance?
-	- The services in the API project are still required and can be launched on demand by the app, but without the overhead of an API service and internal API calls
-	- Can keep services in own library project for separation of concerns
-	- If there's future need to separate the service for other clients, it can be done later by adding a separate API project that uses the same service library	
+- GetImageBytesAsync - return stream through to client ImageFetcher which converts to stream anyway, as there's no API layer now
 - Indexing / caching of image metadata
 	- Update map while cache updates instead of needing to refresh the page
 	- Detect folder/file changes instead of recaching on schedule
@@ -23,12 +21,10 @@
 
 ## Deployment
 
-- Simplified as much as possible, including for non-technical users, e.g. via a single command or script to deploy to a server or cloud service / container, and/or to run locally on a desktop or laptop computer
+- Convert to a library package of Blazor components and backend services for ease of use in other projects, e.g. as a NuGet package. UI provided serves as an example.
 - Optional app wrapping, e.g. Electron or .NET MAUI (BlazorWebView), as alternative to deploying to a server, and/or to allow running as an app on mobile devices.
-	- Reducing to a single app instead of app and API service may help
-- As a plugin for existing photo management software if possible
 
 ## General
 
-- Further unit tests, including for API and Blazor components, checking UI rendered output
+- Further unit tests, including Blazor components, checking UI rendered output, etc
 - Possibility of adding missing geolocation data to images without any, via a map or by entering coordinates manually and/or by using a reverse geocoding service to find the nearest known location

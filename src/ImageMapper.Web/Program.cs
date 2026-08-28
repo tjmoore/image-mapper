@@ -1,7 +1,7 @@
-using ImageMapper.Web.Client;
+using ImageMapper.Services;
 using ImageMapper.Web.Components;
-using Serilog;
 using Microsoft.AspNetCore.ResponseCompression;
+using Serilog;
 using System.IO.Compression;
 
 Log.Logger = new LoggerConfiguration()
@@ -36,10 +36,9 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.Configure<BrotliCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 
-builder.Services.AddHttpClient<ImageItemFetcher>(c =>
-{
-    c.BaseAddress = new("https+http://imagemapper-api");
-});
+builder.Services.AddImageMapperServices();
+builder.Services.AddScoped<ImageMapper.Web.Client.ImageFetcher>();
+builder.Services.AddScoped<ImageMapper.Web.Client.CacheStatus>();
 
 var app = builder.Build();
 
@@ -70,3 +69,9 @@ app.MapRazorComponents<App>()
 app.MapDefaultEndpoints();
 
 app.Run();
+
+namespace ImageMapper.Web
+{
+    // Required for WebApplicationFactory<Program> in tests
+    public partial class Program { }
+}

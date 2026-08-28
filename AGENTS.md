@@ -24,14 +24,14 @@ The dashboard provides a central view of service health, logs, and traces.
 
 The solution is structured into several projects, each serving a specific role:
 
-- **ImageMapper.Api** — Backend service that enumerates images, extracts EXIF/geolocation metadata, and exposes endpoints
-- **ImageMapper.Web** — Blazor frontend that consumes the API and renders images on a map using Leaflet.js (OpenStreetMap)
+- **ImageMapper.Services** — Backend services that enumerates images and extracts EXIF/geolocation metadata
+- **ImageMapper.Web** — Blazor frontend that consumes the services and renders images on a map using Leaflet.js (OpenStreetMap)
 - **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
 - **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
-- **ImageMapper.Models** — Shared models used by both API and Web projects
-- **ImageMapper.Tests** — NUnit tests covering core services and API flows
+- **ImageMapper.Models** — Shared models used by both Services and Web projects
+- **ImageMapper.Tests** — NUnit tests covering core services and Web/API flows
 
-Configuration is managed through `appsettings.json` files in each project. The API image folders are configured via the `ImageFolders` (array) key.
+Configuration is managed through `appsettings.json` files in each project. The image folders are configured via the `ImageFolders` (array) key.
 
 ## Development Workflow
 
@@ -63,7 +63,7 @@ The dashboard is the primary tool for monitoring and understanding what's happen
 
 - [README.md](README.md) — Overview, supported image formats, running instructions
 - [apphost.cs](src/ImageMapper.AppHost/AppHost.cs) — Aspire resource definitions and composition
-- [appsettings.json](src/ImageMapper.Api/appsettings.json) — Configuration (image folders, etc.)
+- [appsettings.json](src/ImageMapper.Web/appsettings.json) — Configuration (image folders, etc.)
 - [.github/copilot-instructions.md](.github/copilot-instructions.md) — Agent-specific build and test commands
 
 ## Related Resources

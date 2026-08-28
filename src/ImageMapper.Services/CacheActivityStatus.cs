@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
-namespace ImageMapper.Api.Services;
+namespace ImageMapper.Services;
 
 public sealed class CacheActivityStatus
 {
