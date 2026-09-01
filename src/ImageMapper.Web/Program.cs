@@ -1,4 +1,5 @@
 using ImageMapper.Services;
+using ImageMapper.Web.Client;
 using ImageMapper.Web.Components;
 using Microsoft.AspNetCore.ResponseCompression;
 using Serilog;
@@ -37,8 +38,8 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(opts => opts.Level 
 builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 
 builder.Services.AddImageMapperServices();
-builder.Services.AddScoped<ImageMapper.Web.Client.ImageFetcher>();
-builder.Services.AddScoped<ImageMapper.Web.Client.CacheStatus>();
+builder.Services.AddScoped<ImageFetcher>();
+builder.Services.AddScoped<CacheStatus>();
 
 var app = builder.Build();
 

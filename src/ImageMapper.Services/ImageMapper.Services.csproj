@@ -21,5 +21,9 @@
     <ProjectReference Include="..\ImageMapper.Models\ImageMapper.Models.csproj" />
     <ProjectReference Include="..\ImageMapper.ServiceDefaults\ImageMapper.ServiceDefaults.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ImageMapper.Tests"/>
+  </ItemGroup>
     
 </Project>

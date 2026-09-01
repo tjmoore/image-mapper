@@ -8,9 +8,9 @@ namespace ImageMapper.Services
         {
             services
                 .AddMemoryCache()
-                .AddSingleton<CacheActivityStatus>()
+                .AddSingleton<ICacheActivityStatus, CacheActivityStatus>()
                 .AddSingleton(typeof(CacheSignal<>))
-                .AddTransient<ImageInfoFetcher>()
+                .AddTransient<IImageInfoFetcher, ImageInfoFetcher>()
                 .AddScoped<IImageService, ImageService>()
                 .AddHostedService<ImageWorkerService>();
 

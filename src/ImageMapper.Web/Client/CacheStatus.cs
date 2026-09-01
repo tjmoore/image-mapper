@@ -3,7 +3,7 @@ using ImageMapper.Services;
 
 namespace ImageMapper.Web.Client
 {
-    public class CacheStatus(CacheActivityStatus cacheActivityStatus)
+    public class CacheStatus(ICacheActivityStatus cacheActivityStatus)
     {
         /// <summary>
         /// Fetches the current cache status information.

@@ -2,13 +2,13 @@
 
 ## Overview
 
-ImageMapper is a .NET application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
+ImageMapper is a .NET library and example application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
 
 Refer also to repository docs (README.md, AGENTS.md) for further context
 
 ## Coding style and guidelines
 - Follow SOLID principles and clean code practices. Don't over-engineer; keep it simple and maintainable.
-- Follow .NET conventions (PascalCase for types and methods, camelCase for local variables).
+- Follow .NET conventions for .NET components. TypeScript code should follow TypeScript conventions.
 - Use async/await for asynchronous operations; avoid blocking calls.
 - Use consistent naming conventions
 - For Blazor components
@@ -21,12 +21,12 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 
 ## Architecture
 
-- **ImageMapper.Services** — Backend services that enumerates images and extracts EXIF/geolocation metadata
+- **ImageMapper.Services** — Library of .NET services to extract metadata from images and provide data front end consumers
 - **ImageMapper.Web** — Blazor frontend that consumes the services and renders images on a map using Leaflet.js (OpenStreetMap)
-- **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
-- **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
 - **ImageMapper.Models** — Shared models used by both Services and Web projects
 - **ImageMapper.Tests** — NUnit tests covering core services and Web/API flows
+- **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
+- **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
 
 - Runtime flow:
   1. AppHost (aspire) starts configured resources and services.

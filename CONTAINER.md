@@ -1,5 +1,7 @@
 # Container deployment
 
+The following describes a recommended approach to containerising the ImageMapper solution using Docker Compose and Aspire.
+
 `ImageMapper.AppHost` via Aspire CLI controls Docker Compose artifact generation:
 
 - `aspire publish`

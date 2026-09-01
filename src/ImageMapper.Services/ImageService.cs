@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace ImageMapper.Services;
 
 public sealed class ImageService(
-    ImageInfoFetcher _imageInfoFetcher) : IImageService
+    IImageInfoFetcher _imageInfoFetcher) : IImageService
 {
     /// <summary>
     /// Asynchronously retrieves a sequence of image information
