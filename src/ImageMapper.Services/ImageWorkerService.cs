@@ -5,8 +5,8 @@ namespace ImageMapper.Services
 {
     // Very loosly based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
 
-    public sealed class ImageWorkerService(
-        ImageInfoFetcher _imageInfoFetcher) : BackgroundService
+    internal sealed class ImageWorkerService(
+        IImageInfoFetcher _imageInfoFetcher) : BackgroundService
     {
         private readonly TimeSpan _updateInterval = TimeSpan.FromHours(3);
 

@@ -1,5 +1,6 @@
 using ImageMapper.Services;
 using ImageMapper.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace ImageMapper.Tests
@@ -48,7 +49,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
@@ -85,7 +86,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
@@ -110,7 +111,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
@@ -146,7 +147,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
@@ -176,7 +177,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", Path.Combine(_testImagesDirectory, "nonexistent"))])
                 .Build();
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
@@ -203,7 +204,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);
@@ -239,7 +240,7 @@ namespace ImageMapper.Tests
             var nonImagePath = Path.Combine(_testImagesDirectory, "readme.txt");
             File.WriteAllText(nonImagePath, "This is not an image");
 
-            var cache = new Microsoft.Extensions.Caching.Memory.MemoryCache(new Microsoft.Extensions.Caching.Memory.MemoryCacheOptions());
+            var cache = new MemoryCache(new MemoryCacheOptions());
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var fetcher = new ImageInfoFetcher(config, cache, cacheSignal, cacheActivityStatus);

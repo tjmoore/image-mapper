@@ -6,7 +6,7 @@
     /// A signal mechanism for coordinating cache access between producers and consumers.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public sealed class CacheSignal<T>
+    internal sealed class CacheSignal<T>
     {
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 

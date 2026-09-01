@@ -9,11 +9,11 @@ namespace ImageMapper.Services
     /// <summary>
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available
     /// </summary>
-    public class ImageInfoFetcher(
+    internal class ImageInfoFetcher(
         IConfiguration _config,
         IMemoryCache _cache,
         CacheSignal<ImageInfo> _cacheSignal,
-        CacheActivityStatus _cacheActivityStatus)
+        ICacheActivityStatus _cacheActivityStatus) : IImageInfoFetcher
     {
         /// <summary>
         /// Fetches a list of all image files from the configured folders
