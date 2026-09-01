@@ -4,13 +4,13 @@ Refer to .github/copilot-instructions.md for agent-specific build and test comma
 
 ## Overview
 
-ImageMapper is a .NET application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
+ImageMapper is a .NET library and example application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
 
 This guide covers key concepts and workflows for working with an Aspire-based project.
 
 ## Quick Start
 
-To run the application and start development:
+To run the sample development environment:
 
 ```bash
 aspire run
@@ -24,12 +24,12 @@ The dashboard provides a central view of service health, logs, and traces.
 
 The solution is structured into several projects, each serving a specific role:
 
-- **ImageMapper.Services** — Backend services that enumerates images and extracts EXIF/geolocation metadata
+- **ImageMapper.Services** — Library of .NET services to extract metadata from images and provide data front end consumers
 - **ImageMapper.Web** — Blazor frontend that consumes the services and renders images on a map using Leaflet.js (OpenStreetMap)
-- **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
-- **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
 - **ImageMapper.Models** — Shared models used by both Services and Web projects
 - **ImageMapper.Tests** — NUnit tests covering core services and Web/API flows
+- **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
+- **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development
 
 Configuration is managed through `appsettings.json` files in each project. The image folders are configured via the `ImageFolders` (array) key.
 
