@@ -7,16 +7,13 @@
   </PropertyGroup>
     
   <ItemGroup>
+    <ProjectReference Include="..\ImageMapper.RazorLib\ImageMapper.RazorLib.csproj" />
     <ProjectReference Include="..\ImageMapper.Services\ImageMapper.Services.csproj" />
     <ProjectReference Include="..\ImageMapper.Models\ImageMapper.Models.csproj" />
     <ProjectReference Include="..\ImageMapper.ServiceDefaults\ImageMapper.ServiceDefaults.csproj" />
   </ItemGroup>
     
   <ItemGroup>
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="7.0.1">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Serilog" Version="4.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
   </ItemGroup>

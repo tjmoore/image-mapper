@@ -1,15 +1,15 @@
-.home-layout {
+.image-map-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: 1rem;
 }
 
-.home-map-panel {
+.image-map-panel {
     min-width: 0;
 }
 
-.home-info-panel {
+.image-map-info-panel {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -17,17 +17,17 @@
 }
 
 @media (min-width: 64rem) {
-    .home-layout {
+    .image-map-layout {
         grid-template-columns: minmax(0, 4fr) minmax(18rem, 1fr);
         gap: 1.25rem;
         min-height: calc(100dvh - 6rem);
     }
 
-    .home-map-panel {
+    .image-map-panel {
         height: 100%;
     }
 
-    .home-info-panel {
+    .image-map-info-panel {
         position: sticky;
         top: 4.5rem;
     }

@@ -1,9 +1,9 @@
 using ImageMapper.Models;
 using Microsoft.JSInterop;
 
-namespace ImageMapper.Web.Components.Pages
+namespace ImageMapper.RazorLib.Components
 {
-    public partial class Home
+    public partial class ImageMap
     {
         private readonly CancellationTokenSource cts = new();
         private IJSObjectReference? mapSectionModule;
@@ -22,10 +22,10 @@ namespace ImageMapper.Web.Components.Pages
             {
                 var mapImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Sections/MapSection.razor.js").AsTask();
+                    "./_content/ImageMapper.RazorLib/Components/Sections/MapSection.razor.js").AsTask();
                 var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Sections/ProgressSection.razor.js").AsTask();
+                    "./_content/ImageMapper.RazorLib/Components/Sections/ProgressSection.razor.js").AsTask();
 
                 await Task.WhenAll(mapImportTask, progressImportTask);
 
@@ -106,9 +106,9 @@ namespace ImageMapper.Web.Components.Pages
             {
                 try
                 {
-                    await foreach (var cacheStatus in cacheStatus.StreamCacheStatus(ct))
+                    await foreach (var status in cacheStatus.StreamCacheStatus(ct))
                     {
-                        cacheStatusText = FormatCacheStatusText(cacheStatus);
+                        cacheStatusText = FormatCacheStatusText(status);
                         await InvokeAsync(StateHasChanged);
                     }
 

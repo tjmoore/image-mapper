@@ -22,7 +22,8 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 ## Architecture
 
 - **ImageMapper.Services** — Library of .NET services to extract metadata from images and provide data front end consumers
-- **ImageMapper.Web** — Blazor frontend that consumes the services and renders images on a map using Leaflet.js (OpenStreetMap)
+- **ImageMapper.RazorLib** - Library of .NET Blazor components to render the data on a map using Leaflet.js (OpenStreetMap)
+- **ImageMapper.Web** — Blazor frontend that consumes the services and uses the Razor components to render images on a map
 - **ImageMapper.Models** — Shared models used by both Services and Web projects
 - **ImageMapper.Tests** — NUnit tests covering core services and Web/API flows
 - **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry

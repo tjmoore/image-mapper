@@ -23,6 +23,7 @@ let map: any;
 let markerClusterGroup: any;
 let markers: any[] = [];
 let mapResizeHandlerAttached = false;
+const popupTemplateId = 'map-popup-template';
 
 /**
  * Initializes the Leaflet map and sets up the marker cluster group.
@@ -51,12 +52,30 @@ export function initClusterMap(): void {
  **/
 export function addMarkerToMap(imageData: ImageInfo): void {
     if (imageData.latitude && imageData.longitude) {
-        const popupContent = `<div><strong>${imageData.fileName}</strong><br><img class="popup-thumb popup-thumb-image popup-full-image-trigger" src="${imageData.url}" data-image-src="${imageData.url}" title="Click to view full-size image"></div>`;
-
-        const marker = L.marker([imageData.latitude, imageData.longitude]).bindPopup(popupContent);
+        const marker = L.marker([imageData.latitude, imageData.longitude]).bindPopup(createPopupPlaceholder());
 
         marker.on('popupopen', function (event: any): void {
-            const popupImage = event.popup.getElement()?.querySelector('.popup-full-image-trigger') as HTMLElement | null;
+            const popupElement = event.popup.getElement() as HTMLElement | null;
+            if (!popupElement || popupElement.dataset.populated === 'true') {
+                return;
+            }
+
+            const popupContent = popupElement.querySelector('.popup-content') as HTMLElement | null;
+            if (!popupContent) {
+                return;
+            }
+
+            populatePopupContent(popupContent, imageData);
+            popupElement.dataset.populated = 'true';
+
+            const fileLink = popupContent.querySelector('[data-popup-filename]') as HTMLElement | null;
+            if (fileLink) {
+                fileLink.addEventListener('click', function (): void {
+                    triggerShowImage(imageData);
+                });
+            }
+
+            const popupImage = popupContent.querySelector('.popup-full-image-trigger') as HTMLElement | null;
             if (popupImage) {
                 popupImage.addEventListener('click', function (): void {
                     triggerShowImage(imageData);
@@ -67,6 +86,41 @@ export function addMarkerToMap(imageData: ImageInfo): void {
         markers.push(marker);
         markerClusterGroup.addLayer(marker);
     }
+}
+
+function createPopupPlaceholder(): HTMLElement {
+    const templateRoot = document.getElementById(popupTemplateId);
+    if (!templateRoot) {
+        throw new Error(`Popup template element with id '${popupTemplateId}' was not found.`);
+    }
+
+    const popupRoot = templateRoot.cloneNode(true) as HTMLElement;
+    popupRoot.removeAttribute('id');
+    popupRoot.classList.remove('map-popup-template');
+    popupRoot.dataset.populated = 'false';
+
+    const popupImage = popupRoot.querySelector('[data-popup-image]') as HTMLImageElement | null;
+    if (popupImage) {
+        popupImage.removeAttribute('src');
+        popupImage.removeAttribute('data-image-src');
+    }
+
+    return popupRoot;
+}
+
+function populatePopupContent(popupContent: HTMLElement, imageData: ImageInfo): void {
+    const fileLink = popupContent.querySelector('[data-popup-filename]') as HTMLButtonElement | null;
+    const popupImage = popupContent.querySelector('[data-popup-image]') as HTMLImageElement | null;
+
+    if (!fileLink || !popupImage) {
+        throw new Error('Popup template is missing required popup elements.');
+    }
+
+    fileLink.textContent = imageData.fileName;
+
+    popupImage.src = imageData.url;
+    popupImage.setAttribute('data-image-src', imageData.url);
+    popupImage.title = `Click to view full-size image`;
 }
 
 /**

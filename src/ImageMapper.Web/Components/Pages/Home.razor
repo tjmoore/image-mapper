@@ -1,23 +1,7 @@
 @page "/"
-@using ImageMapper.Web.Components.Sections
-@using ImageMapper.Web.Components.Overlays
+@using ImageMapper.RazorLib.Components
 @rendermode InteractiveServer
-@inject ImageFetcher imageFetcher
-@inject CacheStatus cacheStatus
-@inject IJSRuntime JS
-@implements IAsyncDisposable
 
 <PageTitle>Image Map</PageTitle>
 
-<div class="home-layout">
-    <section class="home-map-panel">
-        <MapSection />
-    </section>
-    <section class="home-info-panel">
-        <StatusSection StatusText="@cacheStatusText" />
-        <ImageCountSection IsVisible="@isImageCountVisible" ImageCount="@imagesLoaded" SkippedCount="@skippedImages" />
-        <ProgressSection IsVisible="@isProgressVisible" LoadedImages="@imagesLoaded" TotalImages="@totalImages" Percentage="@progressPercentage" />
-    </section>
-</div>
-
-<ImageModal />
+<ImageMap />
