@@ -56,7 +56,7 @@
         {
             _dotNetRef = DotNetObjectReference.Create(this);
             _imageModalModule = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./Components/Overlays/ImageModal.razor.js");
+                "import", "./_content/ImageMapper.RazorLib/Components/Overlays/ImageModal.razor.js");
             await _imageModalModule.InvokeVoidAsync("setImageModalDotNetRef", _dotNetRef);
             await _imageModalModule.InvokeVoidAsync("setupImageModalKeyHandler");
         }

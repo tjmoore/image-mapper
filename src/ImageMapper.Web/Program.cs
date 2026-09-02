@@ -1,5 +1,5 @@
+using ImageMapper.RazorLib.Client;
 using ImageMapper.Services;
-using ImageMapper.Web.Client;
 using ImageMapper.Web.Components;
 using Microsoft.AspNetCore.ResponseCompression;
 using Serilog;

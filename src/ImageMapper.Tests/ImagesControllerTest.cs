@@ -1,5 +1,5 @@
+using ImageMapper.RazorLib.Client;
 using ImageMapper.Services;
-using ImageMapper.Web.Client;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using NSubstitute;

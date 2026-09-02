@@ -10,6 +10,7 @@
   </Folder>
   <Project Path="src/ImageMapper.AppHost/ImageMapper.AppHost.csproj" />
   <Project Path="src/ImageMapper.Models/ImageMapper.Models.csproj" />
+  <Project Path="src/ImageMapper.RazorLib/ImageMapper.RazorLib.csproj" />
   <Project Path="src/ImageMapper.ServiceDefaults/ImageMapper.ServiceDefaults.csproj" />
   <Project Path="src/ImageMapper.Services/ImageMapper.Services.csproj" />
   <Project Path="src/ImageMapper.Tests/ImageMapper.Tests.csproj" Id="002fb29d-a214-4a60-b9f8-4de3aa9b8f44" />

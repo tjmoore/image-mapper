@@ -1,4 +1,4 @@
-﻿using ImageMapper.Web.Client;
+﻿using ImageMapper.RazorLib.Client;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 

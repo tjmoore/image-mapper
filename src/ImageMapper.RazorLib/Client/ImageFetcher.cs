@@ -1,7 +1,7 @@
 ﻿using ImageMapper.Models;
 using ImageMapper.Services;
 
-namespace ImageMapper.Web.Client
+namespace ImageMapper.RazorLib.Client
 {
     /// <summary>
     /// Fetches images

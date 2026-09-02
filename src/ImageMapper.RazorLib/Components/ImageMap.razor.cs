@@ -1,7 +1,7 @@
 using ImageMapper.Models;
 using Microsoft.JSInterop;
 
-namespace ImageMapper.Web.Components
+namespace ImageMapper.RazorLib.Components
 {
     public partial class ImageMap
     {
@@ -22,10 +22,10 @@ namespace ImageMapper.Web.Components
             {
                 var mapImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Sections/MapSection.razor.js").AsTask();
+                    "./_content/ImageMapper.RazorLib/Components/Sections/MapSection.razor.js").AsTask();
                 var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
                     "import",
-                    "./Components/Sections/ProgressSection.razor.js").AsTask();
+                    "./_content/ImageMapper.RazorLib/Components/Sections/ProgressSection.razor.js").AsTask();
 
                 await Task.WhenAll(mapImportTask, progressImportTask);
 
