@@ -1,9 +1,9 @@
 using ImageMapper.Models;
 using Microsoft.JSInterop;
 
-namespace ImageMapper.Web.Components.Pages
+namespace ImageMapper.Web.Components
 {
-    public partial class Home
+    public partial class ImageMap
     {
         private readonly CancellationTokenSource cts = new();
         private IJSObjectReference? mapSectionModule;
@@ -106,9 +106,9 @@ namespace ImageMapper.Web.Components.Pages
             {
                 try
                 {
-                    await foreach (var cacheStatus in cacheStatus.StreamCacheStatus(ct))
+                    await foreach (var status in cacheStatus.StreamCacheStatus(ct))
                     {
-                        cacheStatusText = FormatCacheStatusText(cacheStatus);
+                        cacheStatusText = FormatCacheStatusText(status);
                         await InvokeAsync(StateHasChanged);
                     }
 
