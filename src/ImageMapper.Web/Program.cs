@@ -1,4 +1,4 @@
-using ImageMapper.RazorLib.Client;
+using ImageMapper.RazorLib;
 using ImageMapper.Services;
 using ImageMapper.Web.Components;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -37,9 +37,9 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.Configure<BrotliCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 
+// Add ImageMapper services and Razor library to the DI container
 builder.Services.AddImageMapperServices();
-builder.Services.AddScoped<ImageFetcher>();
-builder.Services.AddScoped<CacheStatus>();
+builder.Services.AddImageMapperRazorLib();
 
 var app = builder.Build();
 

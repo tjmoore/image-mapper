@@ -3,8 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Services;
 
-public sealed class ImageService(
-    IImageInfoFetcher _imageInfoFetcher) : IImageService
+public sealed class ImageService(IImageInfoFetcher imageInfoFetcher) : IImageService
 {
     /// <summary>
     /// Asynchronously retrieves a sequence of image information
@@ -14,7 +13,7 @@ public sealed class ImageService(
     /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images</returns>
     public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
-        IEnumerable<BasicFileInfo> imageFiles = _imageInfoFetcher.GetImageFiles();
+        IEnumerable<BasicFileInfo> imageFiles = imageInfoFetcher.GetImageFiles();
 
         if (!imageFiles.Any())
             yield break;
@@ -23,7 +22,7 @@ public sealed class ImageService(
         {
             ct.ThrowIfCancellationRequested();
 
-            var image = _imageInfoFetcher.GetImageInfo(file.Id);
+            var image = imageInfoFetcher.GetImageInfo(file.Id);
             if (image != null)
                 yield return image;
         }
@@ -41,7 +40,7 @@ public sealed class ImageService(
     /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
     public async Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default)
     {
-        var image = _imageInfoFetcher.GetImageInfo(id);
+        var image = imageInfoFetcher.GetImageInfo(id);
 
         if (image != null)
             return await ImageFetcherHelpers.GetImageBytesAsync(image.FilePath, ct);
@@ -53,5 +52,5 @@ public sealed class ImageService(
     /// Retrieves the count of processed image files.
     /// </summary>
     /// <returns>The count of processed image files.</returns>
-    public int GetImageCount() => _imageInfoFetcher.GetImageCount();
+    public int GetImageCount() => imageInfoFetcher.GetImageCount();
 }

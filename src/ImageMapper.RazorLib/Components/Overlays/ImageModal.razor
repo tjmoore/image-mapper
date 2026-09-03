@@ -1,7 +1,4 @@
-@using Microsoft.JSInterop
-@using ImageMapper.Models
-@inject IJSRuntime JS
-@implements IAsyncDisposable
+@inject ImageModalJsInterop ImageModalModule
 
 @if (_isVisible)
 {
@@ -40,60 +37,4 @@
             </div>
         </div>
     </div>
-}
-
-@code {
-    private bool _isVisible;
-    private bool _infoPanelOpen;
-    private string _imageSrc = string.Empty;
-    private ImageInfo? _currentImageInfo;
-    private DotNetObjectReference<ImageModal>? _dotNetRef;
-    private IJSObjectReference? _imageModalModule;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _dotNetRef = DotNetObjectReference.Create(this);
-            _imageModalModule = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/ImageMapper.RazorLib/Components/Overlays/ImageModal.razor.js");
-            await _imageModalModule.InvokeVoidAsync("setImageModalDotNetRef", _dotNetRef);
-            await _imageModalModule.InvokeVoidAsync("setupImageModalKeyHandler");
-        }
-    }
-
-    [JSInvokable]
-    public Task ShowImage(ImageInfo imageInfo)
-    {
-        _imageSrc = imageInfo.Url;
-        _currentImageInfo = imageInfo;
-        _isVisible = true;
-        return InvokeAsync(StateHasChanged);
-    }
-
-    [JSInvokable]
-    public Task CloseModal()
-    {
-        _isVisible = false;
-        return InvokeAsync(StateHasChanged);
-    }
-
-    private void OnBackdropClick()
-    {
-        _isVisible = false;
-    }
-
-    private void ToggleInfoPanel()
-    {
-        _infoPanelOpen = !_infoPanelOpen;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_imageModalModule is not null)
-        {
-            try { await _imageModalModule.DisposeAsync(); } catch (JSDisconnectedException) { }
-        }
-        _dotNetRef?.Dispose();
-    }
 }

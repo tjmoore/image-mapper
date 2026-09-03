@@ -1,4 +1,3 @@
-using ImageMapper.RazorLib.Client;
 using ImageMapper.Services;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -18,9 +17,8 @@ namespace ImageMapper.Tests
                 {
                     builder.ConfigureTestServices(services =>
                     {
-                        // Replace the registered IImageService with a mock and ensure ImageFetcher is available
+                        // Replace the registered IImageService with a mock
                         services.AddSingleton(imageService);
-                        services.AddScoped<ImageFetcher>();
                     });
                 });
         }
