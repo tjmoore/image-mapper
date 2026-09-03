@@ -5,8 +5,7 @@ namespace ImageMapper.Services
 {
     // Very loosly based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
 
-    internal sealed class ImageWorkerService(
-        IImageInfoFetcher _imageInfoFetcher) : BackgroundService
+    internal sealed class ImageWorkerService(IImageInfoFetcher imageInfoFetcher) : BackgroundService
     {
         private readonly TimeSpan _updateInterval = TimeSpan.FromHours(3);
 
@@ -34,7 +33,7 @@ namespace ImageMapper.Services
 
                 try
                 {
-                    int processedCount = await _imageInfoFetcher.ProcessImagesAsync(ct);
+                    int processedCount = await imageInfoFetcher.ProcessImagesAsync(ct);
 
                     Log.Information("Cache updated with {Count} images", processedCount);
                 }

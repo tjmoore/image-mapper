@@ -8,7 +8,11 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 
 ## Coding style and guidelines
 - Follow SOLID principles and clean code practices. Don't over-engineer; keep it simple and maintainable.
-- Follow .NET conventions for .NET components. TypeScript code should follow TypeScript conventions.
+- Follow .NET conventions for .NET components. In particular refer to the following:
+	- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/identifier-names
+	- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
+- Follow TypeScript conventions for TypeScript code. Including the following:
+	- https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html
 - Use async/await for asynchronous operations; avoid blocking calls.
 - Use consistent naming conventions
 - For Blazor components

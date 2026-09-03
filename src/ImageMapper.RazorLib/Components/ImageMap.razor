@@ -1,10 +1,9 @@
-@using ImageMapper.RazorLib.Client
-@using ImageMapper.RazorLib.Components.Overlays
-@using ImageMapper.RazorLib.Components.Sections
 @rendermode InteractiveServer
-@inject ImageFetcher imageFetcher
-@inject CacheStatus cacheStatus
-@inject IJSRuntime JS
+@inject IImageService ImageService
+@inject ICacheActivityStatus CacheStatus
+@inject MapSectionJsInterop MapModule
+@inject ProgressSectionJsInterop ProgressModule
+
 @implements IAsyncDisposable
 
 <div class="image-map-layout">
@@ -12,9 +11,9 @@
         <MapSection />
     </section>
     <section class="image-map-info-panel">
-        <StatusSection StatusText="@cacheStatusText" />
-        <ImageCountSection IsVisible="@isImageCountVisible" ImageCount="@imagesLoaded" SkippedCount="@skippedImages" />
-        <ProgressSection IsVisible="@isProgressVisible" LoadedImages="@imagesLoaded" TotalImages="@totalImages" Percentage="@progressPercentage" />
+        <StatusSection StatusText="@_cacheStatusText" />
+        <ImageCountSection IsVisible="@_isImageCountVisible" ImageCount="@_imagesLoaded" SkippedCount="@_skippedImages" />
+        <ProgressSection IsVisible="@_isProgressVisible" LoadedImages="@_imagesLoaded" TotalImages="@_totalImages" Percentage="@_progressPercentage" />
     </section>
 </div>
 

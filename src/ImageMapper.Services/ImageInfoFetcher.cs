@@ -10,10 +10,10 @@ namespace ImageMapper.Services
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available
     /// </summary>
     internal class ImageInfoFetcher(
-        IConfiguration _config,
-        IMemoryCache _cache,
-        CacheSignal<ImageInfo> _cacheSignal,
-        ICacheActivityStatus _cacheActivityStatus) : IImageInfoFetcher
+        IConfiguration config,
+        IMemoryCache cache,
+        CacheSignal<ImageInfo> cacheSignal,
+        ICacheActivityStatus cacheActivityStatus) : IImageInfoFetcher
     {
         /// <summary>
         /// Fetches a list of all image files from the configured folders
@@ -21,7 +21,7 @@ namespace ImageMapper.Services
         /// <returns>An enumerable of image file paths</returns>
         public IEnumerable<BasicFileInfo> GetImageFiles()
         {
-            if (_cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? cachedImageFiles) && cachedImageFiles != null)
+            if (cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? cachedImageFiles) && cachedImageFiles != null)
             {
                 return cachedImageFiles.ToFrozenSet();
             }
@@ -36,16 +36,16 @@ namespace ImageMapper.Services
         /// <returns>The number of images processed</returns>
         public async Task<int> ProcessImagesAsync(CancellationToken ct)
         {
-            await _cacheSignal.WaitAsync(ct);
+            await cacheSignal.WaitAsync(ct);
 
             try
             {
                 ResolveFoldersAndFiles();
 
-                if (!_cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? imageFiles) || imageFiles == null)
+                if (!cache.TryGetValue("ImageFiles", out List<BasicFileInfo>? imageFiles) || imageFiles == null)
                 {
-                    _cacheActivityStatus.MarkCachingStarted(0);
-                    _cacheActivityStatus.UpdateProgress(0, 0);
+                    cacheActivityStatus.MarkCachingStarted(0);
+                    cacheActivityStatus.UpdateProgress(0, 0);
                     return 0;
                 }
 
@@ -53,8 +53,8 @@ namespace ImageMapper.Services
                 int processedFileCount = 0;
                 int totalFileCount = imageFiles.Count;
 
-                _cacheActivityStatus.MarkCachingStarted(totalFileCount);
-                _cacheActivityStatus.UpdateProgress(processedFileCount, totalFileCount);
+                cacheActivityStatus.MarkCachingStarted(totalFileCount);
+                cacheActivityStatus.UpdateProgress(processedFileCount, totalFileCount);
 
                 foreach (BasicFileInfo imageFile in imageFiles)
                 {
@@ -65,23 +65,23 @@ namespace ImageMapper.Services
                     // All images cached even if they don't have geolocation data
                     if (imageInfo != null)
                     {
-                        _cache.Set(imageFile.Id, imageInfo);
+                        cache.Set(imageFile.Id, imageInfo);
                         imageCount++;
                     }
 
                     processedFileCount++;
-                    _cacheActivityStatus.UpdateProgress(processedFileCount, totalFileCount);
+                    cacheActivityStatus.UpdateProgress(processedFileCount, totalFileCount);
                 }
                 Log.Information("Cache updated with {Count} images", imageCount);
 
-                _cache.Set("ImageCount", imageCount);
+                cache.Set("ImageCount", imageCount);
 
                 return imageCount;
             }
             finally
             {
-                _cacheActivityStatus.MarkCachingStopped();
-                _cacheSignal.Release();
+                cacheActivityStatus.MarkCachingStopped();
+                cacheSignal.Release();
             }
         }
 
@@ -92,7 +92,7 @@ namespace ImageMapper.Services
         /// <returns>The image information if available; otherwise, null</returns>
         public ImageInfo? GetImageInfo(string id)
         {
-            if (_cache.TryGetValue(id, out ImageInfo? cachedImage) && cachedImage != null)
+            if (cache.TryGetValue(id, out ImageInfo? cachedImage) && cachedImage != null)
                 return cachedImage;
 
             return null;
@@ -104,7 +104,7 @@ namespace ImageMapper.Services
         /// <returns>The total count of processed images</returns>
         public int GetImageCount()
         {
-            if (_cache.TryGetValue("ImageCount", out int imageCount))
+            if (cache.TryGetValue("ImageCount", out int imageCount))
                 return imageCount;
 
             return 0;
@@ -116,7 +116,7 @@ namespace ImageMapper.Services
         /// <exception cref="InvalidOperationException"></exception>
         private void ResolveFoldersAndFiles()
         {
-            var imageFolders = ImageFetcherHelpers.ResolveImageFolders(_config);
+            var imageFolders = ImageFetcherHelpers.ResolveImageFolders(config);
             if (imageFolders == null || imageFolders.Length == 0)
             {
                 Log.Warning("No valid image folders found in configuration");
@@ -128,7 +128,7 @@ namespace ImageMapper.Services
             List<BasicFileInfo> imageFiles = [.. ImageFetcherHelpers.GetImageList(imageFolders)
                 .Select(f => new BasicFileInfo(ImageFetcherHelpers.GenerateIdForPath(f), Path.GetFileName(f), f))];
 
-            _cache.Set("ImageFiles", imageFiles);
+            cache.Set("ImageFiles", imageFiles);
 
             Log.Information("ImageInfoFetcher found {ImageCount} image files in configured folders", imageFiles?.Count ?? 0);
         }

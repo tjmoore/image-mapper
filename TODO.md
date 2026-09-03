@@ -2,7 +2,7 @@
 
 ## UI
 
-- Show file info in photo view, including filename, GPS coordinates, camera model, settings, date taken, etc
+- Show file further detail in info panel such as camera model, settings, date taken, etc
 - Show small round thumbnail of image on map instead of just a pin
 - Responsive design enhancements where required across different screen sizes, including mobile devices
 - Filtering, search etc
@@ -11,11 +11,12 @@
 ## Backend
 
 - GetImageBytesAsync - return stream through to client ImageFetcher which converts to stream anyway, as there's no API layer now
+- Possible to do away with the API controller and pass image bytes/stream direct through Blazor component? Avoids user having to implement controller.
 - Indexing / caching of image metadata
 	- Update map while cache updates instead of needing to refresh the page
 	- Detect folder/file changes instead of recaching on schedule
 - Support for folder patterns in image folder config and/or folder exclusion
-- Configurability in UI for folder selection, map tile provider, etc. Needs persistence when running in a container though may remove need to deploy appsettings.json for each environment.
+- Configurability in UI for folder selection, map tile provider, etc. Needs persistence when running in a container.
 - Error handling and logging improvements as required
 - Support for varied image sources other than file folders, e.g. cloud storage, photo management software, etc.
 

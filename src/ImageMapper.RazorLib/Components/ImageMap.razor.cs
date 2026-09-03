@@ -1,102 +1,83 @@
 using ImageMapper.Models;
-using Microsoft.JSInterop;
 
 namespace ImageMapper.RazorLib.Components
 {
-    public partial class ImageMap
+    public sealed partial class ImageMap
     {
-        private readonly CancellationTokenSource cts = new();
-        private IJSObjectReference? mapSectionModule;
-        private IJSObjectReference? progressSectionModule;
-        private int totalImages = 0;
-        private int skippedImages = 0;
-        private int imagesLoaded = 0;
-        private int progressPercentage = 0;
-        private bool isProgressVisible = false;
-        private bool isImageCountVisible = false;
-        private string cacheStatusText = "Checking...";
+        private readonly CancellationTokenSource _cts = new();
+        private int _totalImages = 0;
+        private int _skippedImages = 0;
+        private int _imagesLoaded = 0;
+        private int _progressPercentage = 0;
+        private bool _isProgressVisible = false;
+        private bool _isImageCountVisible = false;
+        private string _cacheStatusText = "Checking...";
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                var mapImportTask = JS.InvokeAsync<IJSObjectReference>(
-                    "import",
-                    "./_content/ImageMapper.RazorLib/Components/Sections/MapSection.razor.js").AsTask();
-                var progressImportTask = JS.InvokeAsync<IJSObjectReference>(
-                    "import",
-                    "./_content/ImageMapper.RazorLib/Components/Sections/ProgressSection.razor.js").AsTask();
-
-                await Task.WhenAll(mapImportTask, progressImportTask);
-
-                var mapModule = mapImportTask.Result;
-                var progressModule = progressImportTask.Result;
-
-                mapSectionModule = mapModule;
-                progressSectionModule = progressModule;
-
-                _ = ConsumeCacheStatusStreamAsync(cts.Token);
+                _ = ConsumeCacheStatusStreamAsync(_cts.Token);
 
                 // Fetch total image count
-                totalImages = imageFetcher.FetchImageCount();
+                _totalImages = ImageService.GetImageCount();
 
                 // Show progress container if there are images
-                if (totalImages > 0)
+                if (_totalImages > 0)
                 {
-                    isProgressVisible = true;
-                    progressPercentage = 0;
+                    _isProgressVisible = true;
+                    _progressPercentage = 0;
                     await InvokeAsync(StateHasChanged);
                 }
 
                 // Initialize the map with cluster grouping
-                await mapModule.InvokeVoidAsync("initClusterMap");
+                await MapModule.InitClusterMap();
 
-                if (isProgressVisible)
+                if (_isProgressVisible)
                 {
-                    await progressModule.InvokeVoidAsync("setProgressBarWidth", progressPercentage);
-                    await mapModule.InvokeVoidAsync("adjustMapLayout");
+                    await ProgressModule.SetProgressBarWidth(_progressPercentage);
+                    await MapModule.AdjustMapLayout();
                 }
 
                 // Add markers as images arrive in batches for better performance
                 int batchSize = 10;
                 int batchCount = 0;
-                await foreach (ImageInfo? image in imageFetcher.FetchImageList(cts.Token))
+                await foreach (ImageInfo? image in ImageService.GetImagesAsync(_cts.Token))
                 {
                     // Skips images that are null or have invalid data, or have no geolocation information as there's nothing to plot on the map
                     if (image == null || string.IsNullOrWhiteSpace(image.Id) || string.IsNullOrWhiteSpace(image.FileName) ||
                         image.Latitude == 0 || image.Longitude == 0)
                     {
-                        skippedImages++;
+                        _skippedImages++;
                         continue;
                     }
 
                     // Add marker to the map with existing image detail and URL to the raw image
-                    await mapModule.InvokeVoidAsync("addMarkerToMap",
-                        new ImageInfo(image, $"/api/images/raw/{image.Id}"));
+                    await MapModule.AddMarkerToMap(image);
 
-                    imagesLoaded++;
+                    _imagesLoaded++;
                     batchCount++;
 
                     // Update progress bar
-                    if (totalImages > 0)
+                    if (_totalImages > 0)
                     {
-                        progressPercentage = (int)((imagesLoaded * 100) / totalImages);
-                        await progressModule.InvokeVoidAsync("setProgressBarWidth", progressPercentage);
+                        _progressPercentage = (int)((_imagesLoaded * 100) / _totalImages);
+                        await ProgressModule.SetProgressBarWidth(_progressPercentage);
                     }
 
                     if (batchCount % batchSize == 0)
                     {
-                        StateHasChanged();
+                        await InvokeAsync(StateHasChanged);
                     }
                 }
 
                 // Hide progress container when done
-                isProgressVisible = false;
-                isImageCountVisible = imagesLoaded > 0;
+                _isProgressVisible = false;
+                _isImageCountVisible = _imagesLoaded > 0;
 
                 // Final update to ensure UI is synchronized
                 await InvokeAsync(StateHasChanged);
-                await mapModule.InvokeVoidAsync("adjustMapLayout");
+                await MapModule.AdjustMapLayout();
             }
         }
 
@@ -106,13 +87,13 @@ namespace ImageMapper.RazorLib.Components
             {
                 try
                 {
-                    await foreach (var status in cacheStatus.StreamCacheStatus(ct))
+                    await foreach (var status in CacheStatus.StreamStatuses(ct))
                     {
-                        cacheStatusText = FormatCacheStatusText(status);
+                        _cacheStatusText = FormatCacheStatusText(status);
                         await InvokeAsync(StateHasChanged);
                     }
 
-                    cacheStatusText = "Unavailable";
+                    _cacheStatusText = "Unavailable";
                     await InvokeAsync(StateHasChanged);
                 }
                 catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -154,27 +135,8 @@ namespace ImageMapper.RazorLib.Components
 
         public async ValueTask DisposeAsync()
         {
-            cts.Cancel();
-            cts.Dispose();
-
-            await DisposeModuleAsync(mapSectionModule);
-            await DisposeModuleAsync(progressSectionModule);
-        }
-
-        private static async ValueTask DisposeModuleAsync(IJSObjectReference? module)
-        {
-            if (module is null)
-            {
-                return;
-            }
-
-            try
-            {
-                await module.DisposeAsync();
-            }
-            catch (JSDisconnectedException)
-            {
-            }
+            _cts.Cancel();
+            _cts.Dispose();
         }
     }
 }
