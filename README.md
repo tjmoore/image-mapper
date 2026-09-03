@@ -70,9 +70,66 @@ This is generally used in development and/or when not deploying a container.
 
 ## Usage
 
+### Razor component usage
+
+The `ImageMapper.RazorLib` library provides a Razor component that can be used to display the images on a map, by adding a reference to the project or NuGet package, and adding the services to the DI container in `Program.cs`:
+```csharp
+using ImageMapper.RazorLib;
+using ImageMapper.Services;
+...
+var builder = WebApplication.CreateBuilder(args);
+...
+builder.Services.AddImageMapperRazorLib();
+builder.Services.AddImageMapperServices();
+```
+
+`AddImageMapperRazorLib()` is an extension method that adds the required Razor components to the DI container
+
+`AddImageMapperServices()` is an extension method that adds the required services to the DI container, including a worker service to fetch image information
+
+To use the `ImageMap` Razor component, for example add the following to your Razor page:
+```razor
+@page "/"
+@using ImageMapper.RazorLib.Components
+@rendermode InteractiveServer
+
+<PageTitle>Image Map</PageTitle>
+
+<ImageMap />
+```
+
+To handle the loading of the raw image bytes for display in the map popups, you can implement a controller to fetch the image bytes from the `IImageService` service, for example:
+
+```csharp
+using ImageMapper.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ImageMapper.Web.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ImagesController(IImageService imageService) : ControllerBase
+    {
+        [HttpGet("raw/{id}")]
+        public async Task<IActionResult> GetRaw(string id, CancellationToken ct)
+        {
+            var bytes = await imageService.GetImageBytesAsync(id, ct);
+            if (bytes == null)
+                return NotFound();
+
+            // Return the stream directly; MVC will handle disposing it when the response is complete.
+            return File(new MemoryStream(bytes), "application/octet-stream");
+        }
+    }
+}
+```
+
+Note, the controller must respond to a GET request to `api/images/raw/{id}` where `{id}` is the ID of the image, and return the raw image bytes as a stream.
+
+
 ### Service Library usage
 
-A client application can use the ImageMapper.Services library by adding a reference to the project or NuGet package, and adding the services to the DI container in `Program.cs`:
+Independent of the Razor components, a client application can also use the ImageMapper.Services library directly:
 
 ```csharp
 using ImageMapper.Services;
@@ -142,7 +199,6 @@ public async Task MonitorCacheStatusAsync(ICacheActivityStatus cacheActivityStat
 
 `ImageMapper.Web` is an example front end application that uses the services to display the images on a map, and can be used as a reference for how to use the services in your own application.
 
-TODO: The Blazor components may be also extracted into a library package for use in other web applications and the example will then show their use.
 
 
 ## Supported Image Formats
