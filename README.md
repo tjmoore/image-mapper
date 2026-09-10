@@ -98,34 +98,6 @@ To use the `ImageMap` Razor component, for example add the following to your Raz
 <ImageMap />
 ```
 
-To handle the loading of the raw image bytes for display in the map popups, you can implement a controller to fetch the image bytes from the `IImageService` service, for example:
-
-```csharp
-using ImageMapper.Services;
-using Microsoft.AspNetCore.Mvc;
-
-namespace ImageMapper.Web.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ImagesController(IImageService imageService) : ControllerBase
-    {
-        [HttpGet("raw/{id}")]
-        public async Task<IActionResult> GetRaw(string id, CancellationToken ct)
-        {
-            var bytes = await imageService.GetImageBytesAsync(id, ct);
-            if (bytes == null)
-                return NotFound();
-
-            // Return the stream directly; MVC will handle disposing it when the response is complete.
-            return File(new MemoryStream(bytes), "application/octet-stream");
-        }
-    }
-}
-```
-
-Note, the controller must respond to a GET request to `api/images/raw/{id}` where `{id}` is the ID of the image, and return the raw image bytes as a stream.
-
 
 ### Service Library usage
 
@@ -158,13 +130,21 @@ public async Task FetchAndProcessImagesAsync(IImageService imageService)
 }
 ```
 
-To get a stream of the image bytes for a specific image, call `GetImageBytesAsync(string filePath)` from an instance of `IImageService` using the ID of the image:
+To get a stream of the image for a specific image, call `GetImageStream(string id)` from an instance of `IImageService` using the ID of the image:
 
 ```csharp
-public async Task FetchImageBytesAsync(IImageService imageService, string id)
+public async Task FetchImageStreamAsync(IImageService imageService, string id)
 {
-	byte[]? imageBytes = await imageService.GetImageBytesAsync(id);
-	// Process the image bytes as needed
+	using Stream? imageStream = imageService.GetImageStream(id);
+	if (imageStream != null)
+	{
+		// Process stream as needed, for example read into a byte array
+
+		using var memoryStream = new MemoryStream();
+		await imageStream.CopyToAsync(memoryStream);
+		byte[] imageBytes = memoryStream.ToArray();
+		// Process the image bytes as needed
+	}
 }
 ```
 
@@ -236,9 +216,8 @@ Based on support in MetadataExtractor
 
 ## Notes
 
-This project has partly been an learning exercise in using tools such as GitHub Copilot as a coding assistant. This is a human-designed application where AI tools have been used at times to assist in the coding process, and other times purely human development. Reviews are human or where automated only with human final approval.
+This project has been developed as a learning exercise in technologies used, and in the use of Aspire as an orchestration tool.
 
-It has also been an exercise in using Aspire as a hosting and orchestration tool for a .NET application, to learn about its capabilities and features.
-Aspire isn't necessary to use ImageMapper, it just aids in development and deployment.
-
-This isn't unique in that there are other applications that do similar things, but this is a simple example of how to implement it in .NET with a Blazor front end and .NET back end services.
+GitHub Copilot has been used strictly as a coding assistant in the sense of a pair programmer.
+Much of the code is written by hand and all other suggested or generated code is carefully reviewed and understood.
+Code reviews are human or if automated, with final approval by a human.

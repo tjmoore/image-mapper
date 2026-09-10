@@ -29,24 +29,28 @@ public sealed class ImageService(IImageInfoFetcher imageInfoFetcher) : IImageSer
     }
 
     /// <summary>
-    /// Asynchronously retrieves the image data as a byte array from the specified image ID.
+    /// Gets a read-only stream for the specified image file path. The caller is responsible for disposing the stream.
     /// </summary>
-    /// <remarks>The image ID is a unique identifier generated from the image's full path.
-    /// This prevents the frontend from accessing file system paths.</remarks>
     /// <param name="id">The unique image ID</param>
-    /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a byte array of the image data, or
-    /// null if the image could not be found.</returns>
-    /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
-    public async Task<byte[]?> GetImageBytesAsync(string id, CancellationToken ct = default)
+    /// <returns>A read-only stream of the image file, or null if the file does not exist</returns>
+    public Stream? GetImageStream(string id)
     {
         var image = imageInfoFetcher.GetImageInfo(id);
 
         if (image != null)
-            return await ImageFetcherHelpers.GetImageBytesAsync(image.FilePath, ct);
+        {
+            return ImageFetcherHelpers.GetImageStream(image.FilePath);
+        }
 
         return null;
     }
+
+    /// <summary>
+    /// Retrieves the image information for the specified image ID.
+    /// </summary>
+    /// <param name="id">The unique image ID</param>
+    /// <returns>The image information if available; otherwise, null</returns>
+    public ImageInfo? GetImageInfo(string id) => imageInfoFetcher.GetImageInfo(id);
 
     /// <summary>
     /// Retrieves the count of processed image files.

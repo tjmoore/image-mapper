@@ -1,4 +1,5 @@
 using ImageMapper.Models;
+using ImageMapper.RazorLib.Components.Sections;
 using Microsoft.JSInterop;
 
 namespace ImageMapper.RazorLib.Interops
@@ -24,6 +25,17 @@ namespace ImageMapper.RazorLib.Interops
             await module.InvokeVoidAsync("initClusterMap");
         }
         
+        /// <summary>
+        /// Sets the DotNetObjectReference for the MapSection component, allowing JavaScript to invoke .NET methods on the component.
+        /// </summary>
+        /// <param name="dotNetRef">The DotNetObjectReference for the MapSection component.</param>
+        /// <returns>A ValueTask representing the asynchronous operation.</returns>
+        public async ValueTask SetMapSectionDotNetRef(DotNetObjectReference<MapSection>? dotNetRef)
+        {
+            var module = await _moduleTask.Value;
+            await module.InvokeVoidAsync("setMapSectionDotNetRef", dotNetRef);
+        }
+
         /// <summary>
         /// Adjusts the layout of the map by invoking the corresponding JavaScript function.
         /// </summary>

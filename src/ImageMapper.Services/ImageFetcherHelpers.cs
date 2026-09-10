@@ -11,18 +11,15 @@ namespace ImageMapper.Services
         ];
 
         /// <summary>
-        /// Asynchronously retrieves the image data as a byte array from the specified file path
+        /// Gets a read-only stream for the specified image file path. The caller is responsible for disposing the stream.
         /// </summary>
         /// <param name="filepath">The file path of the image</param>
-        /// <param name="ct">A cancellation token that can be used to cancel the operation. The default value is CancellationToken.None.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains a byte array of the image data, or
-        /// null if the image could not be found.</returns>
-        /// <exception cref="OperationCanceledException">Thrown if the operation is canceled</exception>
-        public static async Task<byte[]?> GetImageBytesAsync(string filepath, CancellationToken ct = default)
+        /// <returns>A read-only stream of the image file, or null if the file does not exist</returns>
+        public static Stream? GetImageStream(string filepath)
         {
             if (File.Exists(filepath))
             {
-                return await File.ReadAllBytesAsync(filepath, ct);
+                return File.OpenRead(filepath);
             }
 
             return null;
@@ -61,5 +58,28 @@ namespace ImageMapper.Services
             .Where(folder => !string.IsNullOrWhiteSpace(folder) && folder != "IGNORE")
             .Where(folder => Directory.Exists(folder))
             .ToArray();
+
+        /// <summary>
+        /// Returns the content type (MIME type) for the specified file path based on its extension
+        /// </summary>
+        /// <param name="filePath">The file path of the image</param>
+        /// <returns>The content type (MIME type) of the image</returns>
+        public static string GetContentType(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".heic" or ".heif" => "image/heic",
+                ".ico" => "image/x-icon",
+                ".webp" => "image/webp",
+                ".pcx" => "image/pcx",
+                ".tif" or ".tiff" => "image/tiff",
+                _ => "application/octet-stream", // Default for unknown types
+            };
+        }
     }
 }

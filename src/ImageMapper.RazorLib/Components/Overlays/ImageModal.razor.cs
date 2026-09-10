@@ -5,9 +5,10 @@ namespace ImageMapper.RazorLib.Components.Overlays
 {
     public sealed partial class ImageModal
     {
+        private const string ImageElementId = "image-modal-full-image";
+
         private bool _isVisible;
         private bool _infoPanelOpen;
-        private string _imageSrc = string.Empty;
         private ImageInfo? _currentImageInfo;
         private DotNetObjectReference<ImageModal>? _dotNetRef;
 
@@ -22,12 +23,12 @@ namespace ImageMapper.RazorLib.Components.Overlays
         }
 
         [JSInvokable]
-        public Task ShowImage(ImageInfo imageInfo)
+        public async Task ShowImage(ImageInfo imageInfo)
         {
-            _imageSrc = imageInfo.Url;
             _currentImageInfo = imageInfo;
             _isVisible = true;
-            return InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
+            await ImageSourceModule.SetImageSource(imageInfo, ImageElementId);
         }
 
         [JSInvokable]

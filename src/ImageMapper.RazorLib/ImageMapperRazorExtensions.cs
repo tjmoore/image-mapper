@@ -14,6 +14,7 @@ namespace ImageMapper.RazorLib
             services
                 .AddScoped<Interops.MapSectionJsInterop>()
                 .AddScoped<Interops.ImageModalJsInterop>()
+                .AddScoped<Interops.ImageSourceJsInterop>()
                 .AddScoped<Interops.ProgressSectionJsInterop>();
 
             return services;

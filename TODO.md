@@ -10,8 +10,6 @@
 
 ## Backend
 
-- GetImageBytesAsync - return stream through to client ImageFetcher which converts to stream anyway, as there's no API layer now
-- Possible to do away with the API controller and pass image bytes/stream direct through Blazor component? Avoids user having to implement controller.
 - Indexing / caching of image metadata
 	- Update map while cache updates instead of needing to refresh the page
 	- Detect folder/file changes instead of recaching on schedule

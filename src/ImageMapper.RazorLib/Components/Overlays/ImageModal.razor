@@ -1,4 +1,5 @@
 @inject ImageModalJsInterop ImageModalModule
+@inject ImageSourceJsInterop ImageSourceModule
 
 @if (_isVisible)
 {
@@ -6,7 +7,7 @@
         <span class="close" @onclick="CloseModal" @onclick:stopPropagation="true">&times;</span>
         <div class="modal-inner" @onclick:stopPropagation="true">
             <div class="modal-image-area">
-                <img class="modal-content" src="@_imageSrc" alt="Full-size image">
+                <img id="@ImageElementId" class="modal-content" alt="Full-size image">
             </div>
             <div class="panel-divider">
                 <button class="panel-toggle" @onclick="ToggleInfoPanel" title="@(_infoPanelOpen ? "Hide info" : "Show info")">
