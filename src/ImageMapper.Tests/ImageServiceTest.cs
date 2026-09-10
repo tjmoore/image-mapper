@@ -42,7 +42,7 @@ namespace ImageMapper.Tests
         }
 
         [Test]
-        public async Task GetImageBytesAsyncReturnsValidImageBytes()
+        public async Task GetImageStreamReturnsValidImageStream()
         {
             // Arrange
             var config = new ConfigurationBuilder()
@@ -70,16 +70,19 @@ namespace ImageMapper.Tests
             Assert.That(testImageId, Is.Not.Empty.And.Not.WhiteSpace, "Image ID should not be empty or whitespace");
 
             // Act
-            var bytes = await service.GetImageBytesAsync(testImageId);
+            using var stream = service.GetImageStream(testImageId);
 
             // Assert
-            Assert.That(bytes, Is.Not.Null);
+            Assert.That(stream, Is.Not.Null);
+            using var memoryStream = new MemoryStream();
+            await stream!.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
             Assert.That(bytes, Has.Length.GreaterThan(0));
             Assert.That(bytes[0], Is.EqualTo(0xFF)); // JPEG magic byte
         }
 
         [Test]
-        public async Task GetImageBytesAsyncReturnsNullForNonExistentFile()
+        public async Task GetImageStreamReturnsNullForNonExistentFile()
         {
             // Arrange
             var config = new ConfigurationBuilder()
@@ -95,16 +98,16 @@ namespace ImageMapper.Tests
             await fetcher.ProcessImagesAsync(CancellationToken.None);
 
             // Act - use a fake ID that doesn't exist
-            var bytes = await service.GetImageBytesAsync("nonexistent-id-12345");
+            using var stream = service.GetImageStream("nonexistent-id-12345");
 
             // Assert
-            Assert.That(bytes, Is.Null);
+            Assert.That(stream, Is.Null);
         }
 
         [Test]
         [TestCase("nested-image.jpg")]
         [TestCase("deep-image.png")]
-        public async Task GetImageBytesAsyncReturnsValidImageBytesFromSubfolders(string fileName)
+        public async Task GetImageStreamReturnsValidImageStreamFromSubfolders(string fileName)
         {
             // Arrange
             var config = new ConfigurationBuilder()
@@ -132,11 +135,13 @@ namespace ImageMapper.Tests
             Assert.That(imageId, Is.Not.Empty.And.Not.WhiteSpace, "Image ID should not be empty or whitespace");
 
             // Act
-            var bytes = await service.GetImageBytesAsync(imageId);
+            using var stream = service.GetImageStream(imageId);
 
             // Assert
-            Assert.That(bytes, Is.Not.Null);
-            Assert.That(bytes, Has.Length.GreaterThan(0));
+            Assert.That(stream, Is.Not.Null);
+            using var memoryStream = new MemoryStream();
+            await stream!.CopyToAsync(memoryStream);
+            Assert.That(memoryStream.ToArray(), Has.Length.GreaterThan(0));
         }
 
         [Test]

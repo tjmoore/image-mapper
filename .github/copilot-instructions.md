@@ -54,7 +54,7 @@ Refer also to repository docs (README.md, AGENTS.md) for further context
 
 - Run all tests: dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj
 - Run a single test method (example using fully-qualified name):
-dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj --filter "FullyQualifiedName~ImageMapper.Tests.ImagesServiceTest.GetImageBytesAsyncReturnsValidImageBytes"
+dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj --filter "FullyQualifiedName~ImageMapper.Tests.ImageServiceTest.GetImageStreamReturnsValidImageStream"
 - Alternative single-test filter (partial display name):
 dotnet test --filter "DisplayName~PartialTestName"
 

@@ -24,7 +24,22 @@ let map: any;
 let markerClusterGroup: any;
 let markers: any[] = [];
 let mapResizeHandlerAttached = false;
+let mapSectionDotNetRef: any = null;
 const popupTemplateId = 'map-popup-template';
+
+/**
+ * Sets the .NET reference used to invoke back into the MapSection component, e.g. to populate
+ * a popup's image element by streaming the image data instead of loading it from a URL.
+ **/
+export function setMapSectionDotNetRef(dotNetRef: any): void {
+    mapSectionDotNetRef = dotNetRef;
+}
+
+function triggerPopulatePopupImage(imageInfo: ImageInfo, elementId: string): void {
+    if (mapSectionDotNetRef) {
+        mapSectionDotNetRef.invokeMethodAsync('PopulatePopupImage', imageInfo, elementId);
+    }
+}
 
 /**
  * Initializes the Leaflet map and sets up the marker cluster group.
@@ -103,7 +118,6 @@ function createPopupPlaceholder(): HTMLElement {
     const popupImage = popupRoot.querySelector('[data-popup-image]') as HTMLImageElement | null;
     if (popupImage) {
         popupImage.removeAttribute('src');
-        popupImage.removeAttribute('data-image-src');
     }
 
     return popupRoot;
@@ -119,9 +133,9 @@ function populatePopupContent(popupContent: HTMLElement, imageData: ImageInfo): 
 
     fileLink.textContent = imageData.fileName;
 
-    popupImage.src = imageData.url;
-    popupImage.setAttribute('data-image-src', imageData.url);
+    popupImage.id = `popup-image-${imageData.id}`;
     popupImage.title = `Click to view full-size image`;
+    triggerPopulatePopupImage(imageData, popupImage.id);
 }
 
 /**
