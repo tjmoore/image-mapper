@@ -10,6 +10,7 @@ export type ImageInfo = {
     id: string;
     fileName: string;
     filePath: string;
+    contentType: string;
     url: string;
     width: number;
     height: number;

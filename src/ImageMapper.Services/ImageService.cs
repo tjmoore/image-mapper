@@ -43,10 +43,43 @@ public sealed class ImageService(IImageInfoFetcher imageInfoFetcher) : IImageSer
         var image = imageInfoFetcher.GetImageInfo(id);
 
         if (image != null)
-            return await ImageFetcherHelpers.GetImageBytesAsync(image.FilePath, ct);
+        {
+            using var reader = ImageFetcherHelpers.GetImageStream(image.FilePath);
+
+            if (reader != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await reader.CopyToAsync(memoryStream, ct);
+                return memoryStream.ToArray();
+            }
+        }
 
         return null;
     }
+
+    /// <summary>
+    /// Gets a read-only stream for the specified image file path. The caller is responsible for disposing the stream.
+    /// </summary>
+    /// <param name="id">The unique image ID</param>
+    /// <returns>A read-only stream of the image file, or null if the file does not exist</returns>
+    public Stream? GetImageStream(string id)
+    {
+        var image = imageInfoFetcher.GetImageInfo(id);
+
+        if (image != null)
+        {
+            return ImageFetcherHelpers.GetImageStream(image.FilePath);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Retrieves the image information for the specified image ID.
+    /// </summary>
+    /// <param name="id">The unique image ID</param>
+    /// <returns>The image information if available; otherwise, null</returns>
+    public ImageInfo? GetImageInfo(string id) => imageInfoFetcher.GetImageInfo(id);
 
     /// <summary>
     /// Retrieves the count of processed image files.

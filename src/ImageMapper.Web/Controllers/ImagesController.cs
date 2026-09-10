@@ -17,8 +17,10 @@ namespace ImageMapper.Web.Controllers
             if (bytes == null)
                 return NotFound();
 
+            var imageInfo = imageService.GetImageInfo(id);
+
             // Return the stream directly; MVC will handle disposing it when the response is complete.
-            return File(new MemoryStream(bytes), "application/octet-stream");
+            return File(new MemoryStream(bytes), imageInfo?.ContentType ?? "application/octet-stream");
         }
     }
 }

@@ -8,11 +8,13 @@ namespace ImageMapper.Models;
 /// <param name="Id">The unique identifier of the file</param>
 /// <param name="FileName">The file name</param>
 /// <param name="FilePath">The full file path</param>
+/// <param name="ContentType">The MIME type of the file</param>
 /// <param name="Url">The URL to access the file if applicable</param>
 public record BasicFileInfo(
     string Id,
     string FileName,
     string FilePath,
+    string ContentType,
     string Url = "");
 
 /// <summary>
@@ -40,10 +42,11 @@ public record ImageInfo(
     /// <param name="height">The height of the image in pixels</param>
     /// <param name="latitude">The latitude coordinate of the image's location</param>
     /// <param name="longitude">The longitude coordinate of the image's location</param>
+    /// <param name="contentType">The MIME type of the image</param>
     /// <param name="url">The URL to access the image if applicable</param>
     [JsonConstructor]
-    public ImageInfo(string id, string fileName, string filePath, int width, int height, double latitude, double longitude, string url = "")
-        : this(new BasicFileInfo(id, fileName, filePath, url), width, height, latitude, longitude)
+    public ImageInfo(string id, string fileName, string filePath, int width, int height, double latitude, double longitude, string contentType, string url = "")
+        : this(new BasicFileInfo(id, fileName, filePath, contentType, url), width, height, latitude, longitude)
     {
     }
 
@@ -53,7 +56,7 @@ public record ImageInfo(
     /// <param name="imageInfo">The existing <see cref="ImageInfo"/> instance</param>
     /// <param name="url">The new URL to associate with the image</param>
     public ImageInfo(ImageInfo imageInfo, string url)
-        : this(new BasicFileInfo(imageInfo.Id, imageInfo.FileName, imageInfo.FilePath, url), imageInfo.Width, imageInfo.Height, imageInfo.Latitude, imageInfo.Longitude)
+        : this(new BasicFileInfo(imageInfo.Id, imageInfo.FileName, imageInfo.FilePath, imageInfo.ContentType, url), imageInfo.Width, imageInfo.Height, imageInfo.Latitude, imageInfo.Longitude)
     {
     }
 }
