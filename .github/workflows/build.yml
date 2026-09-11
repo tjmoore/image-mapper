@@ -2,6 +2,9 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
 name: Build
+permissions:
+  contents: read
+  pull-requests: read
 
 on:
   push:
@@ -15,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.0.x
 
@@ -30,9 +33,10 @@ jobs:
 
     - name: Install SSL Certificates
       run: |
+        dotnet dev-certs https --clean
         dotnet dev-certs https --trust
       env:
-        SSL_CERT_DIR: '$HOME/.aspnet/dev-certs/trust:$SSL_CERT_DIR'
+        SSL_CERT_DIR: '$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs'
       continue-on-error: true
 
     - name: Test
