@@ -33,6 +33,7 @@ jobs:
 
     - name: Install SSL Certificates
       run: |
+        dotnet dev-certs https --clean
         dotnet dev-certs https --trust
       env:
         SSL_CERT_DIR: '$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs'
