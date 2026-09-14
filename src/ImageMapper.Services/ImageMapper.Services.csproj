@@ -4,7 +4,14 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <PackageId>tjmoore.ImageMapper.Services</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Tim Moore</Authors>
+    <Product>ImageMapper</Product>
+    <Description>Library of .NET services to extract metadata from images and provide data to front end consumers</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>   
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (c) 2026 Tim Moore</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +31,11 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ImageMapper.Tests"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
     
 </Project>

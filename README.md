@@ -1,27 +1,41 @@
 # ImageMapper
 
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/dotnet-10-blue.svg)](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+[![Blazor](https://img.shields.io/badge/blazor-UI-blue.svg)](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
+[![TypeScript](https://img.shields.io/badge/typescript-UI-blue.svg)](https://www.typescriptlang.org/)
+[![Aspire](https://img.shields.io/badge/aspire-DevOps-blue.svg)](https://aspire.dev/)\
 [![Build](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml/badge.svg)](https://github.com/tjmoore/image-mapper/actions/workflows/build.yml)
+[![Issues](https://img.shields.io/github/issues/tjmoore/image-mapper)](https://github.com/tjmoore/image-mapper/issues)
+[![Release](https://img.shields.io/github/v/release/tjmoore/image-mapper)](https://github.com/tjmoore/image-mapper/releases)
 
-ImageMapper is a .NET library and example application that scans images, extracts metadata including geolocation, and renders them on a map.
 
-It is built with Blazor for the front-end components with back-end services to extract metadata from images, and uses [.NET Aspire](https://aspire.dev) to orchestrate.
+ImageMapper is a .NET library and example application that processes a collection of images, extracts metadata including geolocation, and renders them on a map.
+
+It is built with Blazor for the front-end components with back-end services to extract metadata from images.
+
+## Requirements
+
+- .NET 10 SDK (or later)
+- [Aspire](https://aspire.dev/) (optional. Used in AppHost to aid development orchestration and debugging)
 
 ## Dependencies
 
-- .NET 10 (likely can be retargeted to work with .NET 8+)
-- [Aspire](https://aspire.dev/)
+Key dependencies used in this project include:
+
 - [MetadataExtractor](https://github.com/drewnoakes/metadata-extractor-dotnet)
 - [Leaflet.js](https://leafletjs.com/)
 - [openstreetmap.org](https://www.openstreetmap.org/)
 
 ## Components
 
-- ImageMapper.Services - Library of .NET services to extract metadata from images and provide data front end consumers
+- ImageMapper.Services - Library of .NET services to extract metadata from images and provide data to front end consumers
 - ImageMapper.RazorLib - Library of .NET Blazor components to render the data on a map
 - ImageMapper.Models - .NET class library of shared models
 - ImageMapper.Web - Example front end .NET Blazor web app that produces the UI to render the data on a map
 
 ### Aspire components
+
 - ImageMapper.AppHost - .NET Aspire orchestrator to run and debug in a development environment
 - ImageMapper.ServiceDefaults - Extensions for .NET Aspire support including service discovery, health checks and telemetry
 
@@ -30,20 +44,26 @@ It is built with Blazor for the front-end components with back-end services to e
 This runs the .NET Aspire host, launching the components and dashboard in the browser showing the service status allowing browsing to the example web UI
 
 #### Visual Studio
-Set `ImageMapper.AppHost` as start up project and run (F5)
+
+Set `ImageMapper.AppHost` as start up project and run (**F5**)
+
+The web application can also be run independently of the Aspire host, by setting `ImageMapper.Web` as the start up project and running (**F5**)
 
 #### Visual Studio Code
 
-- Install Aspire CLI - https://learn.microsoft.com/en-us/dotnet/aspire/cli/install
+- Install **Aspire CLI** - https://learn.microsoft.com/en-us/dotnet/aspire/cli/install
 
-- Install Aspire Extension - https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-vscode-extension
+- Install **Aspire Extension** - https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/aspire-vscode-extension
 
-- Run with F5 or Run -> Start Debugging
+- Run with **F5** or **Run** -> **Start Debugging**
 
-Alternatively without the Aspire CLI / Extension, from Solution Explorer right click `ImageMapper.AppHost` and select Debug -> Start New Instance
+Alternatively without the Aspire CLI / Extension, from Explorer right click `ImageMapper.AppHost.csproj` and select Debug -> Start New Instance
+
+The web application can also be run independently of the Aspire host, from Explorer right click `ImageMapper.Web.csproj` and select Debug -> Start New Instance
 
 #### Command Line
-- Install Aspire CLI - https://learn.microsoft.com/en-us/dotnet/aspire/cli/install
+
+- Install **Aspire CLI** - https://learn.microsoft.com/en-us/dotnet/aspire/cli/install
 
 - Run `aspire run`
 
@@ -53,6 +73,7 @@ This will run the .NET Aspire host, launching the components and dashboard in th
 
 Launch the front end application from imagemapper-web link
 
+The web application can also be run independently of the Aspire host, by running `dotnet run --project ImageMapper.Web` from the command line.
 
 ### Configuration
 
@@ -70,115 +91,9 @@ This is generally used in development and/or when not deploying a container.
 
 ## Usage
 
-### Razor component usage
-
-The `ImageMapper.RazorLib` library provides a Razor component that can be used to display the images on a map, by adding a reference to the project or NuGet package, and adding the services to the DI container in `Program.cs`:
-```csharp
-using ImageMapper.RazorLib;
-using ImageMapper.Services;
-...
-var builder = WebApplication.CreateBuilder(args);
-...
-builder.Services.AddImageMapperRazorLib();
-builder.Services.AddImageMapperServices();
-```
-
-`AddImageMapperRazorLib()` is an extension method that adds the required Razor components to the DI container
-
-`AddImageMapperServices()` is an extension method that adds the required services to the DI container, including a worker service to fetch image information
-
-To use the `ImageMap` Razor component, for example add the following to your Razor page:
-```razor
-@page "/"
-@using ImageMapper.RazorLib.Components
-@rendermode InteractiveServer
-
-<PageTitle>Image Map</PageTitle>
-
-<ImageMap />
-```
-
-
-### Service Library usage
-
-Independent of the Razor components, a client application can also use the ImageMapper.Services library directly:
-
-```csharp
-using ImageMapper.Services;
-...
-var builder = WebApplication.CreateBuilder(args);
-...
-builder.Services.AddImageMapperServices();
-```
-
-`AddImageMapperServices()` is an extension method that adds the required services to the DI container, including a worker service
-
-
-To fetch a list of images as they are processed, call `GetImagesAsync()` from an instance of `IImageService` to retrieve the list of images with metadata.
-This is an async enumerable, so you can iterate over the results as they are processed.
-
-For example:
-
-```csharp
-public async Task FetchAndProcessImagesAsync(IImageService imageService)
-{
-	await foreach (ImageInfo? image in imageService.GetImagesAsync())
-	{
-		// Process each image as it is retrieved
-		Console.WriteLine($"Image: ID: {image.Id}, FileName: {image.FileName}, Lon: {image.Longitude}, Lat: {image.Latitude}");
-	}
-}
-```
-
-To get a stream of the image for a specific image, call `GetImageStream(string id)` from an instance of `IImageService` using the ID of the image:
-
-```csharp
-public async Task FetchImageStreamAsync(IImageService imageService, string id)
-{
-	using Stream? imageStream = imageService.GetImageStream(id);
-	if (imageStream != null)
-	{
-		// Process stream as needed, for example read into a byte array
-
-		using var memoryStream = new MemoryStream();
-		await imageStream.CopyToAsync(memoryStream);
-		byte[] imageBytes = memoryStream.ToArray();
-		// Process the image bytes as needed
-	}
-}
-```
-
-You can get a count of available images with `GetImageCount()`:
-```csharp
-public int GetImageCount(IImageService imageService) => imageService.GetImageCount();
-```
-
-As images are processed in the background and cached, the cache status can be checked through `CacheActivityStatus`:
-```csharp
-public void GetCacheStatus(ICacheActivityStatus cacheActivityStatus)
-{
-	CacheActivityStatus status = cacheActivityStatus.GetStatus();
-	Console.WriteLine($"Cache Status: Is caching: {status.IsCaching}, Processed: {status.ProcessedCount}, Total: {status.TotalCount}");
-}
-```
-
-A live stream of the status is also available through `CacheActivityStatus.GetStatusStream()` which returns an `IAsyncEnumerable<CacheActivityStatus>` that can be iterated over to receive updates as they occur:
-```csharp
-public async Task MonitorCacheStatusAsync(ICacheActivityStatus cacheActivityStatus)
-{
-	await foreach (CacheActivityStatus status in cacheActivityStatus.GetStatusStream())
-	{
-		Console.WriteLine($"Cache Status: Is caching: {status.IsCaching}, Processed: {status.ProcessedCount}, Total: {status.TotalCount}");
-	}
-}
-```
-
-
-`IImageService` and `ICacheActivityStatus` are registered in the DI container when calling `AddImageMapperServices()`, so they can be injected into your classes as needed.
-
-
-`ImageMapper.Web` is an example front end application that uses the services to display the images on a map, and can be used as a reference for how to use the services in your own application.
-
+- `ImageMapper.RazorLib` - See [ImageMapper.RazorLib/README.md](src/ImageMapper.RazorLib/README.md) for usage of the Razor components
+- `ImageMapper.Services` - See [ImageMapper.Services/README.md](src/ImageMapper.Services/README.md) for usage of the services
+- `ImageMapper.Web` is an example front end application that uses the services to display the images on a map, and can be used as a reference for how to use the services in your own application.
 
 
 ## Supported Image Formats
@@ -220,4 +135,4 @@ This project has been developed as a learning exercise in technologies used, and
 
 GitHub Copilot has been used strictly as a coding assistant in the sense of a pair programmer.
 Much of the code is written by hand and all other suggested or generated code is carefully reviewed and understood.
-Code reviews are human or if automated, with final approval by a human.
+Code reviews are human driven, or where automated with final approval by a human.
