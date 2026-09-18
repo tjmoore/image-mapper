@@ -14,7 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.Services.AddControllers();
+builder.WebHost.UseWebRoot("wwwroot");
+builder.WebHost.UseStaticWebAssets();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -51,6 +52,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 // enable response compression middleware early in the pipeline
 app.UseResponseCompression();
@@ -61,8 +63,6 @@ app.UseAntiforgery();
 
 // Optimize static file delivery
 app.MapStaticAssets();
-
-app.MapControllers();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
