@@ -13,7 +13,7 @@ namespace ImageMapper.RazorLib.Interops
     internal sealed class MapSectionJsInterop(IJSRuntime jsRuntime) : IAsyncDisposable
     {
         private readonly Lazy<Task<IJSObjectReference>> _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/ImageMapper.RazorLib/Components/Sections/MapSection.razor.js").AsTask());
+                "import", $"{Constants.LibContentBase}/Components/Sections/MapSection.razor.js").AsTask());
 
         /// <summary>
         /// Initializes the cluster map by invoking the corresponding JavaScript function.

@@ -7,7 +7,7 @@ namespace ImageMapper.RazorLib.Interops
     internal class ImageSourceJsInterop(IJSRuntime jsRuntime, IImageService imageService) : IAsyncDisposable
     {
         private readonly Lazy<Task<IJSObjectReference>> _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/ImageMapper.RazorLib/Interops/ImageSource.js").AsTask());
+                "import", $"{Constants.LibContentBase}/Interops/ImageSource.js").AsTask());
 
         public async ValueTask SetImageSource(ImageInfo imageInfo, string elementId)
         {

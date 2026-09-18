@@ -12,7 +12,7 @@ namespace ImageMapper.RazorLib.Interops
     internal sealed class ImageModalJsInterop(IJSRuntime jsRuntime) : IAsyncDisposable
     {
         private readonly Lazy<Task<IJSObjectReference>> _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/ImageMapper.RazorLib/Components/Overlays/ImageModal.razor.js").AsTask());
+                "import", $"{Constants.LibContentBase}/Components/Overlays/ImageModal.razor.js").AsTask());
 
         /// <summary>
         /// Sets the DotNetObjectReference for the ImageModal component, allowing JavaScript to invoke .NET methods on the component.
