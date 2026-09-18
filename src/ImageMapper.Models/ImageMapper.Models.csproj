@@ -4,6 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>ImageMapper.Models</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <Version>0.1.0</Version>
+    <Authors>Tim Moore</Authors>
+    <Product>ImageMapper</Product>
+    <Description>Library of shared models for ImageMapper</Description>
+    <Copyright>Copyright (c) 2026 Tim Moore</Copyright>
   </PropertyGroup>
 
 </Project>

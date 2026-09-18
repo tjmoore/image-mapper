@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,6 +7,12 @@
     <Nullable>enable</Nullable>
     <UserSecretsId>caf43e96-984e-4473-9d9d-48f525e8cfd1</UserSecretsId>
     <AspireUseCliBundle>true</AspireUseCliBundle>
+    <IsPackable>false</IsPackable>
+    <Version>0.1.0</Version>
+    <Authors>Tim Moore</Authors>
+    <Product>ImageMapper</Product>
+    <Description>Aspire AppHost for ImageMapper dev environment</Description>
+    <Copyright>Copyright (c) 2026 Tim Moore</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Docker" Version="13.5.3" />
+    <PackageReference Include="Aspire.Hosting.Docker" Version="13.5.4" />
   </ItemGroup>
 
 </Project>
