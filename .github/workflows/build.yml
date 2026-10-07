@@ -26,7 +26,9 @@ jobs:
         dotnet-version: 10.0.x
 
     - name: Build
-      run: dotnet build
+      run: |
+        mkdir nupkg
+        dotnet build
 
     - name: Install SSL Certificates
       run: |
