@@ -34,6 +34,7 @@ jobs:
         dotnet build src/ImageMapper.Services
         dotnet build src/ImageMapper.RazorLib
         dotnet build src/ImageMapper.Web
+        dotnet build src/ImageMapper.AppHost
 
     - name: Install SSL Certificates
       run: |
