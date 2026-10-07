@@ -28,7 +28,9 @@ jobs:
     - name: Build
       run: |
         mkdir nupkg
-        dotnet build
+        dotnet build src/ImageMapper.Services
+        dotnet build src/ImageMapper.RazorLib
+        dotnet build src/ImageMapper.Web
 
     - name: Install SSL Certificates
       run: |
@@ -39,4 +41,4 @@ jobs:
       continue-on-error: true
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
