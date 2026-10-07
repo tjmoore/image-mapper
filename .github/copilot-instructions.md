@@ -4,8 +4,6 @@
 
 ImageMapper is a .NET library and example application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
 
-Refer also to repository docs (README.md, AGENTS.md) for further context
-
 ## Coding style and guidelines
 - Follow SOLID principles and clean code practices. Don't over-engineer; keep it simple and maintainable.
 - Follow .NET conventions for .NET components. In particular refer to the following:

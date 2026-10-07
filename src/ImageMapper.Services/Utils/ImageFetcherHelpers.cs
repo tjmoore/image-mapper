@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Buffers.Text;
 
-namespace ImageMapper.Services
+namespace ImageMapper.Services.Utils
 {
     internal static class ImageFetcherHelpers
     {

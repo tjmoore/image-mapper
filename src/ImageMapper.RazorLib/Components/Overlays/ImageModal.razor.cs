@@ -1,4 +1,4 @@
-using ImageMapper.Models;
+using ImageMapper.Services.Models;
 using Microsoft.JSInterop;
 
 namespace ImageMapper.RazorLib.Components.Overlays

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using ImageMapper.Services.Utils;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace ImageMapper.Services

@@ -1,10 +1,11 @@
-﻿using ImageMapper.Models;
+﻿using ImageMapper.Services.Caching;
+using ImageMapper.Services.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System.Collections.Frozen;
 
-namespace ImageMapper.Services
+namespace ImageMapper.Services.Utils
 {
     /// <summary>
     /// Fetches image information from configured folders and extracts their metadata, including geolocation if available

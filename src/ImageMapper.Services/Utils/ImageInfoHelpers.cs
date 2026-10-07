@@ -1,4 +1,4 @@
-﻿using ImageMapper.Models;
+﻿using ImageMapper.Services.Models;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Bmp;
 using MetadataExtractor.Formats.Exif;
@@ -9,7 +9,7 @@ using MetadataExtractor.Formats.Png;
 using MetadataExtractor.Formats.WebP;
 using Serilog;
 
-namespace ImageMapper.Services
+namespace ImageMapper.Services.Utils
 {
     internal static class ImageInfoHelpers
     {

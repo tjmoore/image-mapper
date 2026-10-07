@@ -1,7 +1,5 @@
 # Project: ImageMapper
 
-Refer to .github/copilot-instructions.md for agent-specific build and test commands.
-
 ## Overview
 
 ImageMapper is a .NET library and example application that scans configured folders for images, extracts metadata (including geolocation), and renders them on a map using a Blazor frontend. It is built with [.NET Aspire](https://aspire.dev) to orchestrate its services and provide a seamless development experience.
@@ -27,7 +25,6 @@ The solution is structured into several projects, each serving a specific role:
 - **ImageMapper.Services** — Library of .NET services to extract metadata from images and provide data front end consumers
 - **ImageMapper.RazorLib** - Library of .NET Blazor components to render the data on a map using Leaflet.js (OpenStreetMap)
 - **ImageMapper.Web** — Blazor frontend that consumes the services and uses the Razor components to render images on a map
-- **ImageMapper.Models** — Shared models used by both Services and Web projects
 - **ImageMapper.Tests** — NUnit tests covering core services and Web/API flows
 - **ImageMapper.ServiceDefaults** — Aspire extensions for service discovery, health checks, and telemetry
 - **ImageMapper.AppHost** — The Aspire host that composes and runs the services in development

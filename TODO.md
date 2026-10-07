@@ -7,6 +7,9 @@
 - Responsive design enhancements where required across different screen sizes, including mobile devices
 - Filtering, search etc
 - Show files without geolocation as a list on a separate page for example
+- ImageSource.ts could be wrapped as a Razor component to use in place of img elements
+	- MapSection however uses template for pop-up used by leaflet, and rendering is outside of Blazor
+	- Leaflect may neeed to be wrapped as a Razor component as well, or use a Blazor Leaflet wrapper library
 
 ## Backend
 
@@ -20,7 +23,7 @@
 
 ## Deployment
 
-- Convert to a library package of Blazor components and backend services for ease of use in other projects, e.g. as a NuGet package. UI provided serves as an example.
+- Publish NuGet package(s) on release for library projects.
 - Optional app wrapping, e.g. Electron or .NET MAUI (BlazorWebView), as alternative to deploying to a server, and/or to allow running as an app on mobile devices.
 
 ## General

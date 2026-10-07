@@ -1,4 +1,4 @@
-﻿using ImageMapper.Models;
+﻿using ImageMapper.Services.Models;
 using ImageMapper.Services;
 using Microsoft.JSInterop;
 

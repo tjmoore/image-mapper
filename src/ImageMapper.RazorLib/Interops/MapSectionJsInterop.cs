@@ -1,4 +1,4 @@
-using ImageMapper.Models;
+using ImageMapper.Services.Models;
 using ImageMapper.RazorLib.Components.Sections;
 using Microsoft.JSInterop;
 

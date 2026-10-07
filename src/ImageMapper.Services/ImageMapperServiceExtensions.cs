@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ImageMapper.Services.Caching;
+using ImageMapper.Services.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ImageMapper.Services
 {

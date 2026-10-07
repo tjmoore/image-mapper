@@ -1,5 +1,5 @@
-using ImageMapper.Models;
-using ImageMapper.Services;
+using ImageMapper.Services.Models;
+using ImageMapper.Services.Caching;
 
 namespace ImageMapper.Tests;
 

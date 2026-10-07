@@ -31,10 +31,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ImageMapper.Models\ImageMapper.Models.csproj" />
-  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="tjmoore.ImageMapper.Services" Version="0.1.0" />
@@ -43,6 +39,6 @@
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="LICENSE" Pack="true" PackagePath="" />
-  </ItemGroup>
+  </ItemGroup>   
 
 </Project>
