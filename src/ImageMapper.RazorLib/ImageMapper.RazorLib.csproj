@@ -13,8 +13,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright (c) 2026 Tim Moore</Copyright>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageOutputPath>..\..\nupkg</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,14 +29,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="tjmoore.ImageMapper.Services" Version="0.1.0" />
-  </ItemGroup>
     
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <ProjectReference Include="..\ImageMapper.Services\ImageMapper.Services.csproj" />
   </ItemGroup>   
 
 </Project>

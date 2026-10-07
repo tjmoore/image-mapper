@@ -13,8 +13,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>   
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Copyright (c) 2026 Tim Moore</Copyright>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageOutputPath>..\..\nupkg</PackageOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

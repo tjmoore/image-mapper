@@ -15,13 +15,13 @@
     
   <ItemGroup>
     <ProjectReference Include="..\ImageMapper.ServiceDefaults\ImageMapper.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\ImageMapper.Services\ImageMapper.Services.csproj" />
+    <ProjectReference Include="..\ImageMapper.RazorLib\ImageMapper.RazorLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Serilog" Version="4.4.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageReference Include="tjmoore.ImageMapper.Services" Version="0.1.0" />
-    <PackageReference Include="tjmoore.ImageMapper.RazorLib" Version="0.1.0" />
   </ItemGroup>
 
 </Project>
