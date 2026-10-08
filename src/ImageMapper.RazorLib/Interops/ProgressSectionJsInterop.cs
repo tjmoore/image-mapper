@@ -11,7 +11,7 @@ namespace ImageMapper.RazorLib.Interops
     internal sealed class ProgressSectionJsInterop(IJSRuntime jsRuntime) : IAsyncDisposable
     {
         private readonly Lazy<Task<IJSObjectReference>> _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/ImageMapper.RazorLib/Components/Sections/ProgressSection.razor.js").AsTask());
+                "import", $"{Constants.LibContentBase}/Components/Sections/ProgressSection.razor.js").AsTask());
 
         /// <summary>
         /// Sets the width of the progress bar in the ProgressSection component by invoking the corresponding JavaScript function.

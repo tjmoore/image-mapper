@@ -4,7 +4,14 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>ImageMapper.ServiceDefaults</RootNamespace>
     <IsAspireSharedProject>true</IsAspireSharedProject>
+    <IsPackable>false</IsPackable>
+    <Version>0.1.0</Version>
+    <Authors>Tim Moore</Authors>
+    <Product>ImageMapper</Product>
+    <Description>Aspire service defaults for ImageMapper.Web</Description>
+    <Copyright>Copyright (c) 2026 Tim Moore</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

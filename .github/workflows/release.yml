@@ -1,0 +1,53 @@
+name: Create packages on release
+permissions:
+  contents: read
+  packages: write
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  create-package:
+    name: Create NuGet package
+
+    runs-on: ubuntu-latest
+
+    env:
+      NuGetFolder: ${{ github.workspace }}/nuget
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.7.0
+        with:
+          versionSpec: '6.8.x'
+
+      - name: Determine Version
+        id: version_step # step id used as a reference for output values
+        uses: gittools/actions/gitversion/execute@v4.7.0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: |
+          dotnet build src/ImageMapper.Services --no-restore --configuration Release /p:Version=${{ steps.version_step.outputs.assemblySemVer }} /p:InformationalVersion=${{ steps.version_step.outputs.informationalVersion }}
+          dotnet build src/ImageMapper.RazorLib --no-restore --configuration Release /p:Version=${{ steps.version_step.outputs.assemblySemVer }} /p:InformationalVersion=${{ steps.version_step.outputs.informationalVersion }}
+
+      - name: Pack
+        run: |
+          dotnet pack src/ImageMapper.Services --no-build --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
+          dotnet pack src/ImageMapper.RazorLib --no-build --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
+
+      - name: Publish
+        run: |
+          dotnet nuget push ${{ env.NuGetFolder }}/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"

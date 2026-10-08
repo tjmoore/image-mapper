@@ -1,5 +1,7 @@
 using ImageMapper.Services;
-using ImageMapper.Models;
+using ImageMapper.Services.Caching;
+using ImageMapper.Services.Models;
+using ImageMapper.Services.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 

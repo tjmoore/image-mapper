@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ImageMapper.Models;
+namespace ImageMapper.Services.Models;
 
 /// <summary>
 /// Represents basic information about a file, including its unique identifier and file name.

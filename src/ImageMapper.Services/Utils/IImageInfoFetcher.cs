@@ -1,6 +1,6 @@
-﻿using ImageMapper.Models;
+﻿using ImageMapper.Services.Models;
 
-namespace ImageMapper.Services
+namespace ImageMapper.Services.Utils
 {
     public interface IImageInfoFetcher
     {

@@ -1,4 +1,4 @@
-using ImageMapper.Models;
+using ImageMapper.Services.Models;
 
 namespace ImageMapper.RazorLib.Components
 {

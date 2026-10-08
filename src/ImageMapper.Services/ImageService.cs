@@ -1,4 +1,5 @@
-using ImageMapper.Models;
+using ImageMapper.Services.Models;
+using ImageMapper.Services.Utils;
 using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Services;

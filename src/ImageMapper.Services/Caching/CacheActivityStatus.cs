@@ -1,9 +1,9 @@
-using ImageMapper.Models;
+using ImageMapper.Services.Models;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
-namespace ImageMapper.Services;
+namespace ImageMapper.Services.Caching;
 
 /// <summary>
 /// Represents the status of caching activities, including whether caching is currently active, the number of processed files, and the total number of files to be processed.

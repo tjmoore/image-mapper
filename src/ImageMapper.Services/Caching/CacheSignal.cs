@@ -1,4 +1,4 @@
-﻿namespace ImageMapper.Services
+﻿namespace ImageMapper.Services.Caching
 {
     // Based on sample https://learn.microsoft.com/en-us/dotnet/core/extensions/caching#photo-service-scenario
 
