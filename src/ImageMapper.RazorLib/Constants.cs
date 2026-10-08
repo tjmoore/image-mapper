@@ -2,6 +2,6 @@
 {
     internal static class Constants
     {
-        public const string LibContentBase = "./_content/tjmoore.ImageMapper.RazorLib";
+        public const string LibContentBase = "./_content/ImageMapper.RazorLib";
     }
 }

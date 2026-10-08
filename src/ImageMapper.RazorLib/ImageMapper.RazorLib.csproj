@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ImageMapper.RazorLib</RootNamespace>
-    <PackageId>tjmoore.ImageMapper.RazorLib</PackageId>
+    <PackageId>ImageMapper.RazorLib</PackageId>
     <Version>0.1.0</Version>
     <Authors>Tim Moore</Authors>
     <Product>ImageMapper</Product>
