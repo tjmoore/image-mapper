@@ -8,6 +8,19 @@ Library of .NET Blazor components to render data generated from ImageMapper.Serv
 
 ## Installation
 
+If you have the source code, you can add a reference to the `ImageMapper.RazorLib` project in your Blazor application.
+
+Alternatively, you can install the NuGet package from GitHub. You will need a GitHub personal access token with `read:packages` scope to access the package.
+
+<repo-owner> is the name of the repository owner where the package is hosted, and `<your-github-username>` and `<your-github-personal-access-token>` should be replaced with your GitHub username and personal access token respectively.
+
+<version> is the version of the package you want to install.
+
+```bash
+dotnet nuget add source https://nuget.pkg.github.com/<repo-owner>/index.json --name github --username <your-github-username> --password <your-github-personal-access-token>
+dotnet add package ImageMapper.Services --version <version>
+dotnet add package ImageMapper.RazorLib --version <version>
+```
 
 ### Configuration
 
