@@ -17,6 +17,7 @@
   </Folder>
   <Folder Name="/GitHub Workflows/">
     <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/NuGet/">
     <File Path="nuget.config" />
