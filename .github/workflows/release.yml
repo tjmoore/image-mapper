@@ -35,18 +35,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: |
-          dotnet build src/ImageMapper.Services --no-restore --configuration Release /p:Version=${{ steps.version_step.outputs.assemblySemVer }} /p:InformationalVersion=${{ steps.version_step.outputs.informationalVersion }}
-          dotnet build src/ImageMapper.RazorLib --no-restore --configuration Release /p:Version=${{ steps.version_step.outputs.assemblySemVer }} /p:InformationalVersion=${{ steps.version_step.outputs.informationalVersion }}
-
       - name: Pack
         run: |
-          dotnet pack src/ImageMapper.Services --no-build --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
-          dotnet pack src/ImageMapper.RazorLib --no-build --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
+          dotnet pack src/ImageMapper.Services --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
+          dotnet pack src/ImageMapper.RazorLib --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
 
       - name: Publish
         run: |

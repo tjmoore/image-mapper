@@ -47,6 +47,10 @@ ImageMapper is a .NET library and example application that scans configured fold
 - Run individual projects:
   - Web (Blazor): dotnet run --project src\ImageMapper.Web\ImageMapper.Web.csproj
 
+
+ImageMapper.Web uses PackageReference for ImageMapper.RazorLib and ImageMapper.Services when running in release configuration. These are published NuGet packages in GitHub Packages.
+In debug it uses ProjectReference to src/ImageMapper.RazorLib and src/ImageMapper.Services.
+
 ## Testing
 
 - Run all tests: dotnet test src\ImageMapper.Tests\ImageMapper.Tests.csproj

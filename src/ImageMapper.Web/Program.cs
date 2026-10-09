@@ -52,7 +52,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 // enable response compression middleware early in the pipeline
 app.UseResponseCompression();
