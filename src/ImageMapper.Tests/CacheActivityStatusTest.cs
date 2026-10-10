@@ -1,10 +1,26 @@
 using ImageMapper.Services.Models;
 using ImageMapper.Services.Caching;
+using Serilog;
 
 namespace ImageMapper.Tests;
 
 public class CacheActivityStatusTest
 {
+    [OneTimeSetUp]
+    public void SetupLogging()
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+    }
+
+    [OneTimeTearDown]
+    public void TeardownLogging()
+    {
+        Log.CloseAndFlush();
+    }
+
     [Test]
     public void GetStatusReturnsInitialValues()
     {
