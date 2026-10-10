@@ -4,6 +4,7 @@ using ImageMapper.Services.Models;
 using ImageMapper.Services.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace ImageMapper.Tests
 {
@@ -15,6 +16,11 @@ namespace ImageMapper.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
             _testImagesDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, $"image-mapper-test-{Guid.NewGuid()}");
             Directory.CreateDirectory(_testImagesDirectory);
             
@@ -41,6 +47,8 @@ namespace ImageMapper.Tests
         {
             if (Directory.Exists(_testImagesDirectory))
                 Directory.Delete(_testImagesDirectory, recursive: true);
+
+            Log.CloseAndFlush();
         }
 
         [Test]
