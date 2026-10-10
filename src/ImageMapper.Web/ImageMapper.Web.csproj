@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ImageMapper.Services" Version="0.1.0" Condition="'$(Configuration)' == 'Release'" />
-    <PackageReference Include="ImageMapper.RazorLib" Version="0.1.0" Condition="'$(Configuration)' == 'Release'" IncludeAssets="all" />
+    <PackageReference Include="ImageMapper.Services" Version="0.1.1" Condition="'$(Configuration)' == 'Release'" />
+    <PackageReference Include="ImageMapper.RazorLib" Version="0.1.1" Condition="'$(Configuration)' == 'Release'" IncludeAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
