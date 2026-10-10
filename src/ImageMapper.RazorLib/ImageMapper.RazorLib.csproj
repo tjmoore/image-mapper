@@ -41,4 +41,18 @@
     <ProjectReference Include="..\ImageMapper.Services\ImageMapper.Services.csproj" />
   </ItemGroup>   
 
+  <!-- tsc output doesn't exist at evaluation time on a clean checkout, so compile first and add it as static web assets -->
+  <Target Name="IncludeGeneratedTypeScriptOutput"
+          DependsOnTargets="SetTscExecutable;RunTscCompile"
+          BeforeTargets="AssignTargetPaths;ResolveProjectStaticWebAssets;_GetPackageFiles">
+    <ItemGroup>
+      <_GeneratedJs Include="Components/**/*.razor.js" />
+      <_GeneratedWwwrootJs Include="wwwroot/**/*.js" />
+      <None Remove="@(_GeneratedJs)" />
+      <None Include="@(_GeneratedJs)" />
+      <Content Remove="@(_GeneratedWwwrootJs)" />
+      <Content Include="@(_GeneratedWwwrootJs)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

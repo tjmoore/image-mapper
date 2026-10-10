@@ -15,8 +15,13 @@
     
   <ItemGroup>
     <ProjectReference Include="..\ImageMapper.ServiceDefaults\ImageMapper.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\ImageMapper.Services\ImageMapper.Services.csproj" />
-    <ProjectReference Include="..\ImageMapper.RazorLib\ImageMapper.RazorLib.csproj" />
+    <ProjectReference Include="..\ImageMapper.Services\ImageMapper.Services.csproj" Condition="'$(Configuration)' == 'Debug'" />
+    <ProjectReference Include="..\ImageMapper.RazorLib\ImageMapper.RazorLib.csproj" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ImageMapper.Services" Version="0.1.0" Condition="'$(Configuration)' == 'Release'" />
+    <PackageReference Include="ImageMapper.RazorLib" Version="0.1.0" Condition="'$(Configuration)' == 'Release'" IncludeAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

@@ -74,6 +74,10 @@ Launch the front end application from imagemapper-web link
 
 The web application can also be run independently of the Aspire host, by running `dotnet run --project ImageMapper.Web` from the command line.
 
+### Release build
+
+`ImageMapper.Web` will build in Release using published packages of `ImageMapper.Services` and `ImageMapper.RazorLib` from GitHub packages by default and needs GitHub credentials to access the packages. See [ImageMapper.Web/README.md](src/ImageMapper.Web/README.md) for details.
+
 ### Configuration
 
 The image folders are configured via `appsettings.<environment>.json` file in ImageMapper.Web project for the relevant environment built.
