@@ -37,9 +37,22 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack src/ImageMapper.Services --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
-          dotnet pack src/ImageMapper.RazorLib --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
+          dotnet pack src/ImageMapper.Services --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }} -bl:imagemapper.services.binlog
+          dotnet pack src/ImageMapper.RazorLib --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }} -bl:imagemapper.razorlib.binlog
 
-      - name: Publish
-        run: |
-          dotnet nuget push ${{ env.NuGetFolder }}/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+#      - name: Publish
+#        run: |
+#          dotnet nuget push ${{ env.NuGetFolder }}/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+      - name: Upload binlogs
+        uses: actions/upload-artifact@v7
+        with:
+          name: binlogs
+          path: *.binlog
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: ${{ env.NuGetFolder }}/*.nupkg
+
