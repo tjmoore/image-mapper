@@ -35,24 +35,19 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        # Just build RazorLib, since Services is a class library and will be built as a dependency of RazorLib
+        run: dotnet build src/ImageMapper.RazorLib --configuration Release --no-restore /p:Version=${{ steps.version_step.outputs.assemblySemVer }} /p:InformationalVersion=${{ steps.version_step.outputs.informationalVersion }}
+
       - name: Pack
         run: |
-          dotnet pack src/ImageMapper.Services --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }} -bl:imagemapper.services.binlog
-          dotnet pack src/ImageMapper.RazorLib --configuration Release --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }} -bl:imagemapper.razorlib.binlog
+          dotnet pack src/ImageMapper.Services --configuration Release --no-build --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
+          dotnet pack src/ImageMapper.RazorLib --configuration Release --no-build --output ${{ env.NuGetFolder }} /p:PackageVersion=${{ steps.version_step.outputs.fullSemVer }}
 
-#      - name: Publish
-#        run: |
-#          dotnet nuget push ${{ env.NuGetFolder }}/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-
-      - name: Upload binlogs
-        uses: actions/upload-artifact@v7
-        with:
-          name: binlogs
-          path: ${{ github.workspace }}/*.binlog
-
-      - name: Upload NuGet packages
-        uses: actions/upload-artifact@v7
-        with:
-          name: nuget-packages
-          path: ${{ env.NuGetFolder }}/*.nupkg
+      - name: Publish
+        run: |
+          dotnet nuget push ${{ env.NuGetFolder }}/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
