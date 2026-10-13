@@ -30,13 +30,13 @@ namespace ImageMapper.Services
         {
             while (!ct.IsCancellationRequested)
             {
-                Log.Information("Updating cache");
+                Log.Information("Processing images...");
 
                 try
                 {
                     int processedCount = await imageInfoFetcher.ProcessImagesAsync(ct);
 
-                    Log.Information("Cache updated with {Count} images", processedCount);
+                    Log.Information("Processed and cached {Count} images", processedCount);
                 }
                 catch (OperationCanceledException)
                 {
@@ -45,7 +45,7 @@ namespace ImageMapper.Services
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Error occurred while updating cache");
+                    Log.Error(ex, "Error occurred while processing images");
                 }
 
                 // TODO: Consider update schedule based on detected changes in the image folders, rather than a fixed interval

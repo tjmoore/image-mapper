@@ -2,6 +2,7 @@
 using MetadataExtractor;
 using MetadataExtractor.Formats.Bmp;
 using MetadataExtractor.Formats.Exif;
+using MetadataExtractor.Formats.FileSystem;
 using MetadataExtractor.Formats.Gif;
 using MetadataExtractor.Formats.Heif;
 using MetadataExtractor.Formats.Jpeg;
@@ -36,6 +37,10 @@ namespace ImageMapper.Services.Utils
 
             double latitude = 0, longitude = 0;
             int width = 0, height = 0;
+            DateTimeOffset dateTimeOriginal = DateTimeOffset.MinValue;
+            string timeZoneOffset = string.Empty;
+            string cameraMaker = string.Empty;
+            string cameraModel = string.Empty;
             try
             {
                 var directories = ImageMetadataReader.ReadMetadata(imageFile.FilePath);
@@ -60,13 +65,112 @@ namespace ImageMapper.Services.Utils
                 {
                     Log.Debug("No image dimensions found for file: {File}", imageFile.FilePath);
                 }
+
+                // Get the original date/time and offset of when the photo was taken from the metadata, or fallback to the file's creation date if not available
+                // File creation date may not be accurate if the file was copied or moved, but it's the best we can do if the metadata is missing
+                dateTimeOriginal = GetDateTimeOriginal(directories) ?? imageFile.Created;
+                timeZoneOffset = GetTimeZoneOffset(directories, dateTimeOriginal);
+
+                // Camera maker and model if available
+                cameraMaker = GetCameraMaker(directories);
+                cameraModel = GetCameraModel(directories);
             }
             catch
             {
                 Log.Warning("Failed to read metadata for file: {File}", imageFile.FilePath);
             }
 
-            return new ImageInfo(imageFile, width, height, latitude, longitude);
+            return new ImageInfo(imageFile, width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel);
+        }
+
+        private static string GetCameraMaker(IEnumerable<MetadataExtractor.Directory> directories)
+        {
+            var exifIfd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+            if (exifIfd0Directory != null)
+            {
+                return exifIfd0Directory.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+            }
+            return string.Empty;
+        }
+
+        private static string GetCameraModel(IEnumerable<MetadataExtractor.Directory> directories)
+        {
+            var exifIfd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+            if (exifIfd0Directory != null)
+            {
+                return exifIfd0Directory.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the time zone offset from the specified metadata directories, or returns the local time zone offset of the dateTimeOriginal or created date if not available in the metadata.
+        /// </summary>
+        /// <param name="directories">The metadata directories</param>
+        /// <param name="dateTimeOriginal">The original date and time when the image was taken</param>
+        /// <returns>The time zone offset as a string in the format "hh:mm"</returns>
+        private static string GetTimeZoneOffset(IEnumerable<MetadataExtractor.Directory> directories, DateTimeOffset dateTimeOriginal)
+        {
+            var exifSubIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            if (exifSubIfdDirectory != null)
+            {
+                // EXIF OffsetTimeOriginal 0x9011 (Offset time of DateTimeOriginal), OffsetTimeDigitized 0x9012 (Offset time of DateTimeDigitized/CreateDate)
+                // or OffsetTime 0x9010 (Offset time of ModifyDate within the file - not the file system's last modified date)
+                string? timeZoneOffset = exifSubIfdDirectory.GetDescription(ExifDirectoryBase.TagTimeZoneOriginal) ??
+                    exifSubIfdDirectory.GetDescription(ExifDirectoryBase.TagTimeZoneDigitized) ??
+                    exifSubIfdDirectory.GetDescription(ExifDirectoryBase.TagTimeZone);
+                if (!string.IsNullOrEmpty(timeZoneOffset))
+                {
+                    return timeZoneOffset;
+                }
+
+                // Fallback to using the TimeZoneOffset tag if available, EXIF 0x882A (Time zone offset from UTC in hours in the first value of the array)
+                var timeZoneOffsetArray = exifSubIfdDirectory.GetRationalArray(ExifDirectoryBase.TagTimeZoneOffset);
+                if (timeZoneOffsetArray != null && timeZoneOffsetArray.Length > 0)
+                {
+                    // Convert the first offset value to a string representation
+                    double offsetHours = timeZoneOffsetArray[0].ToDouble();
+                    TimeSpan offset = TimeSpan.FromHours(offsetHours);
+                    return offset.ToString(@"hh\:mm");
+                }
+
+                // If no timezone information is available, return the local timezone offset of the dateTimeOriginal object
+                TimeSpan localOffset = dateTimeOriginal.Offset;
+                // Format the offset as a string in the format "[+|-]hh:mm"
+                return (localOffset < TimeSpan.Zero ? "-" : "+") + localOffset.ToString(@"hh\:mm");
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the original date and time when the image was taken if available from the specified metadata directories
+        /// </summary>
+        /// <param name="directories">The metadata directories</param>
+        /// <returns>The original date and time when the image was taken, or the file's last modified date in EXIF data if not available, or null if neither is available</returns>
+        private static DateTimeOffset? GetDateTimeOriginal(IEnumerable<MetadataExtractor.Directory> directories)
+        {
+            var exifSubIfdDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            // EXIF DateTimeOriginal 0x9003
+            if (exifSubIfdDirectory != null && exifSubIfdDirectory.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out DateTime dateTimeOriginal))
+            {
+                return new DateTimeOffset(dateTimeOriginal);
+            }
+
+            // Fallback EXIF DateTimeDigitized / CreateDate 0x9004
+            if (exifSubIfdDirectory != null && exifSubIfdDirectory.TryGetDateTime(ExifDirectoryBase.TagDateTimeDigitized, out DateTime dateTimeDigitized))
+            {
+                return new DateTimeOffset(dateTimeDigitized);
+            }
+
+            // Fallback to file's last modified time if DateTimeOriginal is not available
+            var fileDir = directories.OfType<FileMetadataDirectory>().FirstOrDefault();
+            if (fileDir != null && fileDir.TryGetDateTime(FileMetadataDirectory.TagFileModifiedDate, out DateTime fileModifiedDate))
+            {
+                return new DateTimeOffset(fileModifiedDate);
+            }
+
+            return null;
         }
 
         /// <summary>

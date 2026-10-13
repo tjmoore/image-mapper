@@ -28,5 +28,8 @@
 
 ## General
 
+- Time zone adjustment based on location where time zone not available in image metadata.
+	- Sometimes time zone is reported as zero though. Prefer location for time zone or too much of a performance impact?
+	- Needs external service?
 - Further unit tests, including Blazor components, checking UI rendered output, etc
 - Possibility of adding missing geolocation data to images without any, via a map or by entering coordinates manually and/or by using a reverse geocoding service to find the nearest known location
