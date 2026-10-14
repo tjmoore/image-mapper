@@ -131,6 +131,8 @@ Based on support in MetadataExtractor
 - dcr — Kodak RAW Image
 - dng — Digital Negative (Adobe)
 
+HEIC, HEIF and the RAW formats above are not displayable in browsers, so they are converted to JPEG (using Magick.NET) when shown in the image viewer.
+
 
 ## Notes
 

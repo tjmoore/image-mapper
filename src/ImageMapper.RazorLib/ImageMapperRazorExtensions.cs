@@ -12,6 +12,7 @@ namespace ImageMapper.RazorLib
         public static IServiceCollection AddImageMapperRazorLib(this IServiceCollection services)
         {
             services
+                .AddSingleton<Interops.IImageConverter, Interops.MagickImageConverter>()
                 .AddScoped<Interops.MapSectionJsInterop>()
                 .AddScoped<Interops.ImageModalJsInterop>()
                 .AddScoped<Interops.ImageSourceJsInterop>()

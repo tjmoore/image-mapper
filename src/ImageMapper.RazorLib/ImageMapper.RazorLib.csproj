@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -18,12 +18,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ImageMapper.Tests" />
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.12" />
-  </ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.13" />
+        <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="15.0.0" />
+      </ItemGroup>
     
   <ItemGroup>
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="7.0.1">
