@@ -126,8 +126,18 @@ namespace ImageMapper.Services.Utils
 
             Log.Information("ImageInfoFetcher initialized with ImageFolders: {@ImageFolders}", imageFolders);
 
+            Log.Information("Resolving image files from configured folders...");
+
             List<BasicFileInfo> imageFiles = [.. ImageFetcherHelpers.GetImageList(imageFolders)
-                .Select(f => new BasicFileInfo(ImageFetcherHelpers.GenerateIdForPath(f), Path.GetFileName(f), f, ImageFetcherHelpers.GetContentType(f)))];
+                .Select(f => new BasicFileInfo(
+                    ImageFetcherHelpers.GenerateIdForPath(f),
+                    Path.GetFileName(f),
+                    f,
+                    File.GetLastWriteTimeUtc(f),
+                    File.GetCreationTimeUtc(f),
+                    ImageFetcherHelpers.GetContentType(f)))
+                .OrderByDescending(f => f.LastModified)
+                ];
 
             cache.Set("ImageFiles", imageFiles);
 

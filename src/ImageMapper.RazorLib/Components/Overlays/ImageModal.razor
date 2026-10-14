@@ -32,6 +32,48 @@
                             <dd>@_currentImageInfo.Latitude.ToString("F6")</dd>
                             <dt>Longitude</dt>
                             <dd>@_currentImageInfo.Longitude.ToString("F6")</dd>
+                            <dt>Time Taken</dt>
+                            <dd>@_currentImageInfo.DateTimeOriginal.ToString("g")</dd>
+                            @if (!string.IsNullOrEmpty(_currentImageInfo.TimeZoneOffset))
+                            {
+                                <dt>Time Zone Offset</dt>
+                                <dd>@_currentImageInfo.TimeZoneOffset</dd>
+                            }
+                            @if (!string.IsNullOrEmpty(_currentImageInfo.CameraMaker))
+                            {
+                                <dt>Camera Maker</dt>
+                                <dd>@_currentImageInfo.CameraMaker</dd>
+                            }
+                            @if (!string.IsNullOrEmpty(_currentImageInfo.CameraModel))
+                            {
+                                <dt>Camera Model</dt>
+                                <dd>@_currentImageInfo.CameraModel</dd>
+                            }
+                            @if (!string.IsNullOrEmpty(_currentImageInfo.Aperture))
+                            {
+                                <dt>Aperture</dt>
+                                <dd>@_currentImageInfo.Aperture</dd>
+                            }
+                            @if (!string.IsNullOrEmpty(_currentImageInfo.ShutterSpeed))
+                            {
+                                <dt>Shutter Speed</dt>
+                                <dd>@_currentImageInfo.ShutterSpeed</dd>
+                            }
+                            @if (_currentImageInfo.Iso is not null)
+                            {
+                                <dt>ISO</dt>
+                                <dd>@_currentImageInfo.Iso</dd>
+                            }
+                            @if (!string.IsNullOrEmpty(_currentImageInfo.FocalLength))
+                            {
+                                <dt>Focal Length</dt>
+                                <dd>@_currentImageInfo.FocalLength</dd>
+                            }
+                            @if (_currentImageInfo.FlashFired is not null)
+                            {
+                                <dt>Flash Fired</dt>
+                                <dd>@(_currentImageInfo.FlashFired.Value ? "Yes" : "No")</dd>
+                            }
                         </dl>
                     }
                 </div>
