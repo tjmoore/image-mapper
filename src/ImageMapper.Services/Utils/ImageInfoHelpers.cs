@@ -41,6 +41,9 @@ namespace ImageMapper.Services.Utils
             string timeZoneOffset = string.Empty;
             string cameraMaker = string.Empty;
             string cameraModel = string.Empty;
+            string aperture = string.Empty, shutterSpeed = string.Empty, focalLength = string.Empty;
+            int? iso = null;
+            bool? flashFired = null;
             try
             {
                 var directories = ImageMetadataReader.ReadMetadata(imageFile.FilePath);
@@ -72,35 +75,67 @@ namespace ImageMapper.Services.Utils
                 timeZoneOffset = GetTimeZoneOffset(directories, dateTimeOriginal);
 
                 // Camera maker and model if available
-                cameraMaker = GetCameraMaker(directories);
-                cameraModel = GetCameraModel(directories);
+                cameraMaker = GetIfd0Description(directories, ExifDirectoryBase.TagMake);
+                cameraModel = GetIfd0Description(directories, ExifDirectoryBase.TagModel);
+
+                // Camera settings if available
+                aperture = GetSubIfdDescription(directories, ExifDirectoryBase.TagFNumber);
+                shutterSpeed = GetSubIfdDescription(directories, ExifDirectoryBase.TagExposureTime);
+                focalLength = GetSubIfdDescription(directories, ExifDirectoryBase.TagFocalLength);
+                iso = GetSubIfdInt32(directories, ExifDirectoryBase.TagIsoEquivalent);
+                flashFired = GetFlashFired(directories);
             }
             catch
             {
                 Log.Warning("Failed to read metadata for file: {File}", imageFile.FilePath);
             }
 
-            return new ImageInfo(imageFile, width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel);
+            return new ImageInfo(imageFile, width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel,
+                aperture, shutterSpeed, iso, focalLength, flashFired);
         }
 
-        private static string GetCameraMaker(IEnumerable<MetadataExtractor.Directory> directories)
+        /// <summary>
+        /// Gets the description of a tag from the ExifSubIfdDirectory in the specified metadata directories, or returns an empty string if not available.
+        /// </summary>
+        /// <param name="directories">The metadata directories</param>
+        /// <param name="tag">The tag to get the description for</param>
+        /// <returns>The description of the tag, or an empty string if not available</returns>
+        private static string GetSubIfdDescription(IEnumerable<MetadataExtractor.Directory> directories, int tag)
         {
-            var exifIfd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-            if (exifIfd0Directory != null)
-            {
-                return exifIfd0Directory.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
-            }
-            return string.Empty;
+            return directories.OfType<ExifSubIfdDirectory>().FirstOrDefault()?.GetDescription(tag) ?? string.Empty;
         }
 
-        private static string GetCameraModel(IEnumerable<MetadataExtractor.Directory> directories)
+        /// <summary>
+        /// Gets the description of a tag from the ExifIfd0Directory in the specified metadata directories, or returns an empty string if not available.
+        /// </summary>
+        /// <param name="directories">The metadata directories</param>
+        /// <param name="tag">The tag to get the description for</param>
+        /// <returns>The description of the tag, or an empty string if not available</returns>
+        private static string GetIfd0Description(IEnumerable<MetadataExtractor.Directory> directories, int tag)
         {
-            var exifIfd0Directory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
-            if (exifIfd0Directory != null)
-            {
-                return exifIfd0Directory.GetDescription(ExifDirectoryBase.TagModel) ?? string.Empty;
-            }
-            return string.Empty;
+            return directories.OfType<ExifIfd0Directory>().FirstOrDefault()?.GetDescription(tag) ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the integer value of a tag from the ExifSubIfdDirectory in the specified metadata directories, or returns null if not available.
+        /// </summary>
+        /// <param name="directories">The metadata directories</param>
+        /// <param name="tag">The tag to get the integer value for</param>
+        /// <returns>The integer value of the tag, or null if not available</returns>
+        private static int? GetSubIfdInt32(IEnumerable<MetadataExtractor.Directory> directories, int tag)
+        {
+            var dir = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+            return dir != null && dir.TryGetInt32(tag, out int value) ? value : null;
+        }
+
+        /// <summary>
+        /// Gets whether the flash fired from the specified metadata directories, or returns null if not available.
+        /// </summary>
+        /// <param name="directories">The metadata directories</param>
+        /// <returns>True if the flash fired, false if it did not, or null if not available</returns>
+        private static bool? GetFlashFired(IEnumerable<MetadataExtractor.Directory> directories)
+        {
+            return GetSubIfdInt32(directories, ExifDirectoryBase.TagFlash) is int flash ? (flash & 1) == 1 : null;
         }
 
         /// <summary>
@@ -181,11 +216,7 @@ namespace ImageMapper.Services.Utils
         private static GeoLocation? GetGeoLocation(IEnumerable<MetadataExtractor.Directory> directories)
         {
             var gps = directories.OfType<GpsDirectory>().FirstOrDefault();
-            if (gps != null && gps.TryGetGeoLocation(out GeoLocation location))
-            {
-                return location;
-            }
-            return null;
+            return gps != null && gps.TryGetGeoLocation(out GeoLocation location) ? location : null;
         }
 
         /// <summary>

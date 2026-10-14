@@ -30,9 +30,14 @@ public record BasicFileInfo(
 /// <param name="Latitude">The latitude coordinate of the image's location</param>
 /// <param name="Longitude">The longitude coordinate of the image's location</param>
 /// <param name="DateTimeOriginal">The original (usually local) date and time when the image was taken</param>
-/// <param name="TimeZoneOffset">The time zone offset of the original date and time when the image was taken</param>
-/// <param name="CameraMaker">The maker of the camera used to take the image</param>
-/// <param name="CameraModel">The model of the camera used to take the image</param>
+/// <param name="TimeZoneOffset">The time zone offset of the original date and time when the image was taken, empty if unavailable</param>
+/// <param name="CameraMaker">The maker of the camera used to take the image, empty if unavailable</param>
+/// <param name="CameraModel">The model of the camera used to take the image, empty if unavailable</param>
+/// <param name="Aperture">The aperture (f-number) as a display string, empty if unavailable</param>
+/// <param name="ShutterSpeed">The exposure time as a display string, empty if unavailable</param>
+/// <param name="Iso">The ISO speed rating, null if unavailable</param>
+/// <param name="FocalLength">The focal length as a display string, empty if unavailable</param>
+/// <param name="FlashFired">Whether the flash fired, null if unavailable</param>
 public record ImageInfo(
     BasicFileInfo BasicFileInfo,
     int Width,
@@ -40,9 +45,14 @@ public record ImageInfo(
     double Latitude,
     double Longitude,
     DateTimeOffset DateTimeOriginal,
-    string TimeZoneOffset,
-    string CameraMaker,
-    string CameraModel) : BasicFileInfo(BasicFileInfo)
+    string TimeZoneOffset = "",
+    string CameraMaker = "",
+    string CameraModel = "",
+    string Aperture = "",
+    string ShutterSpeed = "",
+    int? Iso = null,
+    string FocalLength = "",
+    bool? FlashFired = null) : BasicFileInfo(BasicFileInfo)
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ImageInfo"/> record with the specified parameters.
@@ -56,15 +66,20 @@ public record ImageInfo(
     /// <param name="longitude">The longitude coordinate of the image's location</param>
     /// <param name="lastModified">The last modified date and time of the image</param>
     /// <param name="created">The creation date and time of the image</param>
-    /// <param name="dateTimeOriginal">The original (usually local) date and time when the image was taken</param>
-    /// <param name="timeZoneOffset">The time zone offset of the original date and time when the image was taken</param>
+    /// <param name="dateTimeOriginal">The original (usually local) date and time when the image was taken</param>    
     /// <param name="contentType">The MIME type of the image</param>
     /// <param name="url">The URL to access the image if applicable</param>
-    /// <param name="cameraMaker">The maker of the camera used to take the image</param>
-    /// <param name="cameraModel">The model of the camera used to take the image</param>
+    /// <param name="timeZoneOffset">The time zone offset of the original date and time when the image was taken, empty if unavailable</param>
+    /// <param name="cameraMaker">The maker of the camera used to take the image, empty if unavailable</param>
+    /// <param name="cameraModel">The model of the camera used to take the image, empty if unavailable</param>
+    /// <param name="aperture">The aperture (f-number), empty if unavailable</param>
+    /// <param name="shutterSpeed">The exposure time, empty if unavailable</param>
+    /// <param name="iso">The ISO speed rating, null if unavailable</param>
+    /// <param name="focalLength">The focal length, empty if unavailable</param>
+    /// <param name="flashFired">Whether the flash fired, null if unavailable</param>
     [JsonConstructor]
-    public ImageInfo(string id, string fileName, string filePath, int width, int height, double latitude, double longitude, DateTimeOffset lastModified, DateTimeOffset created, DateTimeOffset dateTimeOriginal, string timeZoneOffset, string contentType, string url = "", string cameraMaker = "", string cameraModel = "")
-        : this(new BasicFileInfo(id, fileName, filePath, lastModified, created, contentType, url), width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel)
+    public ImageInfo(string id, string fileName, string filePath, int width, int height, double latitude, double longitude, DateTimeOffset lastModified, DateTimeOffset created, string contentType, DateTimeOffset dateTimeOriginal, string url = "", string timeZoneOffset = "", string cameraMaker = "", string cameraModel = "", string aperture = "", string shutterSpeed = "", int? iso = null, string focalLength = "", bool? flashFired = null)
+        : this(new BasicFileInfo(id, fileName, filePath, lastModified, created, contentType, url), width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel, aperture, shutterSpeed, iso, focalLength, flashFired)
     {
     }
 
@@ -74,7 +89,7 @@ public record ImageInfo(
     /// <param name="imageInfo">The existing <see cref="ImageInfo"/> instance</param>
     /// <param name="url">The new URL to associate with the image</param>
     public ImageInfo(ImageInfo imageInfo, string url)
-        : this(new BasicFileInfo(imageInfo.Id, imageInfo.FileName, imageInfo.FilePath, imageInfo.LastModified, imageInfo.Created, imageInfo.ContentType, url), imageInfo.Width, imageInfo.Height, imageInfo.Latitude, imageInfo.Longitude, imageInfo.DateTimeOriginal, imageInfo.TimeZoneOffset, imageInfo.CameraMaker, imageInfo.CameraModel)
+        : this(new BasicFileInfo(imageInfo.Id, imageInfo.FileName, imageInfo.FilePath, imageInfo.LastModified, imageInfo.Created, imageInfo.ContentType, url), imageInfo.Width, imageInfo.Height, imageInfo.Latitude, imageInfo.Longitude, imageInfo.DateTimeOriginal, imageInfo.TimeZoneOffset, imageInfo.CameraMaker, imageInfo.CameraModel, imageInfo.Aperture, imageInfo.ShutterSpeed, imageInfo.Iso, imageInfo.FocalLength, imageInfo.FlashFired)
     {
     }
 }
