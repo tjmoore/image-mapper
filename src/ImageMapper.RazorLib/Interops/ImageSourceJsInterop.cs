@@ -9,7 +9,7 @@ namespace ImageMapper.RazorLib.Interops
     /// </summary>
     /// <param name="jsRuntime">The JavaScript runtime instance used for invoking JavaScript functions.</param>
     /// <param name="imageService">The image service used for retrieving image streams.</param>
-    internal sealed class ImageSourceJsInterop(IJSRuntime jsRuntime, IImageService imageService) : IAsyncDisposable
+    internal sealed class ImageSourceJsInterop(IJSRuntime jsRuntime, IImageService imageService, IEnumerable<IImageConverter> converters) : IAsyncDisposable
     {
         private readonly Lazy<Task<IJSObjectReference>> _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
                 "import", $"{Constants.LibContentBase}/Interops/ImageSource.js").AsTask());
@@ -23,13 +23,36 @@ namespace ImageMapper.RazorLib.Interops
         /// <returns>A ValueTask representing the asynchronous operation.</returns>
         public async ValueTask SetImageSource(ImageInfo imageInfo, string elementId)
         {
-            var imageStream = imageService.GetImageStream(imageInfo.Id);
+            Stream? imageStream = imageService.GetImageStream(imageInfo.Id);
             if (imageStream == null)
                 return;
 
-            var module = await _moduleTask.Value;
-            var streamRef = new DotNetStreamReference(imageStream);
-            await module.InvokeVoidAsync("setImageSource", elementId, streamRef, imageInfo.ContentType, imageInfo.FileName);
+            var contentType = imageInfo.ContentType;
+            var fileName = imageInfo.FileName;
+
+            try
+            {
+                var converter = converters.FirstOrDefault(c => c.CanConvert(contentType, fileName));
+                if (converter != null)
+                {
+                    var converted = await converter.ConvertToJpegAsync(imageStream);
+                    await imageStream.DisposeAsync();
+                    imageStream = converted;
+                    contentType = "image/jpeg";
+                    fileName = Path.ChangeExtension(fileName, ".jpg");
+                }
+
+                var module = await _moduleTask.Value;
+                // DotNetStreamReference disposes the stream once the browser has finished reading it
+                var streamRef = new DotNetStreamReference(imageStream);
+                imageStream = null;
+                await module.InvokeVoidAsync("setImageSource", elementId, streamRef, contentType, fileName);
+            }
+            finally
+            {
+                if (imageStream != null)
+                    await imageStream.DisposeAsync();
+            }
         }
 
         /// <summary>
