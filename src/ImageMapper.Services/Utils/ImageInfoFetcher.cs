@@ -14,7 +14,8 @@ namespace ImageMapper.Services.Utils
         IConfiguration config,
         IMemoryCache cache,
         CacheSignal<ImageInfo> cacheSignal,
-        ICacheActivityStatus cacheActivityStatus) : IImageInfoFetcher
+        ICacheActivityStatus cacheActivityStatus,
+        IImageCacheNotifier imageCacheNotifier) : IImageInfoFetcher
     {
         /// <summary>
         /// Fetches a list of all image files from the configured folders
@@ -67,6 +68,7 @@ namespace ImageMapper.Services.Utils
                     if (imageInfo != null)
                     {
                         cache.Set(imageFile.Id, imageInfo);
+                        imageCacheNotifier.Publish(imageInfo);
                         imageCount++;
                     }
 

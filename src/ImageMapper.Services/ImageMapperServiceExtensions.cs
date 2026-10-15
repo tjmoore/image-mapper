@@ -16,6 +16,7 @@ namespace ImageMapper.Services
             services
                 .AddMemoryCache()
                 .AddSingleton<ICacheActivityStatus, CacheActivityStatus>()
+                .AddSingleton<IImageCacheNotifier, ImageCacheNotifier>()
                 .AddSingleton(typeof(CacheSignal<>))
                 .AddTransient<IImageInfoFetcher, ImageInfoFetcher>()
                 .AddScoped<IImageService, ImageService>()
