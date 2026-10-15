@@ -5,6 +5,7 @@ namespace ImageMapper.RazorLib.Components
     public sealed partial class ImageMap
     {
         private readonly CancellationTokenSource _cts = new();
+        private readonly HashSet<string> _seenImageIds = [];
         private int _totalImages = 0;
         private int _skippedImages = 0;
         private int _imagesLoaded = 0;
@@ -17,10 +18,17 @@ namespace ImageMapper.RazorLib.Components
         {
             if (firstRender)
             {
+                // Subscribe before the snapshot so no image cached in between is missed; duplicates are filtered by ID
+                var newImages = ImageService.SubscribeToNewImagesAsync(_cts.Token);
+
                 _ = ConsumeCacheStatusStreamAsync(_cts.Token);
 
                 // Fetch total image count
                 _totalImages = ImageService.GetImageCount();
+                if (_totalImages == 0)
+                {
+                    _totalImages = CacheStatus.GetStatus().TotalFileCount;
+                }
 
                 // Show progress container if there are images
                 if (_totalImages > 0)
@@ -44,41 +52,75 @@ namespace ImageMapper.RazorLib.Components
                 int batchCount = 0;
                 await foreach (ImageInfo? image in ImageService.GetImagesAsync(_cts.Token))
                 {
-                    // Skips images that are null or have invalid data, or have no geolocation information as there's nothing to plot on the map
-                    if (image == null || string.IsNullOrWhiteSpace(image.Id) || string.IsNullOrWhiteSpace(image.FileName) ||
-                        image.Latitude == 0 || image.Longitude == 0)
-                    {
-                        _skippedImages++;
-                        continue;
-                    }
-
-                    // Add marker to the map with existing image detail and URL to the raw image
-                    await MapModule.AddMarkerToMap(image);
-
-                    _imagesLoaded++;
-                    batchCount++;
-
-                    // Update progress bar
-                    if (_totalImages > 0)
-                    {
-                        _progressPercentage = (int)((_imagesLoaded * 100) / _totalImages);
-                        await ProgressModule.SetProgressBarWidth(_progressPercentage);
-                    }
-
-                    if (batchCount % batchSize == 0)
+                    if (await TryAddImageAsync(image) && ++batchCount % batchSize == 0)
                     {
                         await InvokeAsync(StateHasChanged);
                     }
                 }
 
-                // Hide progress container when done
                 _isProgressVisible = false;
                 _isImageCountVisible = _imagesLoaded > 0;
-
-                // Final update to ensure UI is synchronized
                 await InvokeAsync(StateHasChanged);
                 await MapModule.AdjustMapLayout();
+
+                await ConsumeNewImagesAsync(newImages, _cts.Token);
             }
+        }
+
+        private async Task ConsumeNewImagesAsync(IAsyncEnumerable<ImageInfo> newImages, CancellationToken ct)
+        {
+            int pending = 0;
+            try
+            {
+                await foreach (ImageInfo image in newImages.WithCancellation(ct))
+                {
+                    if (await TryAddImageAsync(image))
+                    {
+                        _isImageCountVisible = true;
+                        pending++;
+                    }
+
+                    // Throttle re-renders while images stream in
+                    if (pending >= 25)
+                    {
+                        pending = 0;
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Plots the image if it is new and has valid geolocation data
+        /// </summary>
+        /// <returns>True if a marker was added</returns>
+        private async Task<bool> TryAddImageAsync(ImageInfo? image)
+        {
+            if (image == null || string.IsNullOrWhiteSpace(image.Id) || !_seenImageIds.Add(image.Id))
+            {
+                return false;
+            }
+
+            // Skips images with invalid data or no geolocation information as there's nothing to plot on the map
+            if (string.IsNullOrWhiteSpace(image.FileName) || image.Latitude == 0 || image.Longitude == 0)
+            {
+                _skippedImages++;
+                return false;
+            }
+
+            await MapModule.AddMarkerToMap(image);
+            _imagesLoaded++;
+
+            if (_isProgressVisible && _totalImages > 0)
+            {
+                _progressPercentage = (int)((_imagesLoaded * 100) / _totalImages);
+                await ProgressModule.SetProgressBarWidth(_progressPercentage);
+            }
+
+            return true;
         }
 
         private async Task ConsumeCacheStatusStreamAsync(CancellationToken ct)

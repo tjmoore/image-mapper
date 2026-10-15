@@ -2,7 +2,6 @@
 
 ## UI
 
-- Show file further detail in info panel such as camera model, settings, date taken, etc
 - Show small round thumbnail of image on map instead of just a pin
 - Responsive design enhancements where required across different screen sizes, including mobile devices
 - Filtering, search etc
@@ -14,7 +13,6 @@
 ## Backend
 
 - Indexing / caching of image metadata
-	- Update map while cache updates instead of needing to refresh the page
 	- Detect folder/file changes instead of recaching on schedule
 - Support for folder patterns in image folder config and/or folder exclusion
 - Configurability in UI for folder selection, map tile provider, etc. Needs persistence when running in a container.

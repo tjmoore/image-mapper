@@ -1,11 +1,20 @@
+using ImageMapper.Services.Caching;
 using ImageMapper.Services.Models;
 using ImageMapper.Services.Utils;
 using System.Runtime.CompilerServices;
 
 namespace ImageMapper.Services;
 
-public sealed class ImageService(IImageInfoFetcher imageInfoFetcher) : IImageService
+public sealed class ImageService(IImageInfoFetcher imageInfoFetcher, IImageCacheNotifier imageCacheNotifier) : IImageService
 {
+    /// <summary>
+    /// Subscribes to images as they are added to the cache. Only images cached after subscribing are returned.
+    /// </summary>
+    /// <param name="ct">A cancellation token that ends the subscription</param>
+    /// <returns>An asynchronous sequence of newly cached images</returns>
+    public IAsyncEnumerable<ImageInfo> SubscribeToNewImagesAsync(CancellationToken ct = default) =>
+        imageCacheNotifier.Subscribe(ct);
+
     /// <summary>
     /// Asynchronously retrieves a sequence of image information
     /// </summary>

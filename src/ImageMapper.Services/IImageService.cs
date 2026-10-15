@@ -13,6 +13,13 @@ public interface IImageService
     IAsyncEnumerable<ImageInfo> GetImagesAsync(CancellationToken ct = default);
 
     /// <summary>
+    /// Subscribes to images as they are added to the cache. Only images cached after subscribing are returned.
+    /// </summary>
+    /// <param name="ct">A cancellation token that ends the subscription</param>
+    /// <returns>An asynchronous sequence of newly cached images</returns>
+    IAsyncEnumerable<ImageInfo> SubscribeToNewImagesAsync(CancellationToken ct = default);
+
+    /// <summary>
     /// Gets a read-only stream for the specified image file ID. The caller is responsible for disposing the stream.
     /// </summary>
     /// <remarks>The image ID is a unique identifier generated from the image's full path.
