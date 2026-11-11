@@ -42,7 +42,7 @@ public class ImageCacheNotifierTest
         cts.CancelAfter(50);
 
         // Act / Assert
-        Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
         {
             await foreach (var _ in stream) { }
         });
