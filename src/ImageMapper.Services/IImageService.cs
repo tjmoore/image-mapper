@@ -26,18 +26,19 @@ public interface IImageService
     /// This prevents the frontend from accessing file system paths.</remarks>
     /// <param name="id">The unique image ID</param>
     /// <returns>A read-only stream of the image file, or null if the file does not exist</returns>
-    Stream? GetImageStream(string id);
+    Task<Stream?> GetImageStreamAsync(string id, CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves the image information for the specified image ID.
     /// </summary>
     /// <param name="id">The unique image ID</param>
     /// <returns>The image information if available; otherwise, null</returns>
-    ImageInfo? GetImageInfo(string id);
+    Task<ImageInfo?> GetImageInfoAsync(string id, CancellationToken ct = default);
 
     /// <summary>
     /// Retrieves the count of processed image files
     /// </summary>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation</param>
     /// <returns>The count of processed image files</returns>
-    int GetImageCount();
+    Task<int> GetImageCountAsync(CancellationToken ct = default);
 }

@@ -14,7 +14,12 @@ builder.AddDockerComposeEnvironment("compose")
         AddComposeEnvFileEntries(envFile, composeDefaults);
     });
 
-var webApp = builder.AddProject<Projects.ImageMapper_Web>("imagemapper-web");
+var redis = builder.AddRedis("cache")
+    .WithDataVolume();
+
+var webApp = builder.AddProject<Projects.ImageMapper_Web>("imagemapper-web")
+    .WithReference(redis)
+    .WaitFor(redis);
 
 if (isPublishMode)
 {

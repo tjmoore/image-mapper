@@ -24,7 +24,7 @@ namespace ImageMapper.RazorLib.Components
                 _ = ConsumeCacheStatusStreamAsync(_cts.Token);
 
                 // Fetch total image count
-                _totalImages = ImageService.GetImageCount();
+                _totalImages = await ImageService.GetImageCountAsync(_cts.Token);
                 if (_totalImages == 0)
                 {
                     _totalImages = CacheStatus.GetStatus().TotalFileCount;

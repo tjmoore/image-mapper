@@ -1,4 +1,4 @@
-﻿using ImageMapper.Services.Models;
+using ImageMapper.Services.Models;
 using ImageMapper.Services;
 using Microsoft.JSInterop;
 
@@ -23,7 +23,7 @@ namespace ImageMapper.RazorLib.Interops
         /// <returns>A ValueTask representing the asynchronous operation.</returns>
         public async ValueTask SetImageSource(ImageInfo imageInfo, string elementId)
         {
-            Stream? imageStream = imageService.GetImageStream(imageInfo.Id);
+            Stream? imageStream = await imageService.GetImageStreamAsync(imageInfo.Id);
             if (imageStream == null)
                 return;
 
