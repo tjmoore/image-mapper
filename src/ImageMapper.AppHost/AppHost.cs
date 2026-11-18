@@ -17,7 +17,7 @@ builder.AddDockerComposeEnvironment("compose")
 var redis = builder.AddRedis("cache")
     .WithDataVolume();
 
-var webApp = builder.AddProject<Projects.ImageMapper_Web>("imagemapper-web")
+var webApp = builder.AddDotnetProject("imagemapper-web", "../ImageMapper.Web/ImageMapper.Web.csproj")
     .WithReference(redis)
     .WaitFor(redis);
 
