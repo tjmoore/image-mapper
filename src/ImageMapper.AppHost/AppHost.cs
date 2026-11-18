@@ -14,12 +14,20 @@ builder.AddDockerComposeEnvironment("compose")
         AddComposeEnvFileEntries(envFile, composeDefaults);
     });
 
-var redis = builder.AddRedis("cache")
-    .WithDataVolume();
+var redisEnabled = builder.Configuration.GetValue<bool>("Redis:Enabled");
 
-var webApp = builder.AddDotnetProject("imagemapper-web", "../ImageMapper.Web/ImageMapper.Web.csproj")
-    .WithReference(redis)
-    .WaitFor(redis);
+var webApp = builder.AddDotnetProject("imagemapper-web", "../ImageMapper.Web/ImageMapper.Web.csproj");
+
+if (redisEnabled)
+{
+    var redis = builder.AddRedis("cache")
+        .WithDataVolume();
+
+    webApp
+        .WithReference(redis)
+        .WaitFor(redis)
+        .WithEnvironment("Redis__Enabled", "true");
+}
 
 if (isPublishMode)
 {
