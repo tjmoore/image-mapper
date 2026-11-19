@@ -39,6 +39,13 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(opts => opts.Level 
 builder.Services.Configure<GzipCompressionProviderOptions>(opts => opts.Level = CompressionLevel.Fastest);
 
 // Add ImageMapper services and Razor library to the DI container
+// Redis (provided by Aspire) is the persistent second level of the HybridCache; without it the cache is in-memory only
+if (builder.Configuration.GetValue<bool>("Redis:Enabled")
+    && !string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString("cache")))
+{
+    builder.AddRedisDistributedCache("cache");
+}
+
 builder.Services.AddImageMapperServices();
 builder.Services.AddImageMapperRazorLib();
 

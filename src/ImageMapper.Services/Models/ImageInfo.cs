@@ -12,6 +12,7 @@ namespace ImageMapper.Services.Models;
 /// <param name="Created">The creation date and time of the file</param>
 /// <param name="ContentType">The MIME type of the file</param>
 /// <param name="Url">The URL to access the file if applicable</param>
+/// <param name="FileSize">The file size in bytes, used with the last modified time to detect changes</param>
 public record BasicFileInfo(
     string Id,
     string FileName,
@@ -19,7 +20,8 @@ public record BasicFileInfo(
     DateTimeOffset LastModified,
     DateTimeOffset Created,
     string ContentType,
-    string Url = "");
+    string Url = "",
+    long FileSize = 0);
 
 /// <summary>
 /// Represents information about an image, including its unique identifier, file name, and geographical coordinates (latitude and longitude).
@@ -77,9 +79,10 @@ public record ImageInfo(
     /// <param name="iso">The ISO speed rating, null if unavailable</param>
     /// <param name="focalLength">The focal length, empty if unavailable</param>
     /// <param name="flashFired">Whether the flash fired, null if unavailable</param>
+    /// <param name="fileSize">The file size in bytes</param>
     [JsonConstructor]
-    public ImageInfo(string id, string fileName, string filePath, int width, int height, double latitude, double longitude, DateTimeOffset lastModified, DateTimeOffset created, string contentType, DateTimeOffset dateTimeOriginal, string url = "", string timeZoneOffset = "", string cameraMaker = "", string cameraModel = "", string aperture = "", string shutterSpeed = "", int? iso = null, string focalLength = "", bool? flashFired = null)
-        : this(new BasicFileInfo(id, fileName, filePath, lastModified, created, contentType, url), width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel, aperture, shutterSpeed, iso, focalLength, flashFired)
+    public ImageInfo(string id, string fileName, string filePath, int width, int height, double latitude, double longitude, DateTimeOffset lastModified, DateTimeOffset created, string contentType, DateTimeOffset dateTimeOriginal, string url = "", string timeZoneOffset = "", string cameraMaker = "", string cameraModel = "", string aperture = "", string shutterSpeed = "", int? iso = null,     string focalLength = "", bool? flashFired = null, long fileSize = 0)
+            : this(new BasicFileInfo(id, fileName, filePath, lastModified, created, contentType, url, fileSize), width, height, latitude, longitude, dateTimeOriginal, timeZoneOffset, cameraMaker, cameraModel, aperture, shutterSpeed, iso, focalLength, flashFired)
     {
     }
 
@@ -89,7 +92,7 @@ public record ImageInfo(
     /// <param name="imageInfo">The existing <see cref="ImageInfo"/> instance</param>
     /// <param name="url">The new URL to associate with the image</param>
     public ImageInfo(ImageInfo imageInfo, string url)
-        : this(new BasicFileInfo(imageInfo.Id, imageInfo.FileName, imageInfo.FilePath, imageInfo.LastModified, imageInfo.Created, imageInfo.ContentType, url), imageInfo.Width, imageInfo.Height, imageInfo.Latitude, imageInfo.Longitude, imageInfo.DateTimeOriginal, imageInfo.TimeZoneOffset, imageInfo.CameraMaker, imageInfo.CameraModel, imageInfo.Aperture, imageInfo.ShutterSpeed, imageInfo.Iso, imageInfo.FocalLength, imageInfo.FlashFired)
+        : this(new BasicFileInfo(imageInfo.Id, imageInfo.FileName, imageInfo.FilePath, imageInfo.LastModified, imageInfo.Created, imageInfo.ContentType, url, imageInfo.FileSize), imageInfo.Width, imageInfo.Height, imageInfo.Latitude, imageInfo.Longitude, imageInfo.DateTimeOriginal, imageInfo.TimeZoneOffset, imageInfo.CameraMaker, imageInfo.CameraModel, imageInfo.Aperture, imageInfo.ShutterSpeed, imageInfo.Iso, imageInfo.FocalLength, imageInfo.FlashFired)
     {
     }
 }

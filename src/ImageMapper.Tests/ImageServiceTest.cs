@@ -2,7 +2,6 @@ using ImageMapper.Services;
 using ImageMapper.Services.Caching;
 using ImageMapper.Services.Models;
 using ImageMapper.Services.Utils;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -59,7 +58,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();
@@ -81,7 +80,7 @@ namespace ImageMapper.Tests
             Assert.That(testImageId, Is.Not.Empty.And.Not.WhiteSpace, "Image ID should not be empty or whitespace");
 
             // Act
-            using var stream = service.GetImageStream(testImageId);
+            using var stream = await service.GetImageStreamAsync(testImageId);
 
             // Assert
             Assert.That(stream, Is.Not.Null);
@@ -100,7 +99,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();
@@ -110,7 +109,7 @@ namespace ImageMapper.Tests
             await fetcher.ProcessImagesAsync(CancellationToken.None);
 
             // Act - use a fake ID that doesn't exist
-            using var stream = service.GetImageStream("nonexistent-id-12345");
+            using var stream = await service.GetImageStreamAsync("nonexistent-id-12345");
 
             // Assert
             Assert.That(stream, Is.Null);
@@ -126,7 +125,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();
@@ -148,7 +147,7 @@ namespace ImageMapper.Tests
             Assert.That(imageId, Is.Not.Empty.And.Not.WhiteSpace, "Image ID should not be empty or whitespace");
 
             // Act
-            using var stream = service.GetImageStream(imageId);
+            using var stream = await service.GetImageStreamAsync(imageId);
 
             // Assert
             Assert.That(stream, Is.Not.Null);
@@ -165,7 +164,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();
@@ -196,7 +195,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", Path.Combine(_testImagesDirectory, "nonexistent"))])
                 .Build();
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();
@@ -224,7 +223,7 @@ namespace ImageMapper.Tests
                 .AddInMemoryCollection([new("ImageFolders:0", _testImagesDirectory)])
                 .Build();
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();
@@ -261,7 +260,7 @@ namespace ImageMapper.Tests
             var nonImagePath = Path.Combine(_testImagesDirectory, "readme.txt");
             File.WriteAllText(nonImagePath, "This is not an image");
 
-            var cache = new MemoryCache(new MemoryCacheOptions());
+            var cache = TestCaches.Create();
             var cacheSignal = new CacheSignal<ImageInfo>();
             var cacheActivityStatus = new CacheActivityStatus();
             var notifier = new ImageCacheNotifier();

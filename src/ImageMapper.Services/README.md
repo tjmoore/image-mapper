@@ -61,6 +61,17 @@ builder.Services.AddImageMapperServices();
 
 `AddImageMapperServices()` is an extension method that adds the required services to the DI container, including a worker service
 
+### Caching and persistence
+
+Image metadata is cached using `HybridCache` (in-memory, with an optional distributed second level). To persist the cache across restarts, register an `IDistributedCache` such as Redis **before** calling `AddImageMapperServices()`:
+
+```csharp
+builder.Services.AddStackExchangeRedisCache(o => o.Configuration = "localhost:6379");
+builder.Services.AddImageMapperServices();
+```
+
+Without a distributed cache the cache is in-memory only. On start up the worker loads any previously cached images first, then scans the folders and only re-reads files that are new or whose last modified time or size has changed. Entries for deleted files are removed.
+
 
 To fetch a list of images as they are processed, call `GetImagesAsync()` from an instance of `IImageService` to retrieve the list of images with metadata.
 This is an async enumerable, so you can iterate over the results as they are processed.
@@ -78,12 +89,12 @@ public async Task FetchAndProcessImagesAsync(IImageService imageService)
 }
 ```
 
-To get a stream of the image for a specific image, call `GetImageStream(string id)` from an instance of `IImageService` using the ID of the image:
+To get a stream of the image for a specific image, call `GetImageStreamAsync(string id)` from an instance of `IImageService` using the ID of the image:
 
 ```csharp
 public async Task FetchImageStreamAsync(IImageService imageService, string id)
 {
-	using Stream? imageStream = imageService.GetImageStream(id);
+	using Stream? imageStream = await imageService.GetImageStreamAsync(id);
 	if (imageStream != null)
 	{
 		// Process stream as needed, for example read into a byte array
@@ -96,9 +107,9 @@ public async Task FetchImageStreamAsync(IImageService imageService, string id)
 }
 ```
 
-You can get a count of available images with `GetImageCount()`:
+You can get a count of available images with `GetImageCountAsync()`:
 ```csharp
-public int GetImageCount(IImageService imageService) => imageService.GetImageCount();
+public Task<int> GetImageCountAsync(IImageService imageService) => imageService.GetImageCountAsync();
 ```
 
 As images are processed in the background and cached, the cache status can be checked through `CacheActivityStatus`:

@@ -37,6 +37,7 @@ Key dependencies used in this project include:
 
 - ImageMapper.AppHost - .NET Aspire orchestrator to run and debug in a development environment
 - ImageMapper.ServiceDefaults - Extensions for .NET Aspire support including service discovery, health checks and telemetry
+- Redis - Optional. Set `Redis:Enabled` to `true` in the AppHost `appsettings.json` (default `false`) and AppHost provisions Redis (with a data volume) as the persistent second level of the image metadata cache, so cached data survives restarts and unchanged images are not reprocessed
 
 ## Running sample development environment
 

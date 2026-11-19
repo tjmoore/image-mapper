@@ -23,16 +23,16 @@ public sealed class ImageService(IImageInfoFetcher imageInfoFetcher, IImageCache
     /// <returns>An asynchronous sequence of <see cref="ImageInfo"/> objects representing the retrieved images</returns>
     public async IAsyncEnumerable<ImageInfo> GetImagesAsync([EnumeratorCancellation] CancellationToken ct = default)
     {
-        IEnumerable<BasicFileInfo> imageFiles = imageInfoFetcher.GetImageFiles();
+        IReadOnlyList<BasicFileInfo> imageFiles = await imageInfoFetcher.GetImageFilesAsync(ct);
 
-        if (!imageFiles.Any())
+        if (imageFiles.Count == 0)
             yield break;
 
         foreach (BasicFileInfo file in imageFiles)
         {
             ct.ThrowIfCancellationRequested();
 
-            var image = imageInfoFetcher.GetImageInfo(file.Id);
+            var image = await imageInfoFetcher.GetImageInfoAsync(file.Id, ct);
             if (image != null)
                 yield return image;
         }
@@ -43,9 +43,9 @@ public sealed class ImageService(IImageInfoFetcher imageInfoFetcher, IImageCache
     /// </summary>
     /// <param name="id">The unique image ID</param>
     /// <returns>A read-only stream of the image file, or null if the file does not exist</returns>
-    public Stream? GetImageStream(string id)
+    public async Task<Stream?> GetImageStreamAsync(string id, CancellationToken ct = default)
     {
-        var image = imageInfoFetcher.GetImageInfo(id);
+        var image = await imageInfoFetcher.GetImageInfoAsync(id, ct);
 
         if (image != null)
         {
@@ -60,11 +60,12 @@ public sealed class ImageService(IImageInfoFetcher imageInfoFetcher, IImageCache
     /// </summary>
     /// <param name="id">The unique image ID</param>
     /// <returns>The image information if available; otherwise, null</returns>
-    public ImageInfo? GetImageInfo(string id) => imageInfoFetcher.GetImageInfo(id);
+    public Task<ImageInfo?> GetImageInfoAsync(string id, CancellationToken ct = default) => imageInfoFetcher.GetImageInfoAsync(id, ct);
 
     /// <summary>
     /// Retrieves the count of processed image files.
     /// </summary>
+    /// <param name="ct">A cancellation token that can be used to cancel the operation</param>
     /// <returns>The count of processed image files.</returns>
-    public int GetImageCount() => imageInfoFetcher.GetImageCount();
+    public Task<int> GetImageCountAsync(CancellationToken ct = default) => imageInfoFetcher.GetImageCountAsync(ct);
 }

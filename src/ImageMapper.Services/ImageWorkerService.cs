@@ -1,4 +1,4 @@
-﻿using ImageMapper.Services.Utils;
+using ImageMapper.Services.Utils;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -28,6 +28,21 @@ namespace ImageMapper.Services
         /// <returns>A task that represents the asynchronous operation</returns>
         protected override async Task ExecuteAsync(CancellationToken ct)
         {
+            try
+            {
+                // Serve previously cached (and persisted) data before scanning the folders for changes
+                await imageInfoFetcher.LoadFromCacheAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Warning("Cancellation acknowledged: shutting down");
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error occurred while loading images from cache");
+            }
+
             while (!ct.IsCancellationRequested)
             {
                 Log.Information("Processing images...");

@@ -1,4 +1,4 @@
-﻿using ImageMapper.Services.Caching;
+using ImageMapper.Services.Caching;
 using ImageMapper.Services.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,8 +13,9 @@ namespace ImageMapper.Services
         /// <returns>The updated IServiceCollection.</returns>
         public static IServiceCollection AddImageMapperServices(this IServiceCollection services)
         {
+            services.AddHybridCache();
+
             services
-                .AddMemoryCache()
                 .AddSingleton<ICacheActivityStatus, CacheActivityStatus>()
                 .AddSingleton<IImageCacheNotifier, ImageCacheNotifier>()
                 .AddSingleton(typeof(CacheSignal<>))
