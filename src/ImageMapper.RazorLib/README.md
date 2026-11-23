@@ -50,6 +50,8 @@ This is generally used in development and/or when not deploying a container.
 }
 ```
 
+Entries may also be glob patterns (`*`, `?` within a folder name, `**` for any depth), e.g. `/photos/*/2024`.
+
 ## Usage
 
 The `ImageMapper.RazorLib` library provides a Razor component that can be used to display images on a map, by adding a reference to the project or NuGet package, and adding the services to the DI container in `Program.cs`:

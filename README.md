@@ -93,6 +93,8 @@ This is generally used in development and/or when not deploying a container.
 }
 ```
 
+Entries may also be glob patterns: `*` and `?` match within a single folder name, and `**` matches any depth (e.g. `/photos/*/2024`, `/photos/**/trips`). Non-matching patterns are ignored.
+
 ## Usage
 
 - `ImageMapper.RazorLib` - See [ImageMapper.RazorLib/README.md](src/ImageMapper.RazorLib/README.md) for usage of the Razor components
