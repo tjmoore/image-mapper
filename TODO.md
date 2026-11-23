@@ -14,7 +14,6 @@
 
 - Indexing / caching of image metadata
 	- Detect folder/file changes instead of recaching on schedule
-- Support for folder patterns in image folder config and/or folder exclusion
 - Configurability in UI for folder selection, map tile provider, etc. Needs persistence when running in a container.
 - Error handling and logging improvements as required
 - Support for varied image sources other than file folders, e.g. cloud storage, photo management software, etc.

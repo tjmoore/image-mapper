@@ -45,6 +45,8 @@ This is generally used in development and/or when not deploying a container.
 }
 ```
 
+Entries may also be glob patterns (`*`, `?` within a folder name, `**` for any depth), e.g. `/photos/*/2024`.
+
 ## Usage
 
 `ImageMapper.RazorLib` provides Razor components to render image on a map as processed by the services here. See [ImageMapper.RazorLib/README.md](src/ImageMapper.RazorLib/README.md).

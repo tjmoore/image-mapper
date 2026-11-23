@@ -35,7 +35,8 @@ namespace ImageMapper.Services.Utils
             return folders
                 .Where(folder => Directory.Exists(folder))
                 .SelectMany(folder => Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories))
-                .Where(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()));
+                .Where(f => ValidExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+                .Distinct();
         }
 
         /// <summary>
@@ -56,8 +57,67 @@ namespace ImageMapper.Services.Utils
         public static string[]? ResolveImageFolders(IConfiguration config) => config.GetSection("ImageFolders")
             .Get<string[]>()?
             .Where(folder => !string.IsNullOrWhiteSpace(folder) && folder != "IGNORE")
-            .Where(folder => Directory.Exists(folder))
+            .SelectMany(ExpandFolderPattern)
+            .Distinct()
             .ToArray();
+
+        /// <summary>
+        /// Expands a folder path that may contain glob patterns (<c>*</c>, <c>?</c> within a segment, or <c>**</c> for any depth)
+        /// into the existing folders it matches. A path without wildcards is returned if it exists.
+        /// </summary>
+        /// <param name="pattern">A folder path or pattern</param>
+        /// <returns>The matching existing folders</returns>
+        public static IEnumerable<string> ExpandFolderPattern(string pattern)
+        {
+            if (pattern.IndexOfAny(['*', '?']) < 0)
+            {
+                return Directory.Exists(pattern) ? [pattern] : [];
+            }
+
+            var segments = pattern.Split(['\\', '/'], StringSplitOptions.RemoveEmptyEntries);
+            var firstWildcard = Array.FindIndex(segments, s => s.IndexOfAny(['*', '?']) >= 0);
+
+            var root = string.Join(Path.DirectorySeparatorChar, segments.Take(firstWildcard));
+            if (pattern.StartsWith(@"\\") || pattern.StartsWith("//"))
+            {
+                root = new string(Path.DirectorySeparatorChar, 2) + root;
+            }
+            else if (pattern.StartsWith('/') || pattern.StartsWith('\\'))
+            {
+                root = Path.DirectorySeparatorChar + root;
+            }
+            else if (firstWildcard == 0)
+            {
+                root = ".";
+            }
+            else if (firstWildcard == 1 && segments[0].EndsWith(':'))
+            {
+                root += Path.DirectorySeparatorChar;
+            }
+
+            List<string> current = Directory.Exists(root) ? [root] : [];
+            foreach (var segment in segments.Skip(firstWildcard))
+            {
+                current = [.. current.SelectMany(dir => ExpandSegment(dir, segment))];
+            }
+
+            return current;
+        }
+
+        private static List<string> ExpandSegment(string directory, string segment)
+        {
+            try
+            {
+                return segment == "**"
+                    ? [.. Directory.EnumerateDirectories(directory, "*", SearchOption.AllDirectories).Prepend(directory)]
+                    : [.. Directory.EnumerateDirectories(directory, segment)];
+            }
+            catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+            {
+                return [];
+
+            }
+        }
 
         /// <summary>
         /// Returns the content type (MIME type) for the specified file path based on its extension
